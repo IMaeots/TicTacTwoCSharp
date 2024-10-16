@@ -36,7 +36,7 @@ public class GameBrain
     
     public bool IsGameOver()
     {
-        return true;
+        return false; // TODO: implement
     }
 
     private EGamePiece[][] GetBoard()
