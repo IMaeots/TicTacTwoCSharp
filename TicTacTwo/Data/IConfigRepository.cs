@@ -1,6 +1,9 @@
-﻿namespace Data;
+﻿using GameBrain;
+
+namespace Data;
 
 public interface IConfigRepository
 {
-    // TODO
+    List<string> GetConfigurationNames();
+    GameConfiguration? GetConfigurationByName(string name);
 }

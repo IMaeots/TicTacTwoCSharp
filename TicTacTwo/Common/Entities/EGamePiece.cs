@@ -2,5 +2,7 @@ namespace Common.Entities;
 
 public enum EGamePiece
 {
-    // TODO
+    Empty,
+    X,
+    O
 }

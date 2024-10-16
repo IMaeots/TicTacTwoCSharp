@@ -1,2 +1,3 @@
-﻿
-Console.WriteLine("Hello, World!");
+﻿using ConsoleApp;
+
+Menus.HomeMenu.Run();
