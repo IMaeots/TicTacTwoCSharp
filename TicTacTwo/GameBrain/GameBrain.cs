@@ -10,9 +10,8 @@ public class GameBrain
     public int BoardDimY => _gameState.GameBoard[0].Length;
     public int GridSize => _gameState.GameConfiguration.GridSize;
     public EGamePiece NextMoveBy => _gameState.NextMoveBy;
-    public int GridX { get; private set; }
-    public int GridY { get; private set; }
-    private int MoveCount { get; set; }
+    public int GridX => _gameState.GridX;
+    public int GridY => _gameState.GridY;
 
     public GameBrain(GameConfiguration gameConfiguration)
     {
@@ -26,10 +25,6 @@ public class GameBrain
             gameBoard,
             gameConfiguration
         );
-
-        GridX = (gameConfiguration.BoardSize - gameConfiguration.GridSize) / 2;
-        GridY = (gameConfiguration.BoardSize - gameConfiguration.GridSize) / 2;
-        MoveCount = 0;
     }
 
     public string GetGameConfigName()
@@ -39,14 +34,10 @@ public class GameBrain
 
     public EGamePiece[][] GameBoard => GetBoard();
 
-    public bool IsGameOver()
+    public EGameOutcome CheckForGameEnd()
     {
-        return false;
-    }
-    
-    private EGamePiece[] GetColumn(int index)
-    {
-        return Enumerable.Range(0, BoardDimY).Select(y => GameBoard[index][y]).ToArray();
+        var gameOutcomeChecker = new GameOutcomeChecker(_gameState);
+        return gameOutcomeChecker.CheckGameOutcome();
     }
 
     private EGamePiece[][] GetBoard()
@@ -119,7 +110,7 @@ public class GameBrain
 
     public bool CanMoveGrid()
     {
-        return MoveCount / 2 >= _gameState.GameConfiguration.MoveGridAfterNMoves;
+        return _gameState.CanMoveGrid();
     }
 
     public bool MoveGrid(int newGridX, int newGridY)
@@ -132,8 +123,8 @@ public class GameBrain
             return false;
         }
 
-        GridX = newGridX;
-        GridY = newGridY;
+        _gameState.GridX = newGridX;
+        _gameState.GridY = newGridY;
 
         MoveMade();
         return true;
@@ -142,7 +133,7 @@ public class GameBrain
     private void MoveMade()
     {
         _gameState.NextMoveBy = _gameState.NextMoveBy == EGamePiece.Player1 ? EGamePiece.Player2 : EGamePiece.Player1;
-        MoveCount++;
+        _gameState.MoveCount++;
     }
 
     public void ResetGame()

@@ -12,14 +12,13 @@ public static class GameController
 
     public static void StartGame(GameConfiguration config)
     {
-        var isGameOver = false;
+        var gameOutcome = EGameOutcome.None;
         var gameInstance = new GameBrain.GameBrain(config);
         Console.CursorVisible = false;
         
         do
         {
             Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
-            isGameOver = gameInstance.IsGameOver();
             
             _action = EGameAction.PlaceMarker;
             var nextMoveBy = gameInstance.NextMoveBy;
@@ -101,9 +100,24 @@ public static class GameController
                 }
                 
                 Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
+                gameOutcome = gameInstance.CheckForGameEnd();
             }
-        } while (!isGameOver);
+        } while (gameOutcome == EGameOutcome.None);
         
+        switch (gameOutcome)
+        {
+            case EGameOutcome.Draw:
+                Console.WriteLine("It's a draw! Game ended in a draw because you both won.");
+                break;
+            case EGameOutcome.Player1Won:
+                Console.WriteLine("Player 1 wins!");
+                break;
+            case EGameOutcome.Player2Won:
+                Console.WriteLine("Player 2 wins!");
+                break;
+            case EGameOutcome.None:
+                throw new ApplicationException("GameOutcome None but Game ended.");
+        }
         Console.WriteLine("Game over! Press any key to go to the main menu.");
         Console.ReadKey();
         Menus.HomeMenu.Run();
@@ -121,7 +135,6 @@ public static class GameController
                 }
                 break;
             case EGameAction.MoveMarker:
-                // TODO: Check that the first picked marker is even the player's or empty - currently get stuck
                 HandleMarkerMovement(gameInstance);
                 break;
             case EGameAction.MoveGrid:
