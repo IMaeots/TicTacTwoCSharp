@@ -5,12 +5,14 @@ public record GameConfiguration(
     int WinCondition = 3,
     int BoardSize = 5,
     int GridSize = 3,
-    int MoveGridAfterNMoves = 2
+    int MoveGridAfterNMoves = 2,
+    int NumberOfMarkers = 4
 )
 {
     public override string ToString() =>
         $"Board {BoardSize}x{BoardSize}, " +
         $"Grid {GridSize}x{GridSize}, " +
         $"to win: {WinCondition}, " +
+        $"number of Markers available per player: {NumberOfMarkers}, " +
         $"can move the grid after {MoveGridAfterNMoves} moves.";
 }

@@ -3,8 +3,8 @@
 public static class Constants
 {
     public const int MaxPlayers = 2;
-    public const char FirstPlayerSymbol = 'X';
-    public const char SecondPlayerSymbol = 'O';
+    public const string FirstPlayerSymbol = "X";
+    public const string SecondPlayerSymbol = "O";
         
     public const string ConfigFileExtension = ".config.json";
     public const string GameDataFileExtension = ".games.json";

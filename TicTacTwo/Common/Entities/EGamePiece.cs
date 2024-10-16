@@ -3,6 +3,6 @@ namespace Common.Entities;
 public enum EGamePiece
 {
     Empty,
-    X,
-    O
+    Player1,
+    Player2
 }
