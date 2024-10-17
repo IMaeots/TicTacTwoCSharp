@@ -49,18 +49,41 @@ public class GameOutcomeChecker(GameState gameState)
         return false;
     }
 
+    // TODO: Tweak out the crash cause & make it better like it was (except crash...)
     private bool IsWinningLine(int startX, int startY, EGamePiece player, CheckDirection direction)
     {
         for (var i = 0; i < _config.WinCondition; i++)
         {
-            var currentPiece = direction switch
+            var currentX = startX;
+            var currentY = startY;
+
+            switch (direction)
             {
-                CheckDirection.Vertical => _gameBoard[startX][startY + i],
-                CheckDirection.Horizontal => _gameBoard[startX + i][startY],
-                CheckDirection.DiagonalTopLeftToBottomRight => _gameBoard[startX + i][startY + i],
-                CheckDirection.DiagonalBottomLeftToTopRight => _gameBoard[startX + i][startY - i], // TODO: Crash in classical if 5th marker put on (1,1) spot... + got another crash.
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                case CheckDirection.Vertical:
+                    currentY += i;
+                    break;
+                case CheckDirection.Horizontal:
+                    currentX += i;
+                    break;
+                case CheckDirection.DiagonalTopLeftToBottomRight:
+                    currentX += i;
+                    currentY += i;
+                    break;
+                case CheckDirection.DiagonalBottomLeftToTopRight:
+                    currentX += i;
+                    currentY -= i;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            if (currentX < 0 || currentX >= _gameBoard.Length || 
+                currentY < 0 || currentY >= _gameBoard[0].Length)
+            {
+                return false;
+            }
+
+            var currentPiece = _gameBoard[currentX][currentY];
 
             if (currentPiece != player) return false;
         }
