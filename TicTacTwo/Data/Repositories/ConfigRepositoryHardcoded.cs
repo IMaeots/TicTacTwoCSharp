@@ -7,7 +7,7 @@ public class ConfigRepositoryHardcoded : IConfigRepository
     private readonly List<GameConfiguration> _gameConfigurations =
     [
         new GameConfiguration(Name: "Classical"),
-        new GameConfiguration(Name: "Big Board", WinCondition: 4, BoardSize: 10, GridSize: 4, MoveGridAfterNMoves: 4)
+        new GameConfiguration(Name: "Big Board", WinCondition: 4, BoardSize: 10, GridSize: 4, MoveGridAfterNMoves: 4),
     ];
 
     public List<string> GetConfigurationNames()
@@ -19,14 +19,14 @@ public class ConfigRepositoryHardcoded : IConfigRepository
     }
 
 
-    public GameConfiguration GetConfigurationByName(string name)
+    public GameConfiguration? GetConfigurationByName(string name)
     {
         var config = _gameConfigurations.SingleOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        if (config == null)
-        {
-            throw new ArgumentException($"Configuration with name '{{name}}' not found.");
-            
-        } 
         return config;
+    }
+
+    public void SaveConfig(GameConfiguration? newConfig)
+    {
+        if (newConfig != null) _gameConfigurations.Add(newConfig);
     }
 }

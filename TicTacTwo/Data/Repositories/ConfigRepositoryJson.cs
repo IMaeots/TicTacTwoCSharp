@@ -13,4 +13,9 @@ public class ConfigRepositoryJson : IConfigRepository
     {
         throw new NotImplementedException();
     }
+
+    public void SaveConfig(GameConfiguration? newConfig)
+    {
+        throw new NotImplementedException();
+    }
 }

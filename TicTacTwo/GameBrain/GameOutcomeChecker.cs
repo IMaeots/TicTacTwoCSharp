@@ -58,7 +58,7 @@ public class GameOutcomeChecker(GameState gameState)
                 CheckDirection.Vertical => _gameBoard[startX][startY + i],
                 CheckDirection.Horizontal => _gameBoard[startX + i][startY],
                 CheckDirection.DiagonalTopLeftToBottomRight => _gameBoard[startX + i][startY + i],
-                CheckDirection.DiagonalBottomLeftToTopRight => _gameBoard[startX + i][startY - i],
+                CheckDirection.DiagonalBottomLeftToTopRight => _gameBoard[startX + i][startY - i], // TODO: Crash in classical if 5th marker put on (1,1) spot... + got another crash.
                 _ => throw new ArgumentOutOfRangeException()
             };
 

@@ -1,3 +1,6 @@
 ﻿using ConsoleApp;
+using Data.Repositories;
 
-Menus.HomeMenu.Run();
+var menuSystem = new ConsoleMenuSystem(new ConfigRepositoryHardcoded());
+
+menuSystem.Run();

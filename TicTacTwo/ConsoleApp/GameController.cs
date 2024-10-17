@@ -1,6 +1,8 @@
+using Common;
 using Common.Entities;
 using ConsoleApp.ConsoleUI;
 using GameBrain;
+using MenuSystem;
 
 namespace ConsoleApp;
 
@@ -10,7 +12,7 @@ public static class GameController
     private static int _currentY = 0;
     private static EGameAction _action;
 
-    public static void StartGame(GameConfiguration config)
+    public static String StartGame(GameConfiguration config)
     {
         var gameOutcome = EGameOutcome.None;
         var gameInstance = new GameBrain.GameBrain(config);
@@ -57,7 +59,7 @@ public static class GameController
                             break;
                         case ConsoleKey.E:
                             Console.WriteLine("Goodbye!");
-                            return;
+                            return Constants.ExitShortcut;
                     }
                 }
             }
@@ -96,7 +98,7 @@ public static class GameController
                         break;
                     case ConsoleKey.E:
                         Console.WriteLine("Goodbye!");
-                        return;
+                        return Constants.ExitShortcut;
                 }
                 
                 Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
@@ -118,9 +120,10 @@ public static class GameController
             case EGameOutcome.None:
                 throw new ApplicationException("GameOutcome None but Game ended.");
         }
+        
         Console.WriteLine("Game over! Press any key to go to the main menu.");
         Console.ReadKey();
-        Menus.HomeMenu.Run();
+        return Constants.ReturnToMainTitle;
     }
 
     private static void ExecuteGameAction(GameBrain.GameBrain gameInstance)

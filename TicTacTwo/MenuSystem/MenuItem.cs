@@ -2,45 +2,33 @@ namespace MenuSystem;
 
 public class MenuItem
 {
-    private readonly string _title = default!;
-    private readonly string _shortcut = default!;
+    private string Title { get; }
+    public string Shortcut { get; }
+    public Func<string?>? MenuItemAction { get; set; }
     
-    public MenuItem(string title, string shortcut, Func<string>? action = null)
+    public MenuItem(string title, string shortcut, Func<string?>? action = null)
     {
+        ValidateMenuItemInitializationInput(title, shortcut);
+        
         Title = title;
         Shortcut = shortcut;
         MenuItemAction = action;
     }
 
-    public Func<string>? MenuItemAction { get; set; }
-
-    private string Title
+    private void ValidateMenuItemInitializationInput(string title, string shortcut)
     {
-        get => _title;
-        init
+        if (string.IsNullOrWhiteSpace(title))
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Title cannot be empty");
-            }
-            _title = value;
-        } 
-    }
-
-    public string Shortcut
-    {
-        get => _shortcut;
-        private init
+            throw new ArgumentException("Title cannot be empty");
+        }
+        
+        if (string.IsNullOrWhiteSpace(shortcut))
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Shortcut cannot be empty");
-            }
-            _shortcut = value;
+            throw new ArgumentException("Shortcut cannot be empty");
         }
     }
 
-    public string RunAction()
+    public string? RunAction()
     {
         if (MenuItemAction != null)
         {
