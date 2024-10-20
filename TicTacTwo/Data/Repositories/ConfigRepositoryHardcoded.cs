@@ -1,3 +1,4 @@
+using Common.Entities;
 using GameBrain;
 
 namespace Data.Repositories;
@@ -6,8 +7,8 @@ public class ConfigRepositoryHardcoded : IConfigRepository
 {
     private readonly List<GameConfiguration> _gameConfigurations =
     [
-        new GameConfiguration(Name: "Classical"),
-        new GameConfiguration(Name: "Big Board", WinCondition: 4, BoardSize: 10, GridSize: 4, MoveGridAfterNMoves: 4),
+        new (Name: "Classical"),
+        new (Name: "Big Board", WinCondition: 4, BoardWidth: 10, BoardHeight: 10, GridWidth: 4, GridHeight: 4, MoveGridAfterNMoves: 4, StartingPlayer: EGamePiece.Player2),
     ];
 
     public List<string> GetConfigurationNames()

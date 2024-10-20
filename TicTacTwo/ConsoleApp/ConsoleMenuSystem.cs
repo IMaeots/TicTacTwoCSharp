@@ -18,8 +18,10 @@ public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSys
         }
         
         var winCondition = GetValidIntInput("Enter the win condition (number of markers to win): ");
-        var boardSize = GetValidIntInput("Enter the board size (e.g., 5 for a 5x5 board): ");
-        var gridSize = GetValidIntInput("Enter the grid size (e.g., 3 for a 3x3 grid): ");
+        var boardWidth = GetValidIntInput("Enter the Board Width (x-axis): ");
+        var boardHeight = GetValidIntInput("Enter the Board Height (y-axis): ");
+        var gridWidth = GetValidIntInput("Enter the Grid Width (x-axis): ");
+        var gridHeight = GetValidIntInput("Enter the Grid Height (y-axis): ");
         var moveGridAfterNMoves = GetValidIntInput("Enter the number of moves by a player before they can move the grid: ");
         var numberOfMarkers = GetValidIntInput("Enter the number of markers available per player: ");
 
@@ -27,8 +29,10 @@ public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSys
         var conf = new GameConfiguration(
             Name: name,
             WinCondition: winCondition ?? 3,
-            BoardSize: boardSize ?? 5,
-            GridSize: gridSize ?? 3,
+            BoardWidth: boardWidth ?? 5,
+            BoardHeight: boardHeight ?? 5,
+            GridWidth: gridWidth ?? 3, // TODO: These should never be null maybe.
+            GridHeight: gridHeight ?? 3,
             MoveGridAfterNMoves: moveGridAfterNMoves ?? 2,
             NumberOfMarkers: numberOfMarkers ?? 4
         );

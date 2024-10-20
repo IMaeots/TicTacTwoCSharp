@@ -8,16 +8,19 @@ public static class Visualizer
     public static void DrawBoard(GameBrain.GameBrain gameInstance, int currentX, int currentY)
     {
         Console.Clear();
-
-        var gridSize = gameInstance.GridSize;
+        
+        var boardWidth = gameInstance.BoardWidth;
+        var boardHeight = gameInstance.BoardHeight;
+        var gridWidth = gameInstance.GridWidth;
+        var gridHeight = gameInstance.GridHeight;
         var gridX = gameInstance.GridX;
         var gridY = gameInstance.GridY;
         
-        for (var y = 0; y < gameInstance.BoardDimY; y++)
+        for (var y = 0; y < boardHeight; y++)
         {
-            for (var x = 0; x < gameInstance.BoardDimX; x++)
+            for (var x = 0; x < boardWidth; x++)
             {
-                if (x >= gridX && x < gridX + gridSize && y >= gridY && y < gridY + gridSize)
+                if (x >= gridX && x < gridX + gridWidth && y >= gridY && y < gridY + gridHeight)
                 {
                     Console.BackgroundColor = ConsoleColor.Blue;
                 }
@@ -30,19 +33,19 @@ public static class Visualizer
                 Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x][y]) + " ");
                 Console.ResetColor();
                 
-                if (x < gameInstance.BoardDimX - 1)
+                if (x < boardWidth - 1)
                 {
                     Console.Write("|");   
                 }
             }
             
             Console.WriteLine();
-            if (y < gameInstance.BoardDimY - 1)
+            if (y < boardHeight - 1)
             {
-                for (var x = 0; x < gameInstance.BoardDimX; x++)
+                for (var x = 0; x < boardWidth; x++)
                 {
                     Console.Write("---");
-                    if (x != gameInstance.BoardDimX - 1)
+                    if (x != boardWidth - 1)
                     {
                         Console.Write("+");
                     }

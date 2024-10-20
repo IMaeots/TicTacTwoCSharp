@@ -78,13 +78,13 @@ public static class GameController
                         _currentY = (_currentY > 0) ? _currentY - 1 : 0;
                         break;
                     case ConsoleKey.DownArrow:
-                        _currentY = (_currentY < gameInstance.BoardDimY - 1) ? _currentY + 1 : gameInstance.BoardDimY - 1;
+                        _currentY = (_currentY < gameInstance.BoardHeight - 1) ? _currentY + 1 : gameInstance.BoardHeight - 1;
                         break;
                     case ConsoleKey.LeftArrow:
                         _currentX = (_currentX > 0) ? _currentX - 1 : 0;
                         break;
                     case ConsoleKey.RightArrow:
-                        _currentX = (_currentX < gameInstance.BoardDimX - 1) ? _currentX + 1 : gameInstance.BoardDimX - 1;
+                        _currentX = (_currentX < gameInstance.BoardWidth - 1) ? _currentX + 1 : gameInstance.BoardWidth - 1;
                         break;
                     case ConsoleKey.Enter:
                         if (_action == EGameAction.MoveMarker && !gameInstance.CanMoveThatMarker(_currentX, _currentY))
@@ -162,13 +162,13 @@ public static class GameController
                     _currentY = (_currentY > 0) ? _currentY - 1 : 0;
                     break;
                 case ConsoleKey.DownArrow:
-                    _currentY = (_currentY < gameInstance.BoardDimY - 1) ? _currentY + 1 : gameInstance.BoardDimY - 1;
+                    _currentY = (_currentY < gameInstance.BoardHeight - 1) ? _currentY + 1 : gameInstance.BoardHeight - 1;
                     break;
                 case ConsoleKey.LeftArrow:
                     _currentX = (_currentX > 0) ? _currentX - 1 : 0;
                     break;
                 case ConsoleKey.RightArrow:
-                    _currentX = (_currentX < gameInstance.BoardDimX - 1) ? _currentX + 1 : gameInstance.BoardDimX - 1;
+                    _currentX = (_currentX < gameInstance.BoardWidth - 1) ? _currentX + 1 : gameInstance.BoardWidth - 1;
                     break;
                 case ConsoleKey.Enter:
                     if (!gameInstance.MoveMarker(oldX, oldY, _currentX, _currentY))

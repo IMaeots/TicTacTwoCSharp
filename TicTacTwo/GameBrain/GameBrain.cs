@@ -6,53 +6,29 @@ public class GameBrain
 {
     private readonly GameState _gameState;
     
-    public int BoardDimX => _gameState.GameBoard.Length;
-    public int BoardDimY => _gameState.GameBoard[0].Length;
-    public int GridSize => _gameState.GameConfiguration.GridSize;
+    public EGamePiece[][] GameBoard => _gameState.GameBoard;
+    public int BoardWidth => GameBoard.Length;
+    public int BoardHeight => GameBoard[0].Length;
+    public int GridWidth => _gameState.GameConfiguration.GridWidth;
+    public int GridHeight => _gameState.GameConfiguration.GridHeight;
     public EGamePiece NextMoveBy => _gameState.NextMoveBy;
     public int GridX => _gameState.GridX;
     public int GridY => _gameState.GridY;
 
     public GameBrain(GameConfiguration gameConfiguration)
     {
-        var gameBoard = new EGamePiece[gameConfiguration.BoardSize][];
-        for (var x = 0; x < gameBoard.Length; x++)
-        {
-            gameBoard[x] = new EGamePiece[gameConfiguration.BoardSize];
-        }
-
-        _gameState = new GameState(
-            gameBoard,
-            gameConfiguration
-        );
+        _gameState = new GameState(gameConfiguration);
     }
-
-    public string GetGameConfigName()
+    
+    public GameBrain(GameState gameState)
     {
-        return _gameState.GameConfiguration.Name;
+        _gameState = gameState;
     }
-
-    public EGamePiece[][] GameBoard => GetBoard();
 
     public EGameOutcome CheckForGameEnd()
     {
         var gameOutcomeChecker = new GameOutcomeChecker(_gameState);
         return gameOutcomeChecker.CheckGameOutcome();
-    }
-
-    private EGamePiece[][] GetBoard()
-    {
-        var copyOfBoard = new EGamePiece[_gameState.GameBoard.GetLength(0)][];
-        for (var x = 0; x < _gameState.GameBoard.Length; x++)
-        {
-            copyOfBoard[x] = new EGamePiece[_gameState.GameBoard[x].Length];
-            for (var y = 0; y < _gameState.GameBoard[x].Length; y++)
-            {
-                copyOfBoard[x][y] = _gameState.GameBoard[x][y];
-            }
-        }
-
-        return copyOfBoard;
     }
 
     public bool CanPlaceMarker()
@@ -115,10 +91,13 @@ public class GameBrain
 
     public bool MoveGrid(int newGridX, int newGridY)
     {
-        var gridSize = _gameState.GameConfiguration.GridSize;
-        var boardSize = _gameState.GameConfiguration.BoardSize;
+        var boardWidth = _gameState.GameConfiguration.BoardWidth;
+        var boardHeight = _gameState.GameConfiguration.BoardHeight;
+        var gridWidth = _gameState.GameConfiguration.GridWidth;
+        var gridHeight = _gameState.GameConfiguration.GridHeight;
         
-        if (newGridX < 0 || newGridX + gridSize > boardSize || newGridY < 0 || newGridY + gridSize > boardSize)
+        
+        if (newGridX < 0 || newGridX + gridWidth > boardWidth || newGridY < 0 || newGridY + gridHeight > boardHeight)
         {
             return false;
         }
@@ -135,16 +114,9 @@ public class GameBrain
         _gameState.NextMoveBy = _gameState.NextMoveBy == EGamePiece.Player1 ? EGamePiece.Player2 : EGamePiece.Player1;
         _gameState.MoveCount++;
     }
-
+    
     public void ResetGame()
     {
-        var boardSize = _gameState.GameConfiguration.BoardSize;
-        
-        _gameState.GameBoard = Enumerable
-            .Range(0, boardSize)
-            .Select(_ => new EGamePiece[boardSize])
-            .ToArray();
-        _gameState.NextMoveBy = EGamePiece.Player1;
-        _gameState.Player1MarkersPlaced = _gameState.Player2MarkersPlaced = 0;
+        _gameState.ResetGameBoard();
     }
 }

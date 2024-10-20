@@ -33,8 +33,8 @@ public class GameOutcomeChecker(GameState gameState)
 
     private bool CheckLines(EGamePiece player, CheckDirection direction)
     {
-        var xLimit = _gridX + _config.GridSize - 1;
-        var yLimit = _gridY + _config.GridSize - 1;
+        var xLimit = _gridX + _config.GridWidth - 1;
+        var yLimit = _gridY + _config.GridHeight - 1;
 
         for (var x = _gridX; x <= xLimit; x++)
         {
