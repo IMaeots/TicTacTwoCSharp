@@ -5,20 +5,14 @@ public static class Constants
     public const string GameName = "TIC-TAC-TWO";
     public const string FirstPlayerSymbol = "X";
     public const string SecondPlayerSymbol = "O";
-    public const int MaxPlayers = 2;
         
     public const string ConfigFileExtension = ".config.json";
     public const string GameDataFileExtension = ".games.json";
-    // TODO: Verify BasePath.
-    public static string BasePath = Environment
-                                        .GetFolderPath(Environment.SpecialFolder.UserProfile)
-                                    + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar; 
+    public static readonly string BasePath = Environment
+                                                 .GetFolderPath(Environment.SpecialFolder.UserProfile)
+                                             + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar; 
     
-    public const string GameOverMessage = "Game Over!";
-    public const string InvalidMoveMessage = "Invalid Move! Please try again.";
-    
-    public const string EmptyInputMessage =
-        "It would be nice, if you actually choose something!!! Try again... Maybe...";
+    public const string EmptyInputMessage = "It would be nice, if you actually choose something!!! Try again... Maybe...";
     public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
     public const string MenuDescriptionDivider = "---------------";
     public const string MenuDivider = "===============";
