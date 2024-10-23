@@ -47,6 +47,10 @@ public static class Constants
         "In addition, if there was a limit on game pieces ('NumberOfMarkers') then after reaching the limit you will be able to re-move your markers.\n" +
         "You can also configure the game to suit your preference!\n" +
         "\n" +
+        "How to Save the game: \n" +
+        "When playing, you have to reach the ability to choose between the 3 options (place marker, move marker, move grid). \n" +
+        "Then after making the option, Press \"S\" key to initate the game saving operation. Write a name -> Game is Saved! \n" +
+        "\n" +
         "Configuration Rules: \n" +
         "- Board Width and Height: Must be between 2 and 100. \n" +
         "- Grid Width and Height: Cannot exceed board dimensions and must be between 2 and 100. \n" +
