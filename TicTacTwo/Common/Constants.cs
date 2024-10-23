@@ -21,11 +21,12 @@ public static class Constants
     public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";
     public const string ConfirmExitText = "Are you sure you want to exit? (Y/N)";
-    public const string ConfirmExitSymbol = "Y";
+    public const string ConfirmSymbol = "Y";
     public const string ReturnTitle = "Return";
     public const string ReturnShortcut = "R";
     public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
+    public const string ConfirmSaveGameText = "Are you sure you want to save the game? (Y/N)";
     public const string MenuNewGameTitle = "New Game";
     public const string MenuNewGameShortcut = "N";
     public const string MenuSavedGamesTitle = "Saved Games";

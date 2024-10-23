@@ -35,7 +35,6 @@ public class ConsoleMenu(
                         return Constants.ExitShortcut;
                     }
                     break;
-                
                 case Constants.ReturnToMainShortcut:
                     if (MenuLevel != EMenuLevel.Primary)
                     {
@@ -98,6 +97,6 @@ public class ConsoleMenu(
         Console.WriteLine(Constants.ConfirmExitText);
         var confirm = Console.ReadLine();
         Console.Clear();
-        return confirm?.Trim().ToUpper() == Constants.ConfirmExitSymbol;
+        return confirm?.Trim().ToUpper() == Constants.ConfirmSymbol;
     }
 }

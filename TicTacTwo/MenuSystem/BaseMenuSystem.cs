@@ -8,22 +8,23 @@ namespace MenuSystem;
 public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
 {
     protected readonly IConfigRepository ConfigRepository;
+    protected readonly IGameRepository GameRepository;
     
     private readonly TMenu _homeMenu;
-    private readonly TMenu _savedGamesMenu;
     private readonly TMenu _rulesMenu;
+    
+    protected abstract string? StartGameWithConfig(string configName);
+    protected abstract string? StartSavedGame(string savedGameName);
+    protected abstract GameConfiguration CreateNewConfig();
 
-    protected BaseMenuSystem(IConfigRepository configRepository)
+    protected BaseMenuSystem(IConfigRepository configRepository, IGameRepository gameRepository)
     {
         ConfigRepository = configRepository;
+        GameRepository = gameRepository;
         
         _rulesMenu = CreateInfoMenu();
-        _savedGamesMenu = CreateSavedGamesMenu();
         _homeMenu = CreateHomeMenu();
     }
-
-    protected abstract string? StartGameWithConfig(string configName);
-    protected abstract GameConfiguration CreateNewConfig();
 
     public void Run()
     {
@@ -43,6 +44,23 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
             }
         }
     }
+    
+    private TMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription, List<MenuItem> menuItems)
+    {
+        return (TMenu)Activator.CreateInstance(typeof(TMenu), menuLevel, menuHeader, menuItems, menuDescription)!;
+    }
+    
+    private TMenu CreateHomeMenu()
+    {
+        var homeMenuItems = new List<MenuItem>
+        {
+            new (MenuNewGameTitle, MenuNewGameShortcut, CreateConfigMenuAndRunIt),
+            new (MenuSavedGamesTitle, MenuSavedGamesShortcut, CreateSavedGamesMenuAndRunIt), 
+            new (MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, _rulesMenu.Run)
+        };
+
+        return CreateMenu(EMenuLevel.Primary, GameName, null, homeMenuItems);
+    }
 
     private TMenu CreateInfoMenu()
     {
@@ -53,21 +71,25 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         
     private TMenu CreateSavedGamesMenu()
     {
-        // TODO: List saved games: Clicking on them starts the game from where it left of.
         var savedGamesMenuItems = new List<MenuItem>();
+        var savedGamesNames = GameRepository.GetSavedGamesNames();
+        for (var i = 0; i < savedGamesNames.Count; i++)
+        {
+            var saveIndex = i;
+            savedGamesMenuItems.Add(new MenuItem(
+                title: savedGamesNames[i],
+                shortcut: (i + 1).ToString(),
+                action: () => StartSavedGame(savedGamesNames[saveIndex])
+            ));
+        }
+
         return CreateMenu(EMenuLevel.Secondary, MenuSavedGamesHeading, null, savedGamesMenuItems);
     }
-
-    private TMenu CreateHomeMenu()
+    
+    private string? CreateSavedGamesMenuAndRunIt()
     {
-        var homeMenuItems = new List<MenuItem>
-        {
-            new (MenuNewGameTitle, MenuNewGameShortcut, CreateConfigMenuAndRunIt),
-            new (MenuSavedGamesTitle, MenuSavedGamesShortcut, _savedGamesMenu.Run), 
-            new (MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, _rulesMenu.Run)
-        };
-
-        return CreateMenu(EMenuLevel.Primary, GameName, null, homeMenuItems);
+        var savedGamesMenu = CreateSavedGamesMenu();
+        return savedGamesMenu.Run();
     }
 
     private TMenu CreateConfigMenu()
@@ -92,11 +114,6 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         }
 
         return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, configMenuItems);
-    }
-
-    private TMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription, List<MenuItem> menuItems)
-    {
-        return (TMenu)Activator.CreateInstance(typeof(TMenu), menuLevel, menuHeader, menuItems, menuDescription)!;
     }
 
     private string? CreateConfigMenuAndRunIt()

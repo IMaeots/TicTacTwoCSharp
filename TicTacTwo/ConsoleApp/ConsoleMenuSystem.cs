@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Common;
 using Data;
 using GameBrain;
 using MenuSystem;
@@ -5,18 +7,43 @@ using static Common.InputHelper;
 
 namespace ConsoleApp;
 
-public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSystem<ConsoleMenu>(configRepository)
+public class ConsoleMenuSystem(
+    IConfigRepository configRepository,
+    IGameRepository gameRepository
+) : BaseMenuSystem<ConsoleMenu>(configRepository, gameRepository)
 {
     protected override string? StartGameWithConfig(string configName)
     {
         var config = ConfigRepository.GetConfigurationByName(configName);
         if (config == null)
         {
-            Console.WriteLine("Invalid configuration selected.");
+            return "Invalid configuration selected.";
+        }
+        
+        var gameState = GameController.StartNewGame(config);
+        return HandleSavingGameState(gameState);
+    }
+
+    protected override string? StartSavedGame(string savedGameName)
+    {
+        var savedGameState = GameRepository.GetGameStateByName(savedGameName);
+        if (savedGameState == null)
+        {
+            Console.WriteLine("Invalid game save selected.");
             return null;
         }
         
-        return GameController.StartGame(config);
+        var gameState = GameController.StartSavedGame(savedGameState);
+        return HandleSavingGameState(gameState);
+    }
+
+    private string? ValidateSaveGameName(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return null;
+        }
+        return Regex.IsMatch(input, @"^[a-zA-Z0-9]+$") ? input : null;
     }
 
     protected override GameConfiguration CreateNewConfig()
@@ -89,5 +116,21 @@ public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSys
             UserInputStartingGridYPosition: startY,
             UserInputStartingPlayer: startingPlayer
         );
+    }
+
+    private string? HandleSavingGameState(GameState? gameState)
+    {
+        if (gameState == null) return null;
+        
+        Console.WriteLine("Enter name for the saved game: ");
+        string? saveName;
+        do
+        {
+            var input = Console.ReadLine() ?? string.Empty;
+            saveName = ValidateSaveGameName(input);
+        } while (saveName == null);
+            
+        GameRepository.SaveGame(gameState: gameState, savedGameName: saveName);
+        return Constants.ReturnToMainTitle;
     }
 }

@@ -4,7 +4,7 @@ public class MenuItem
 {
     private string Title { get; }
     public string Shortcut { get; }
-    public Func<string?>? MenuItemAction { get; set; }
+    public Func<string?>? MenuItemAction { get; }
     
     public MenuItem(string title, string shortcut, Func<string?>? action = null)
     {

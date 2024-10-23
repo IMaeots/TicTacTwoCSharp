@@ -1,10 +1,13 @@
+using System.Text.Json.Serialization;
 using Common.Entities;
 
 namespace GameBrain;
 
 public class GameState
 {
-    public EGamePiece[][] GameBoard { get; private set; } = null!;
+    [JsonIgnore]
+    public EGamePiece[,] GameBoard { get; set; } = null!;
+    public List<List<EGamePiece>> SerializedGameBoard { get; set; } = null!;
     public GameConfiguration GameConfiguration { get; }
     public EGamePiece NextMoveBy { get; set; } = EGamePiece.Player1;
     public int Player1MarkersPlaced { get; set; }
@@ -30,15 +33,15 @@ public class GameState
         var boardWidth = GameConfiguration.BoardWidth;
         var boardHeight = GameConfiguration.BoardHeight;
         
-        GameBoard = new EGamePiece[boardWidth][];
-        for (var x = 0; x < GameBoard.Length; x++)
+        GameBoard = new EGamePiece[boardWidth, boardHeight];
+        for (var x = 0; x < boardWidth; x++)
         {
-            GameBoard[x] = new EGamePiece[boardHeight];
+            for (var y = 0; y < boardHeight; y++)
+            {
+                GameBoard[x, y] = EGamePiece.Empty;
+            }
         }
-        GameBoard = Enumerable
-            .Range(0, boardWidth)
-            .Select(_ => new EGamePiece[boardHeight])
-            .ToArray();
+        
         GridX = GameConfiguration.FinalStartingGridXPosition;
         GridY = GameConfiguration.FinalStartingGridYPosition;
         NextMoveBy = startingPlayer == EGamePiece.Player2 ? EGamePiece.Player2 : EGamePiece.Player1;

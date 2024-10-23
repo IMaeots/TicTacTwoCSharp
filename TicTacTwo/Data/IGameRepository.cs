@@ -1,6 +1,10 @@
+using GameBrain;
+
 namespace Data;
 
 public interface IGameRepository
 {
-    // TODO
+    List<string> GetSavedGamesNames();
+    GameState? GetGameStateByName(string savedGameName);
+    void SaveGame(GameState gameState, string savedGameName);
 }

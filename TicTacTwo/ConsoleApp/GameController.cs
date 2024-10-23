@@ -1,6 +1,6 @@
 using Common;
 using Common.Entities;
-using ConsoleApp.ConsoleUI;
+using Data.Repositories;
 using GameBrain;
 using MenuSystem;
 
@@ -12,12 +12,22 @@ public static class GameController
     private static int _currentY = 0;
     private static EGameAction _action;
 
-    public static String StartGame(GameConfiguration config)
+    public static GameState? StartNewGame(GameConfiguration gameConfig)
     {
         var gameOutcome = EGameOutcome.None;
-        var gameInstance = new GameBrain.GameBrain(config);
-        Console.CursorVisible = false;
-        
+        var gameInstance = new GameBrain.GameBrain(gameConfig);
+        return PlayGame(gameOutcome, gameInstance);
+    }
+    
+    public static GameState? StartSavedGame(GameState gameState)
+    {
+        var gameOutcome = EGameOutcome.None;
+        var gameInstance = new GameBrain.GameBrain(gameState);
+        return PlayGame(gameOutcome, gameInstance);
+    }
+
+    private static GameState? PlayGame(EGameOutcome gameOutcome, GameBrain.GameBrain gameInstance)
+    {
         do
         {
             Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
@@ -58,8 +68,8 @@ public static class GameController
                             isSelected = true;
                             break;
                         case ConsoleKey.E:
-                            Console.WriteLine("Goodbye!");
-                            return Constants.ExitShortcut;
+                            Console.WriteLine("See you soon!");
+                            return null;
                     }
                 }
             }
@@ -68,7 +78,7 @@ public static class GameController
                 Console.WriteLine($"Place a marker: {nextMoveBy}!");
             }
 
-            bool isActionPerformed = false;
+            var isActionPerformed = false;
             while (!isActionPerformed)
             {
                 var movementKey = Console.ReadKey(true).Key;
@@ -96,13 +106,36 @@ public static class GameController
                         ExecuteGameAction(gameInstance);
                         isActionPerformed = true;
                         break;
+                    case ConsoleKey.S:
+                        Console.WriteLine(Constants.ConfirmSaveGameText);
+                        var confirm = Console.ReadLine();
+                        if (confirm?.Trim().ToUpper() == Constants.ConfirmSymbol)
+                        {
+                            return gameInstance.GetGameState();
+                        }
+                        break;
                     case ConsoleKey.E:
-                        Console.WriteLine("Goodbye!");
-                        return Constants.ExitShortcut;
+                        Console.WriteLine("See you soon!");
+                        return null;
                 }
                 
                 Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
                 gameOutcome = gameInstance.CheckForGameEnd();
+                if (!isActionPerformed)
+                {
+                    switch (_action)
+                    {
+                        case EGameAction.PlaceMarker:
+                            Console.WriteLine($"You chose to place a marker. Go ahead {nextMoveBy}!");
+                            break;
+                        case EGameAction.MoveMarker:
+                            Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
+                            break;
+                        case EGameAction.MoveGrid:
+                            Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
+                            break;
+                    }
+                }
             }
         } while (gameOutcome == EGameOutcome.None);
         
@@ -123,7 +156,7 @@ public static class GameController
         
         Console.WriteLine("Game over! Press any key to go to the main menu.");
         Console.ReadKey();
-        return Constants.ReturnToMainTitle;
+        return null;
     }
 
     private static void ExecuteGameAction(GameBrain.GameBrain gameInstance)
@@ -152,7 +185,7 @@ public static class GameController
         var oldY = _currentY;
         Console.WriteLine("Select where to move the marker (use arrow keys):");
         
-        bool isMarkerMoveConfirmed = false;
+        var isMarkerMoveConfirmed = false;
         while (!isMarkerMoveConfirmed)
         {
             var key = Console.ReadKey(true).Key;
@@ -180,7 +213,7 @@ public static class GameController
                     isMarkerMoveConfirmed = true;
                     break;
                 case ConsoleKey.E:
-                    Console.WriteLine("Goodbye!");
+                    Console.WriteLine("See you soon!");
                     return;
             }
             
@@ -195,12 +228,5 @@ public static class GameController
             Console.WriteLine("Invalid Move. The grid cannot move there. Press any key to continue.");
             Console.ReadKey();
         }
-    }
-
-    private static void ResetGame(GameBrain.GameBrain gameInstance)
-    {
-        _currentX = 0;
-        _currentY = 0;
-        gameInstance.ResetGame();
     }
 }

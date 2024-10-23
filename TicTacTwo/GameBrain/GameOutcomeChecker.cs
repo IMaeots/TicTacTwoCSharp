@@ -6,7 +6,7 @@ namespace GameBrain;
 public class GameOutcomeChecker(GameState gameState)
 {
     private readonly GameConfiguration _config = gameState.GameConfiguration;
-    private readonly EGamePiece[][] _gameBoard = gameState.GameBoard;
+    private readonly EGamePiece[,] _gameBoard = gameState.GameBoard;
     private readonly int _gridX = gameState.GridX;
     private readonly int _gridY = gameState.GridY;
 
@@ -77,13 +77,13 @@ public class GameOutcomeChecker(GameState gameState)
                     throw new ArgumentOutOfRangeException();
             }
             
-            if (currentX < 0 || currentX >= _gameBoard.Length || 
-                currentY < 0 || currentY >= _gameBoard[0].Length)
+            if (currentX < 0 || currentX >= _gameBoard.GetLength(0) || 
+                currentY < 0 || currentY >= _gameBoard.GetLength(1))
             {
                 return false;
             }
 
-            var currentPiece = _gameBoard[currentX][currentY];
+            var currentPiece = _gameBoard[currentX, currentY];
 
             if (currentPiece != player) return false;
         }
