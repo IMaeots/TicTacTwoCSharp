@@ -11,7 +11,6 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
     
     private readonly TMenu _homeMenu;
     private readonly TMenu _savedGamesMenu;
-    private readonly TMenu _optionsMenu;
     private readonly TMenu _rulesMenu;
 
     protected BaseMenuSystem(IConfigRepository configRepository)
@@ -19,7 +18,6 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         ConfigRepository = configRepository;
         
         _rulesMenu = CreateInfoMenu();
-        _optionsMenu = CreateOptionsMenu();
         _savedGamesMenu = CreateSavedGamesMenu();
         _homeMenu = CreateHomeMenu();
     }
@@ -52,12 +50,6 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         return CreateMenu(EMenuLevel.Secondary, Constants.InfoMenuTitle,
             Constants.InfoMenuDescription, rulesMenuItems);
     }
-
-    private TMenu CreateOptionsMenu()
-    {
-        var optionsMenuItems = new List<MenuItem>();
-        return CreateMenu(EMenuLevel.Secondary, Constants.OptionsMenuTitle, null, optionsMenuItems);
-    }
         
     private TMenu CreateSavedGamesMenu()
     {
@@ -72,8 +64,7 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         {
             new ("New Game", "N", CreateConfigMenuAndRunIt),
             new ("Saved Games", "S", _savedGamesMenu.Run), 
-            new ("Options", "O", _optionsMenu.Run),
-            new ("Rules", "R", _rulesMenu.Run)
+            new ("Rules & Info", "R", _rulesMenu.Run)
         };
 
         return CreateMenu(EMenuLevel.Primary, Constants.GameName, null, homeMenuItems);
