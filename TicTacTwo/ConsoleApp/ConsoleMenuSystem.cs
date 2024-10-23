@@ -58,7 +58,7 @@ public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSys
 
         var numberOfMarkers = GetValidatedInt(
             prompt: "Enter number of markers per player:",
-            validationRule: GameConfigurationValidator.ValidateMarkers
+            validationRule: validatedInput => GameConfigurationValidator.ValidateMarkers(validatedInput, winCondition)
         );
 
         var startX = GetValidatedNullableInt(

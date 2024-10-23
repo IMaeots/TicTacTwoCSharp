@@ -1,7 +1,7 @@
-using Common;
 using Common.Entities;
 using Data;
 using GameBrain;
+using static Common.Constants;
 
 namespace MenuSystem;
 
@@ -33,10 +33,10 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
             
             switch (result)
             {
-                case Constants.ReturnToMainTitle:
+                case ReturnToMainTitle:
                     _homeMenu.Run();
                     break;
-                case Constants.ExitShortcut:
+                case ExitShortcut:
                     return;
                 case null:
                     return;
@@ -47,27 +47,27 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
     private TMenu CreateInfoMenu()
     {
         var rulesMenuItems = new List<MenuItem>();
-        return CreateMenu(EMenuLevel.Secondary, Constants.InfoMenuTitle,
-            Constants.InfoMenuDescription, rulesMenuItems);
+        return CreateMenu(EMenuLevel.Secondary, MenuRulesAndInfoHeading,
+            MenuRulesAndInfoDescription, rulesMenuItems);
     }
         
     private TMenu CreateSavedGamesMenu()
     {
         // TODO: List saved games: Clicking on them starts the game from where it left of.
         var savedGamesMenuItems = new List<MenuItem>();
-        return CreateMenu(EMenuLevel.Secondary, Constants.SavedGamesMenuTitle, null, savedGamesMenuItems);
+        return CreateMenu(EMenuLevel.Secondary, MenuSavedGamesHeading, null, savedGamesMenuItems);
     }
 
     private TMenu CreateHomeMenu()
     {
         var homeMenuItems = new List<MenuItem>
         {
-            new ("New Game", "N", CreateConfigMenuAndRunIt),
-            new ("Saved Games", "S", _savedGamesMenu.Run), 
-            new ("Rules & Info", "R", _rulesMenu.Run)
+            new (MenuNewGameTitle, MenuNewGameShortcut, CreateConfigMenuAndRunIt),
+            new (MenuSavedGamesTitle, MenuSavedGamesShortcut, _savedGamesMenu.Run), 
+            new (MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, _rulesMenu.Run)
         };
 
-        return CreateMenu(EMenuLevel.Primary, Constants.GameName, null, homeMenuItems);
+        return CreateMenu(EMenuLevel.Primary, GameName, null, homeMenuItems);
     }
 
     private TMenu CreateConfigMenu()
@@ -76,8 +76,8 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         var configNames = ConfigRepository.GetConfigurationNames();
 
         configMenuItems.Add(new MenuItem(
-            title: "Create New Config",
-            shortcut: "C",
+            title: MenuConfigCreationTitle,
+            shortcut: MenuConfigCreationShortcut,
             action: CreateNewConfigAndRunIt
         ));
         
@@ -91,7 +91,7 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
             ));
         }
 
-        return CreateMenu(EMenuLevel.Secondary, Constants.ChooseConfigMenuTitle, null, configMenuItems);
+        return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, configMenuItems);
     }
 
     private TMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription, List<MenuItem> menuItems)

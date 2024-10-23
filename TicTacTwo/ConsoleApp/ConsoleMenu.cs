@@ -98,6 +98,6 @@ public class ConsoleMenu(
         Console.WriteLine(Constants.ConfirmExitText);
         var confirm = Console.ReadLine();
         Console.Clear();
-        return confirm?.Trim().ToUpper() == "Y";
+        return confirm?.Trim().ToUpper() == Constants.ConfirmExitSymbol;
     }
 }

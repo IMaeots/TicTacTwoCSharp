@@ -20,10 +20,8 @@ public static partial class GameConfigurationValidator
     public static string? ValidateBoardHeight(int height) =>
         ValidateRangeAccordingToRules(height);
 
-    public static string? ValidateGridWidth(int gridWidth, int boardWidth)
-    {
-        return gridWidth > boardWidth ? "Grid width cannot be greater than the board width." : ValidateRangeAccordingToRules(gridWidth);
-    }
+    public static string? ValidateGridWidth(int gridWidth, int boardWidth) => 
+        gridWidth > boardWidth ? "Grid width cannot be greater than the board width." : ValidateRangeAccordingToRules(gridWidth);
 
     public static string? ValidateGridHeight(int gridHeight, int boardHeight) => 
         gridHeight > boardHeight ? "Grid height cannot be greater than the board height." : ValidateRangeAccordingToRules(gridHeight);
@@ -31,8 +29,9 @@ public static partial class GameConfigurationValidator
     public static string? ValidateMoveGridAfterNMoves(int moves) => 
         moves <= 0 ? "Moves required to move grid must be a positive integer." : null;
 
-    public static string? ValidateMarkers(int markers) => 
-        markers <= 0 ? "Number of markers must be a positive integer." : null;
+    public static string? ValidateMarkers(int markers, int winCondition) => 
+        markers <= 0 ? "Number of markers must be a positive integer." :
+            markers < winCondition ? $"Number of markers must be greater or equal to winCondition ({winCondition})." : null;
 
     public static string? ValidateStartingGridXPosition(int position, int boardWidth, int gridWidth) => 
         ValidateStartingPosition(position, boardWidth, gridWidth, "X");
