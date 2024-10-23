@@ -24,8 +24,8 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         _homeMenu = CreateHomeMenu();
     }
 
-    protected abstract GameConfiguration? CreateNewConfig();
-    protected abstract string? StartGameWithConfig(string? configName);
+    protected abstract string? StartGameWithConfig(string configName);
+    protected abstract GameConfiguration CreateNewConfig();
 
     public void Run()
     {
@@ -35,13 +35,12 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
             
             switch (result)
             {
-                case Constants.ExitShortcut:
-                    return;
                 case Constants.ReturnToMainTitle:
                     _homeMenu.Run();
                     break;
+                case Constants.ExitShortcut:
+                    return;
                 case null:
-                    // Error case - close app.
                     return;
             }
         }
@@ -119,7 +118,6 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
     {
         var newConfig = CreateNewConfig();
         ConfigRepository.SaveConfig(newConfig);
-        // TODO: Save it to configs and then start the game from confs. (could be optimized to directly but should it? :p)
-        return StartGameWithConfig(newConfig?.Name); // Nulls just make app print error and exit.
+        return StartGameWithConfig(newConfig.Name);
     }
 }

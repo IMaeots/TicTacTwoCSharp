@@ -4,22 +4,32 @@ namespace GameBrain;
 
 public record GameConfiguration(
     string Name,
-    int WinCondition = 3,
-    int BoardWidth = 5,
-    int BoardHeight = 5,
-    int GridWidth = 3,
-    int GridHeight = 3,
-    int? StartingGridXPosition = null,
-    int? StartingGridYPosition = null,
-    int MoveGridAfterNMoves = 2,
-    int NumberOfMarkers = 4,
-    EGamePiece? StartingPlayer = EGamePiece.Player1
+    int WinCondition,
+    int BoardWidth,
+    int BoardHeight,
+    int GridWidth,
+    int GridHeight,
+    int MoveGridAfterNMoves,
+    int NumberOfMarkers,
+    int? UserInputStartingGridXPosition = null,
+    int? UserInputStartingGridYPosition = null,
+    int? UserInputStartingPlayer = null
 )
 {
+    public int FinalStartingGridXPosition { get; init; } = 
+        UserInputStartingGridXPosition ?? (BoardWidth - GridWidth) / 2;
+    public int FinalStartingGridYPosition { get; init; } = 
+        UserInputStartingGridYPosition ?? (BoardHeight - GridHeight) / 2;
+    public EGamePiece FinalStartingPlayer { get; init; } =
+        UserInputStartingPlayer == 2 ? EGamePiece.Player2 : EGamePiece.Player1;
+
     public override string ToString() =>
-        $"Board {BoardWidth}x{BoardHeight}, " +
-        $"Grid {GridWidth}x{GridHeight}, " +
-        $"to win: {WinCondition}, " +
-        $"number of Markers available per player: {NumberOfMarkers}, " +
-        $"can move the grid after {MoveGridAfterNMoves} moves.";
+        $"Game Name: {Name}\n" +
+        $"Board Size: {BoardWidth}x{BoardHeight}\n" +
+        $"Grid Size: {GridWidth}x{GridHeight}\n" +
+        $"Win Condition: {WinCondition} in a row\n" +
+        $"Markers Per Player: {NumberOfMarkers}\n" +
+        $"Grid Moves After: {MoveGridAfterNMoves} moves made by both players\n" +
+        $"Starting Grid Position: ({FinalStartingGridXPosition}, {FinalStartingGridYPosition})\n" +
+        $"Starting Player: {FinalStartingPlayer.ToString()}";
 }

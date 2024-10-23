@@ -1,45 +1,12 @@
 using Data;
 using GameBrain;
 using MenuSystem;
+using static Common.InputHelper;
 
 namespace ConsoleApp;
 
 public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSystem<ConsoleMenu>(configRepository)
 {
-    protected override GameConfiguration? CreateNewConfig()
-    {
-        Console.Write("Enter the name for the new configuration: ");
-        var name = Console.ReadLine()?.Trim();
-        
-        if (string.IsNullOrEmpty(name))
-        {
-            Console.WriteLine("Configuration name cannot be empty. Please try again.");
-            return null;
-        }
-        
-        var winCondition = GetValidIntInput("Enter the win condition (number of markers to win): ");
-        var boardWidth = GetValidIntInput("Enter the Board Width (x-axis): ");
-        var boardHeight = GetValidIntInput("Enter the Board Height (y-axis): ");
-        var gridWidth = GetValidIntInput("Enter the Grid Width (x-axis): ");
-        var gridHeight = GetValidIntInput("Enter the Grid Height (y-axis): ");
-        var moveGridAfterNMoves = GetValidIntInput("Enter the number of moves by a player before they can move the grid: ");
-        var numberOfMarkers = GetValidIntInput("Enter the number of markers available per player: ");
-
-        // TODO: Manually putting default values should be also fixed later...
-        var conf = new GameConfiguration(
-            Name: name,
-            WinCondition: winCondition ?? 3,
-            BoardWidth: boardWidth ?? 5,
-            BoardHeight: boardHeight ?? 5,
-            GridWidth: gridWidth ?? 3, // TODO: These should never be null maybe.
-            GridHeight: gridHeight ?? 3,
-            MoveGridAfterNMoves: moveGridAfterNMoves ?? 2,
-            NumberOfMarkers: numberOfMarkers ?? 4
-        );
-        
-        return conf;
-    }
-    
     protected override string? StartGameWithConfig(string configName)
     {
         var config = ConfigRepository.GetConfigurationByName(configName);
@@ -51,21 +18,76 @@ public class ConsoleMenuSystem(IConfigRepository configRepository) : BaseMenuSys
         
         return GameController.StartGame(config);
     }
-    
-    // TODO: Should be improved validation & then moved to BaseMenuSystem. Each conf item separate logic.
-    private int? GetValidIntInput(string prompt)
+
+    protected override GameConfiguration CreateNewConfig()
     {
-        Console.Write(prompt);
-        var input = Console.ReadLine();
-        
-        if (int.TryParse(input, out var value) && value > 0)
-        {
-            return value;
-        }
-        else
-        {
-            Console.WriteLine("Invalid input. Please enter a positive integer.");
-            return null;
-        }
+        var name = GetValidatedString(
+            prompt: "Enter game name:",
+            validationRule: GameConfigurationValidator.ValidateName
+        );
+
+        var boardWidth = GetValidatedInt(
+            prompt: "Enter board width:",
+            validationRule: GameConfigurationValidator.ValidateBoardWidth
+        );
+
+        var boardHeight = GetValidatedInt(
+            prompt: "Enter board height:",
+            validationRule: GameConfigurationValidator.ValidateBoardHeight
+        );
+
+        var gridWidth = GetValidatedInt(
+            prompt: "Enter grid width:",
+            validationRule: validatedInput => GameConfigurationValidator.ValidateGridWidth(validatedInput, boardWidth)
+        );
+
+        var gridHeight = GetValidatedInt(
+            prompt: "Enter grid height:",
+            validationRule: validatedInput => GameConfigurationValidator.ValidateGridHeight(validatedInput, boardHeight)
+        );
+
+        var winCondition = GetValidatedInt(
+            prompt: "Enter win condition:",
+            validationRule: validatedInput => GameConfigurationValidator.ValidateWinCondition(validatedInput, gridHeight, gridWidth)
+        );
+
+        var moveGridAfterNMoves = GetValidatedInt(
+            prompt: "Enter number of moves to move the grid:",
+            validationRule: GameConfigurationValidator.ValidateMoveGridAfterNMoves
+        );
+
+        var numberOfMarkers = GetValidatedInt(
+            prompt: "Enter number of markers per player:",
+            validationRule: GameConfigurationValidator.ValidateMarkers
+        );
+
+        var startX = GetValidatedNullableInt(
+            prompt: "Enter starting grid's top left corner's X position (optional):",
+            validationRule: input => GameConfigurationValidator.ValidateStartingGridXPosition(input, boardWidth, gridWidth)
+        );
+
+        var startY = GetValidatedNullableInt(
+            prompt: "Enter starting grid's top left corner's Y position (optional):",
+            validationRule: input => GameConfigurationValidator.ValidateStartingGridYPosition(input, boardHeight, gridHeight)
+        );
+
+        var startingPlayer = GetValidatedNullableInt(
+            prompt: "Enter starting player - [1] or [2] (optional):",
+            validationRule: GameConfigurationValidator.ValidateStartingPlayer
+        );
+
+        return new GameConfiguration(
+            Name:name,
+            WinCondition:winCondition,
+            BoardWidth:boardWidth,
+            BoardHeight: boardHeight,
+            GridWidth: gridWidth,
+            GridHeight: gridHeight,
+            MoveGridAfterNMoves:moveGridAfterNMoves,
+            NumberOfMarkers: numberOfMarkers,
+            UserInputStartingGridXPosition: startX,
+            UserInputStartingGridYPosition: startY,
+            UserInputStartingPlayer: startingPlayer
+        );
     }
 }

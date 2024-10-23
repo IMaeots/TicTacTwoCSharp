@@ -5,7 +5,8 @@ public static class Constants
     public const string GameName = "TIC-TAC-TWO";
     public const string FirstPlayerSymbol = "X";
     public const string SecondPlayerSymbol = "O";
-        
+    public const int MinimumGameDimension = 2;
+    public const int MaximumGameDimension = 100;
     public const string ConfigFileExtension = ".config.json";
     public const string GameDataFileExtension = ".games.json";
     public static readonly string BasePath = Environment

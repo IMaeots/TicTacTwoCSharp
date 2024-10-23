@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Common.Entities;
 
 namespace GameBrain;
@@ -19,12 +18,6 @@ public class GameState
         GameConfiguration = gameConfiguration;
         ResetGameBoard();
     }
-
-
-    public override string ToString()
-    {
-        return JsonSerializer.Serialize(this);
-    }
     
     public bool CanMoveGrid()
     {
@@ -33,11 +26,9 @@ public class GameState
     
     public void ResetGameBoard()
     {
-        var startingPlayer = GameConfiguration.StartingPlayer ?? EGamePiece.Player1;
+        var startingPlayer = GameConfiguration.FinalStartingPlayer;
         var boardWidth = GameConfiguration.BoardWidth;
         var boardHeight = GameConfiguration.BoardHeight;
-        var gridWidth = GameConfiguration.GridWidth;
-        var gridHeight = GameConfiguration.GridHeight;
         
         GameBoard = new EGamePiece[boardWidth][];
         for (var x = 0; x < GameBoard.Length; x++)
@@ -48,8 +39,8 @@ public class GameState
             .Range(0, boardWidth)
             .Select(_ => new EGamePiece[boardHeight])
             .ToArray();
-        GridX = GameConfiguration.StartingGridXPosition ?? (boardWidth - gridWidth) / 2;
-        GridY = GameConfiguration.StartingGridYPosition ?? (boardHeight - gridHeight) / 2;
+        GridX = GameConfiguration.FinalStartingGridXPosition;
+        GridY = GameConfiguration.FinalStartingGridYPosition;
         NextMoveBy = startingPlayer == EGamePiece.Player2 ? EGamePiece.Player2 : EGamePiece.Player1;
         Player1MarkersPlaced = 0;
         Player2MarkersPlaced = 0;

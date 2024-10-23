@@ -46,9 +46,8 @@ public class ConfigRepositoryJson : IConfigRepository
         {
             var defaultGameConfigurations = new List<GameConfiguration>
             {
-                new (Name: "Classical"),
-                new (Name: "Big Board", WinCondition: 4, BoardWidth: 10, BoardHeight: 10, GridWidth: 4, GridHeight: 4,
-                    MoveGridAfterNMoves: 4, StartingPlayer: EGamePiece.Player2)
+                new (Name: "Classical", WinCondition: 3, BoardWidth: 5, BoardHeight: 5, GridWidth: 3, GridHeight: 3, MoveGridAfterNMoves: 2, NumberOfMarkers: 4),
+                new (Name: "Big Board", WinCondition: 4, BoardWidth: 10, BoardHeight: 10, GridWidth: 4, GridHeight: 4, MoveGridAfterNMoves: 4, NumberOfMarkers: 6, UserInputStartingPlayer: 2)
             };
             
             foreach (var config in defaultGameConfigurations)
