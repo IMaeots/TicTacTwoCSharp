@@ -20,8 +20,8 @@ public class ConsoleMenuSystem(
             return "Invalid configuration selected.";
         }
         
-        var gameState = GameController.StartNewGame(config);
-        return HandleSavingGameState(gameState);
+        var gameResult = GameController.StartNewGame(config);
+        return HandleGameResult(gameResult);
     }
 
     protected override string? StartSavedGame(string savedGameName)
@@ -33,8 +33,8 @@ public class ConsoleMenuSystem(
             return null;
         }
         
-        var gameState = GameController.StartSavedGame(savedGameState);
-        return HandleSavingGameState(gameState);
+        var gameResult = GameController.StartSavedGame(savedGameState);
+        return HandleGameResult(gameResult);
     }
 
     private string? ValidateSaveGameName(string input)
@@ -118,19 +118,22 @@ public class ConsoleMenuSystem(
         );
     }
 
-    private string? HandleSavingGameState(GameState? gameState)
+    private string? HandleGameResult((GameState?, string?) gameResult)
     {
-        if (gameState == null) return null;
-        
-        Console.WriteLine("Enter name for the saved game: ");
-        string? saveName;
-        do
+        if (gameResult.Item1 != null)
         {
-            var input = Console.ReadLine() ?? string.Empty;
-            saveName = ValidateSaveGameName(input);
-        } while (saveName == null);
+            Console.WriteLine("Enter name for the saved game: ");
+            string? saveName;
+            do
+            {
+                var input = Console.ReadLine() ?? string.Empty;
+                saveName = ValidateSaveGameName(input);
+            } while (saveName == null);
             
-        GameRepository.SaveGame(gameState: gameState, savedGameName: saveName);
-        return Constants.ReturnToMainTitle;
+            GameRepository.SaveGame(gameState: gameResult.Item1, savedGameName: saveName);
+            return Constants.ReturnToMainShortcut;
+        }
+
+        return gameResult.Item2 ?? null;
     }
 }

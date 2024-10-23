@@ -12,21 +12,21 @@ public static class GameController
     private static int _currentY = 0;
     private static EGameAction _action;
 
-    public static GameState? StartNewGame(GameConfiguration gameConfig)
+    public static (GameState?, string?) StartNewGame(GameConfiguration gameConfig)
     {
         var gameOutcome = EGameOutcome.None;
         var gameInstance = new GameBrain.GameBrain(gameConfig);
         return PlayGame(gameOutcome, gameInstance);
     }
     
-    public static GameState? StartSavedGame(GameState gameState)
+    public static (GameState?, string?) StartSavedGame(GameState gameState)
     {
         var gameOutcome = EGameOutcome.None;
         var gameInstance = new GameBrain.GameBrain(gameState);
         return PlayGame(gameOutcome, gameInstance);
     }
 
-    private static GameState? PlayGame(EGameOutcome gameOutcome, GameBrain.GameBrain gameInstance)
+    private static (GameState?, string?) PlayGame(EGameOutcome gameOutcome, GameBrain.GameBrain gameInstance)
     {
         do
         {
@@ -69,7 +69,7 @@ public static class GameController
                             break;
                         case ConsoleKey.E:
                             Console.WriteLine("See you soon!");
-                            return null;
+                            return (null, Constants.ExitShortcut);
                     }
                 }
             }
@@ -111,12 +111,12 @@ public static class GameController
                         var confirm = Console.ReadLine();
                         if (confirm?.Trim().ToUpper() == Constants.ConfirmSymbol)
                         {
-                            return gameInstance.GetGameState();
+                            return (gameInstance.GetGameState(), null);
                         }
                         break;
                     case ConsoleKey.E:
                         Console.WriteLine("See you soon!");
-                        return null;
+                        return (null, Constants.ExitShortcut);
                 }
                 
                 Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
@@ -156,7 +156,7 @@ public static class GameController
         
         Console.WriteLine("Game over! Press any key to go to the main menu.");
         Console.ReadKey();
-        return null;
+        return (null, Constants.ReturnToMainShortcut);
     }
 
     private static void ExecuteGameAction(GameBrain.GameBrain gameInstance)

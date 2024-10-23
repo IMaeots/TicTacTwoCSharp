@@ -28,14 +28,13 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
 
     public void Run()
     {
+        var result = _homeMenu.Run();
         while (true)
         {
-            var result = _homeMenu.Run();
-            
             switch (result)
             {
-                case ReturnToMainTitle:
-                    _homeMenu.Run();
+                case ReturnToMainShortcut:
+                    result = _homeMenu.Run();
                     break;
                 case ExitShortcut:
                     return;

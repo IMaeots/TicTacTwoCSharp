@@ -26,13 +26,16 @@ public class ConsoleMenu(
 
             switch (menuItem.Shortcut)
             {
-                case Constants.ReturnShortcut:
-                    return Constants.ReturnShortcut;
-                
                 case Constants.ExitShortcut:
                     if (ConfirmExit())
                     {
                         return Constants.ExitShortcut;
+                    }
+                    break;
+                case Constants.ReturnShortcut:
+                    if (MenuLevel != EMenuLevel.Primary)
+                    {
+                        return Constants.ReturnToMainShortcut;
                     }
                     break;
                 case Constants.ReturnToMainShortcut:
@@ -47,6 +50,7 @@ public class ConsoleMenu(
 
     private void DrawMenu()
     {
+        Console.Clear();
         Console.WriteLine(MenuHeader);
         if (MenuDescription != null)
         {
@@ -61,19 +65,23 @@ public class ConsoleMenu(
         }
         
         Console.WriteLine();
-        Console.Write(Constants.MenuInputBoxHint);
     }
 
     private MenuItem DisplayMenuAndGetUserChoice()
     {
+        string? errorMessage = null;
         do
         {
             DrawMenu();
-
+            
+            if (errorMessage != null) Console.WriteLine(errorMessage);
+            
+            Console.Write(Constants.MenuInputBoxHint);
             var userInput = Console.ReadLine()?.Trim();
+            
             if (string.IsNullOrWhiteSpace(userInput))
             {
-                Console.WriteLine(Constants.EmptyInputMessage);
+                errorMessage = Constants.EmptyInputMessage;
             }
             else
             {
@@ -84,11 +92,9 @@ public class ConsoleMenu(
                 {
                     return selectedMenuItem;
                 }
-
-                Console.WriteLine(Constants.InvalidChoiceMessage + string.Join(", ", MenuItems.Select(mi => mi.Shortcut)));
+                
+                errorMessage = Constants.InvalidChoiceMessage + string.Join(", ", MenuItems.Select(mi => mi.Shortcut));
             }
-
-            Console.WriteLine();
         } while (true);
     }
     
