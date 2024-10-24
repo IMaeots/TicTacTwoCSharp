@@ -1,15 +1,12 @@
-using System.Text.Json.Serialization;
 using Common.Entities;
 
 namespace GameBrain;
 
 public class GameState
 {
-    [JsonIgnore]
-    public EGamePiece[,] GameBoard { get; set; } = null!;
-    public List<List<EGamePiece>> SerializedGameBoard { get; set; } = null!;
+    public EGamePiece[][] GameBoard { get; set; }
     public GameConfiguration GameConfiguration { get; }
-    public EGamePiece NextMoveBy { get; set; } = EGamePiece.Player1;
+    public EGamePiece NextMoveBy { get; set; }
     public int Player1MarkersPlaced { get; set; }
     public int Player2MarkersPlaced { get; set; }
     public int GridX { get; set; }
@@ -19,28 +16,19 @@ public class GameState
     public GameState(GameConfiguration gameConfiguration)
     {
         GameConfiguration = gameConfiguration;
-        ResetGameBoard();
-    }
-    
-    public bool CanMoveGrid()
-    {
-        return MoveCount / 2 >= GameConfiguration.MoveGridAfterNMoves;
-    }
-    
-    public void ResetGameBoard()
-    {
+        
         var startingPlayer = GameConfiguration.FinalStartingPlayer;
         var boardWidth = GameConfiguration.BoardWidth;
         var boardHeight = GameConfiguration.BoardHeight;
-        
-        GameBoard = new EGamePiece[boardWidth, boardHeight];
-        for (var x = 0; x < boardWidth; x++)
+        GameBoard = new EGamePiece[boardWidth][];
+        for (var x = 0; x < GameBoard.Length; x++)
         {
-            for (var y = 0; y < boardHeight; y++)
-            {
-                GameBoard[x, y] = EGamePiece.Empty;
-            }
+            GameBoard[x] = new EGamePiece[boardHeight];
         }
+        GameBoard = Enumerable
+            .Range(0, boardWidth)
+            .Select(_ => new EGamePiece[boardHeight])
+            .ToArray();
         
         GridX = GameConfiguration.FinalStartingGridXPosition;
         GridY = GameConfiguration.FinalStartingGridYPosition;
@@ -48,5 +36,15 @@ public class GameState
         Player1MarkersPlaced = 0;
         Player2MarkersPlaced = 0;
         MoveCount = 0;
+    }
+    
+    public bool CanMoveGrid()
+    {
+        return MoveCount / 2 >= GameConfiguration.MoveGridAfterNMoves;
+    }
+
+    public override string ToString()
+    {
+        return System.Text.Json.JsonSerializer.Serialize(this);
     }
 }

@@ -5,9 +5,9 @@ namespace GameBrain;
 public class GameBrain
 {
     private readonly GameState _gameState;
-    public EGamePiece[,] GameBoard => _gameState.GameBoard;
-    public int BoardWidth => GameBoard.GetLength(0);
-    public int BoardHeight => GameBoard.GetLength(1);
+    public EGamePiece[][] GameBoard => _gameState.GameBoard;
+    public int BoardWidth => GameBoard.Length;
+    public int BoardHeight => GameBoard[0].Length;
     public int GridWidth => _gameState.GameConfiguration.GridWidth;
     public int GridHeight => _gameState.GameConfiguration.GridHeight;
     public EGamePiece NextMoveBy => _gameState.NextMoveBy;
@@ -45,12 +45,12 @@ public class GameBrain
 
     public bool PlaceMarker(int x, int y)
     {
-        if (_gameState.GameBoard[x, y] != EGamePiece.Empty)
+        if (_gameState.GameBoard[x][y] != EGamePiece.Empty)
         {
             return false;
         }
 
-        _gameState.GameBoard[x, y] = _gameState.NextMoveBy;
+        _gameState.GameBoard[x][y] = _gameState.NextMoveBy;
 
         if (_gameState.NextMoveBy == EGamePiece.Player1)
         {
@@ -67,15 +67,15 @@ public class GameBrain
     
     public bool CanMoveThatMarker(int currentX, int currentY)
     {
-        return _gameState.GameBoard[currentX, currentY] == _gameState.NextMoveBy;
+        return _gameState.GameBoard[currentX][currentY] == _gameState.NextMoveBy;
     }
 
     public bool MoveMarker(int oldX, int oldY, int newX, int newY)
     {
-        if (_gameState.GameBoard[oldX, oldY] == _gameState.NextMoveBy && _gameState.GameBoard[newX, newY] == EGamePiece.Empty)
+        if (_gameState.GameBoard[oldX][oldY] == _gameState.NextMoveBy && _gameState.GameBoard[newX][newY] == EGamePiece.Empty)
         {
-            _gameState.GameBoard[oldX, oldY] = EGamePiece.Empty;
-            _gameState.GameBoard[newX, newY] = _gameState.NextMoveBy;
+            _gameState.GameBoard[oldX][oldY] = EGamePiece.Empty;
+            _gameState.GameBoard[newX][newY] = _gameState.NextMoveBy;
             
             MoveMade();
             return true;
@@ -117,10 +117,5 @@ public class GameBrain
     public GameState GetGameState()
     {
         return _gameState;
-    }
-    
-    public void ResetGame()
-    {
-        _gameState.ResetGameBoard();
     }
 }

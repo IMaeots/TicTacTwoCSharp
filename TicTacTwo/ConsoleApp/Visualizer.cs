@@ -30,7 +30,7 @@ public static class Visualizer
                     Console.BackgroundColor = ConsoleColor.Gray;
                 }
                 
-                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x, y]) + " ");
+                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x][y]) + " ");
                 Console.ResetColor();
                 
                 if (x < boardWidth - 1)
