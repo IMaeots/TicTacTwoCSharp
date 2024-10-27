@@ -31,6 +31,7 @@ public static class GameController
         do
         {
             Visualizer.DrawBoard(gameInstance, _currentX, _currentY);
+            Console.CursorVisible = false;
             
             _action = EGameAction.PlaceMarker;
             var nextMoveBy = gameInstance.NextMoveBy;
