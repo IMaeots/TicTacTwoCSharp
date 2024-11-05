@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Common;
-using Common.Entities;
 using GameBrain;
 
 namespace Data.Repositories;
