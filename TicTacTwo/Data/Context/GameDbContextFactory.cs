@@ -2,7 +2,7 @@ using Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Data.Models;
+namespace Data.Context;
 
 public class GameDbContextFactory : IDesignTimeDbContextFactory<GameDbContext>
 {

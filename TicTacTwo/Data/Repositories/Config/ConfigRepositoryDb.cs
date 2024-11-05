@@ -1,8 +1,9 @@
 using System.Text.Json;
+using Data.Context;
 using Data.Models;
 using GameBrain;
 
-namespace Data.Repositories;
+namespace Data.Repositories.Config;
 
 public class ConfigRepositoryDb(GameDbContext dbContext) : IConfigRepository
 {

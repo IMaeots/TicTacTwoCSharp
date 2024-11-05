@@ -1,6 +1,7 @@
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Data.Models;
+namespace Data.Context;
     
 public class GameDbContext(DbContextOptions<GameDbContext> options) : DbContext(options)
 {

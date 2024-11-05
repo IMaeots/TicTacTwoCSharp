@@ -1,6 +1,6 @@
 ﻿using GameBrain;
 
-namespace Data;
+namespace Data.Repositories;
 
 public interface IConfigRepository
 {

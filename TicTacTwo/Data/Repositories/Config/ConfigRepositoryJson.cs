@@ -2,7 +2,7 @@ using System.Text.Json;
 using Common;
 using GameBrain;
 
-namespace Data.Repositories;
+namespace Data.Repositories.Config;
 
 public class ConfigRepositoryJson : IConfigRepository
 {

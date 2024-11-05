@@ -1,9 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
+using Data.Context;
 using Data.Models;
 using GameBrain;
 
-namespace Data.Repositories;
+namespace Data.Repositories.Game;
 
 public class GameRepositoryDb(GameDbContext dbContext, IConfigRepository configRepository) : IGameRepository
 {

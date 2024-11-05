@@ -1,7 +1,8 @@
 ﻿using ConsoleApp;
-using Data;
-using Data.Models;
+using Data.Context;
 using Data.Repositories;
+using Data.Repositories.Config;
+using Data.Repositories.Game;
 using Microsoft.EntityFrameworkCore;
 
 IGameRepository gameRepository;
