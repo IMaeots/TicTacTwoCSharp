@@ -94,9 +94,14 @@ public class GameBrain
         var boardHeight = _gameState.GameConfiguration.BoardHeight;
         var gridWidth = _gameState.GameConfiguration.GridWidth;
         var gridHeight = _gameState.GameConfiguration.GridHeight;
+        var oldGridX = _gameState.GridX;
+        var oldGridY = _gameState.GridY;
+
+        var isOneUnitAway = Math.Abs(newGridX - oldGridX) <= 1 && Math.Abs(newGridY - oldGridY) <= 1 &&
+                            !(newGridX == oldGridX && newGridY == oldGridY);
         
-        
-        if (newGridX < 0 || newGridX + gridWidth > boardWidth || newGridY < 0 || newGridY + gridHeight > boardHeight)
+        if (!isOneUnitAway || newGridX < 0 || newGridX + gridWidth > boardWidth 
+            || newGridY < 0 || newGridY + gridHeight > boardHeight)
         {
             return false;
         }
