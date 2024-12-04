@@ -6,7 +6,7 @@ using GameBrain;
 
 namespace Data.Repositories.Game;
 
-public class GameRepositoryDb(GameDbContext dbContext, IConfigRepository configRepository) : IGameRepository
+public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
 {
     public List<string> GetSavedGamesNames()
     {

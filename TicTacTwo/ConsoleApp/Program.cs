@@ -15,7 +15,7 @@ if (useDatabase)
     dbContext.Database.Migrate();
     
     configRepository = new ConfigRepositoryDb(dbContext);
-    gameRepository = new GameRepositoryDb(dbContext, configRepository);
+    gameRepository = new GameRepositoryDb(dbContext);
 }
 else
 {

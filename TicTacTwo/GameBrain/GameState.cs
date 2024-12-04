@@ -17,7 +17,6 @@ public class GameState
     {
         GameConfiguration = gameConfiguration;
         
-        var startingPlayer = GameConfiguration.FinalStartingPlayer;
         var boardWidth = GameConfiguration.BoardWidth;
         var boardHeight = GameConfiguration.BoardHeight;
         GameBoard = new EGamePiece[boardWidth][];
@@ -30,9 +29,9 @@ public class GameState
             .Select(_ => new EGamePiece[boardHeight])
             .ToArray();
         
-        GridX = GameConfiguration.FinalStartingGridXPosition;
-        GridY = GameConfiguration.FinalStartingGridYPosition;
-        NextMoveBy = startingPlayer == EGamePiece.Player2 ? EGamePiece.Player2 : EGamePiece.Player1;
+        GridX = GameConfiguration.StartingGridXPosition;
+        GridY = GameConfiguration.StartingGridYPosition;
+        NextMoveBy = GameConfiguration.StartingPlayer == EGamePiece.Player2 ? EGamePiece.Player2 : EGamePiece.Player1;
         Player1MarkersPlaced = 0;
         Player2MarkersPlaced = 0;
         MoveCount = 0;
@@ -40,7 +39,7 @@ public class GameState
     
     public bool CanMoveGrid()
     {
-        return MoveCount / 2 >= GameConfiguration.MoveGridAfterNMoves;
+        return MoveCount / 2 >= GameConfiguration.UnlockSpecialMovesAfterNMoves;
     }
 
     public override string ToString()

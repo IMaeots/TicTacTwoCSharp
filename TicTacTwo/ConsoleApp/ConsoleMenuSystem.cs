@@ -1,6 +1,5 @@
-using System.Text.RegularExpressions;
 using Common;
-using Data;
+using Common.Entities;
 using Data.Repositories;
 using GameBrain;
 using MenuSystem;
@@ -38,13 +37,13 @@ public class ConsoleMenuSystem(
         return HandleGameResult(gameResult);
     }
 
-    private string? ValidateSaveGameName(string input)
+    private static string? ValidateSaveGameName(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
             return null;
         }
-        return Regex.IsMatch(input, @"^[a-zA-Z0-9]+$") ? input : null;
+        return GameConfigurationValidator.IsAlphanumericRegex().IsMatch(input) ? input : null;
     }
 
     protected override GameConfiguration CreateNewConfig()
@@ -53,6 +52,19 @@ public class ConsoleMenuSystem(
             prompt: "Enter game name:",
             validationRule: GameConfigurationValidator.ValidateName
         );
+
+        var mode = GetValidatedString(
+                prompt: "Enter game mode: [S] - Single Player, [L] - Local Two Player, [O] - Online Two Player, [B] - Bots",
+                validationRule: GameConfigurationValidator.ValidateMode
+            ).ToUpper() switch
+            {
+                "S" => EGameMode.SinglePlayer,
+                "L" => EGameMode.LocalTwoPlayer,
+                "O" => EGameMode.OnlineTwoPlayer,
+                "B" => EGameMode.Bots,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        
 
         var boardWidth = GetValidatedInt(
             prompt: "Enter board width:",
@@ -80,7 +92,7 @@ public class ConsoleMenuSystem(
         );
 
         var moveGridAfterNMoves = GetValidatedInt(
-            prompt: "Enter number of moves to move the grid:",
+            prompt: "Enter number of moves to gain the ability to move the grid or already placed down marker (must be > 1):",
             validationRule: GameConfigurationValidator.ValidateMoveGridAfterNMoves
         );
 
@@ -91,31 +103,33 @@ public class ConsoleMenuSystem(
 
         var startX = GetValidatedNullableInt(
             prompt: "Enter starting grid's top left corner's X position (optional):",
-            validationRule: input => GameConfigurationValidator.ValidateStartingGridXPosition(input, boardWidth, gridWidth)
-        );
+            validationRule: input =>
+                GameConfigurationValidator.ValidateStartingGridXPosition(input, boardWidth, gridWidth)
+        ) ?? (boardWidth - gridWidth) / 2;
 
         var startY = GetValidatedNullableInt(
             prompt: "Enter starting grid's top left corner's Y position (optional):",
             validationRule: input => GameConfigurationValidator.ValidateStartingGridYPosition(input, boardHeight, gridHeight)
-        );
+        ) ?? (boardHeight - gridHeight) / 2;
 
         var startingPlayer = GetValidatedNullableInt(
             prompt: "Enter starting player - [1] or [2] (optional):",
             validationRule: GameConfigurationValidator.ValidateStartingPlayer
-        );
+        ) == 2 ? EGamePiece.Player2 : EGamePiece.Player1;
 
         return new GameConfiguration(
             Name:name,
+            Mode:mode,
             WinCondition:winCondition,
             BoardWidth:boardWidth,
             BoardHeight: boardHeight,
             GridWidth: gridWidth,
             GridHeight: gridHeight,
-            MoveGridAfterNMoves:moveGridAfterNMoves,
+            UnlockSpecialMovesAfterNMoves:moveGridAfterNMoves,
             NumberOfMarkers: numberOfMarkers,
-            UserInputStartingGridXPosition: startX,
-            UserInputStartingGridYPosition: startY,
-            UserInputStartingPlayer: startingPlayer
+            StartingGridXPosition: startX,
+            StartingGridYPosition: startY,
+            StartingPlayer: startingPlayer
         );
     }
 

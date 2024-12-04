@@ -8,6 +8,11 @@ public static partial class GameConfigurationValidator
         IsAlphanumericRegex().IsMatch(name)
             ? null
             : "Configuration name must contain only normal characters or numbers.";
+    
+    public static string? ValidateMode(string input) =>
+        IsCorrectModeRegex().IsMatch(input)
+            ? null
+            : "Mode must be a single character representing wished mode from the options.";
 
     public static string? ValidateWinCondition(int winCondition, int gridHeight, int gridWidth) =>
         winCondition <= 0 ? "Win condition must be a positive integer."
@@ -27,7 +32,7 @@ public static partial class GameConfigurationValidator
         gridHeight > boardHeight ? "Grid height cannot be greater than the board height." : ValidateRangeAccordingToRules(gridHeight);
 
     public static string? ValidateMoveGridAfterNMoves(int moves) => 
-        moves <= 0 ? "Moves required to move grid must be a positive integer." : null;
+        moves <= 1 ? "Moves required to move grid must be greater than 1." : null;
 
     public static string? ValidateMarkers(int markers, int winCondition) => 
         markers <= 0 ? "Number of markers must be a positive integer." :
@@ -44,7 +49,10 @@ public static partial class GameConfigurationValidator
     
     // Helpers
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z0-9]+$")]
-    private static partial System.Text.RegularExpressions.Regex IsAlphanumericRegex();
+    public static partial System.Text.RegularExpressions.Regex IsAlphanumericRegex();
+    
+    [System.Text.RegularExpressions.GeneratedRegex(@"^[SsLlOoBb]$")]
+    private static partial System.Text.RegularExpressions.Regex IsCorrectModeRegex();
     
     private static string? ValidateRangeAccordingToRules(int value)
     {

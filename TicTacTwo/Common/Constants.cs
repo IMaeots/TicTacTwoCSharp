@@ -15,9 +15,6 @@ public static class Constants
     
     public const string EmptyInputMessage = "It would be nice, if you actually choose something!!! Try again... Maybe...";
     public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
-    public const string MenuDescriptionDivider = "---------------";
-    public const string MenuDivider = "===============";
-    public const string MenuInputBoxHint = ">";
     public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";
     public const string ConfirmExitText = "Are you sure you want to exit? (Y/N)";
@@ -27,6 +24,11 @@ public static class Constants
     public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
     public const string ConfirmSaveGameText = "Are you sure you want to save the game? (Y/N)";
+    
+    // ReSharper disable InconsistentNaming
+    public const string MenuDescriptionDivider = "---------------";
+    public const string MenuDivider = "===============";
+    public const string MenuInputBoxHint = ">";
     public const string MenuNewGameTitle = "New Game";
     public const string MenuNewGameShortcut = "N";
     public const string MenuSavedGamesTitle = "Saved Games";
@@ -43,20 +45,20 @@ public static class Constants
         "TicTacTwo is an enhanced version of Tic-Tac-Toe.\n" +
         "Players take turns placing their markers on the game board that also includes the winning grid.\n" +
         "The goal is to align a specified number of your markers (the 'win condition') either horizontally, vertically, or diagonally inside the grid to win.\n" +
-        "After completing some number of moves ('MoveGridAfterNMoves') you can also move the grid around.\n" +
+        "After completing some number of moves ('UnlockSpecialMovesAfterNMoves') you can also move the grid around or move your already placed marker.\n" +
         "In addition, if there was a limit on game pieces ('NumberOfMarkers') then after reaching the limit you will be able to re-move your markers.\n" +
         "You can also configure the game to suit your preference!\n" +
         "\n" +
         "How to Save the game: \n" +
-        "When playing, you have to reach the ability to choose between the 3 options (place marker, move marker, move grid). \n" +
-        "Then after making the option, Press \"S\" key to initate the game saving operation. Write a name -> Game is Saved! \n" +
+        "When playing, before making a move, press \"S\" key to initate the game saving operation. Write a name -> Game is Saved! \n" +
         "\n" +
         "Configuration Rules: \n" +
+        "- Game Mode: Single Player (play against AI), Local Two Player (play with a friend on one screen), Online Two Player (play with a friend on two screens), Bots (AI vs AI). \n" +
         "- Board Width and Height: Must be between 2 and 100. \n" +
         "- Grid Width and Height: Cannot exceed board dimensions and must be between 2 and 100. \n" +
         "- Win Condition: Must be a positive integer and cannot exceed the grid's dimensions. \n" +
         "- Markers: Number of markers must be a positive integer that is greater or equal to win condition. \n" +
-        "- Moves to Move Grid: Must be a positive integer. \n" +
+        "- Moves to Enable Special Moves (move grid or already placed marker): Must be greater than 1. \n" +
         "- Starting Player: Must be either player 1 [1] or player 2 [2]. \n" +
         "- Starting Grid Position (X and Y): Is the grid's top left corner location. Must account for the grid's size to fit inside the board!\n" +
         "Create your own configuration to enjoy a fresh & interesting game!";
