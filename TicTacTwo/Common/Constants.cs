@@ -7,25 +7,26 @@ public static class Constants
     public const string SecondPlayerSymbol = "O";
     public const int MinimumGameDimension = 2;
     public const int MaximumGameDimension = 100;
-    public const string ConfigFileExtension = ".config.json";
-    public const string GameDataFileExtension = ".games.json";
+    public const string JsonFileExtension = ".json";
     public static readonly string BasePath = Environment
                                                  .GetFolderPath(Environment.SpecialFolder.UserProfile)
-                                             + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar; 
+                                             + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar;
+    public static readonly string GamesPath =Path.Combine(BasePath, "Games" + Path.DirectorySeparatorChar);
+    public static readonly string ConfigurationsPath = Path.Combine(BasePath, "Configurations" + Path.DirectorySeparatorChar);
     
     public const string EmptyInputMessage = "It would be nice, if you actually choose something!!! Try again... Maybe...";
     public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
     public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";
-    public const string ConfirmExitText = "Are you sure you want to exit? (Y/N)";
+    public const string ConfirmExitText = "Are you sure you want to close the game? (Y/N)";
     public const string ConfirmSymbol = "Y";
+    public const string LeaveGameShortcut = "L";
+    public const string ConfirmLeaveGameText = "Are you sure you want to leave the game? (Y/N)";
     public const string ReturnTitle = "Return";
     public const string ReturnShortcut = "R";
     public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
-    public const string ConfirmSaveGameText = "Are you sure you want to save the game? (Y/N)";
     
-    // ReSharper disable InconsistentNaming
     public const string MenuDescriptionDivider = "---------------";
     public const string MenuDivider = "===============";
     public const string MenuInputBoxHint = ">";
@@ -46,11 +47,13 @@ public static class Constants
         "Players take turns placing their markers on the game board that also includes the winning grid.\n" +
         "The goal is to align a specified number of your markers (the 'win condition') either horizontally, vertically, or diagonally inside the grid to win.\n" +
         "After completing some number of moves ('UnlockSpecialMovesAfterNMoves') you can also move the grid around or move your already placed marker.\n" +
-        "In addition, if there was a limit on game pieces ('NumberOfMarkers') then after reaching the limit you will be able to re-move your markers.\n" +
-        "You can also configure the game to suit your preference!\n" +
+        "'NumberOfMarkers' illustrates how many markers you can place down on the board.\n" +
         "\n" +
-        "How to Save the game: \n" +
-        "When playing, before making a move, press \"S\" key to initate the game saving operation. Write a name -> Game is Saved! \n" +
+        "To be Noted: \n" +
+        "Game is automatically saved after every move. Under Saved Games you can rejoin.\n" +
+        "There are 4 Game Modes: Single Player (play against AI), Local Two Player (play with a friend on one screen), Online Two Player (play with a friend on two screens), Bots (AI vs AI)\n" +
+        "Depending on game mode there may be passwords for games to distinguish players!\n" +
+        "You can also make your own configurations for the game to suit your preference!\n" +
         "\n" +
         "Configuration Rules: \n" +
         "- Game Mode: Single Player (play against AI), Local Two Player (play with a friend on one screen), Online Two Player (play with a friend on two screens), Bots (AI vs AI). \n" +
