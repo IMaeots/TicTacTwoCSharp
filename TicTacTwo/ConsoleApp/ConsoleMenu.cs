@@ -19,52 +19,24 @@ public class ConsoleMenu(
         {
             var menuItem = DisplayMenuAndGetUserChoice();
             
-            if (menuItem.MenuItemAction != null)
-            {
-                return menuItem.RunAction();
-            }
+            if (menuItem.MenuItemAction != null) return menuItem.RunAction();
 
             switch (menuItem.Shortcut)
             {
                 case Constants.ExitShortcut:
-                    if (ConfirmExit())
-                    {
-                        return Constants.ExitShortcut;
-                    }
+                    if (ConfirmExit(Constants.ConfirmExitText)) return Constants.ExitShortcut;
+                    break;
+                case Constants.LeaveGameShortcut:
+                    if (ConfirmExit(Constants.ConfirmLeaveGameText)) return Constants.ReturnToMainShortcut;
                     break;
                 case Constants.ReturnShortcut:
-                    if (MenuLevel != EMenuLevel.Primary)
-                    {
-                        return Constants.ReturnToMainShortcut;
-                    }
+                    if (MenuLevel != EMenuLevel.Primary) return Constants.ReturnToMainShortcut;
                     break;
                 case Constants.ReturnToMainShortcut:
-                    if (MenuLevel != EMenuLevel.Primary)
-                    {
-                        return Constants.ReturnToMainShortcut;
-                    }
+                    if (MenuLevel != EMenuLevel.Primary) return Constants.ReturnToMainShortcut;
                     break;
             }
         } while (true);
-    }
-
-    private void DrawMenu()
-    {
-        Console.Clear();
-        Console.WriteLine(MenuHeader);
-        if (MenuDescription != null)
-        {
-            Console.WriteLine(Constants.MenuDescriptionDivider);
-            Console.WriteLine(MenuDescription);
-        }
-
-        Console.WriteLine(Constants.MenuDivider);
-        foreach (var menuItem in MenuItems)
-        {
-            Console.WriteLine(menuItem);
-        }
-        
-        Console.WriteLine();
     }
 
     private MenuItem DisplayMenuAndGetUserChoice()
@@ -88,19 +60,35 @@ public class ConsoleMenu(
                 var selectedMenuItem = MenuItems.FirstOrDefault(menuItem =>
                     menuItem.Shortcut.Equals(userInput, StringComparison.CurrentCultureIgnoreCase));
                 
-                if (selectedMenuItem != null)
-                {
-                    return selectedMenuItem;
-                }
+                if (selectedMenuItem != null) return selectedMenuItem;
                 
                 errorMessage = Constants.InvalidChoiceMessage + string.Join(", ", MenuItems.Select(mi => mi.Shortcut));
             }
         } while (true);
     }
     
-    private static bool ConfirmExit()
+    private void DrawMenu()
     {
-        Console.WriteLine(Constants.ConfirmExitText);
+        Console.Clear();
+        Console.WriteLine(MenuHeader);
+        if (MenuDescription != null)
+        {
+            Console.WriteLine(Constants.MenuDescriptionDivider);
+            Console.WriteLine(MenuDescription);
+        }
+
+        Console.WriteLine(Constants.MenuDivider);
+        foreach (var menuItem in MenuItems)
+        {
+            Console.WriteLine(menuItem);
+        }
+        
+        Console.WriteLine();
+    }
+    
+    private static bool ConfirmExit(string message)
+    {
+        Console.WriteLine(message);
         var confirm = Console.ReadLine();
         Console.Clear();
         return confirm?.Trim().ToUpper() == Constants.ConfirmSymbol;

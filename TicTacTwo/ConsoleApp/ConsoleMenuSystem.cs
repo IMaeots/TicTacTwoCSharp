@@ -1,7 +1,6 @@
-using Common;
 using Common.Entities;
 using Data.Repositories;
-using GameBrain;
+using GameLogic;
 using MenuSystem;
 using static Common.InputHelper;
 
@@ -12,48 +11,38 @@ public class ConsoleMenuSystem(
     IGameRepository gameRepository
 ) : BaseMenuSystem<ConsoleMenu>(configRepository, gameRepository)
 {
-    protected override string? StartGameWithConfig(string configName)
+    protected override string? StartNewGameWithConfig(string configName)
     {
-        var config = ConfigRepository.GetConfigurationByName(configName);
-        if (config == null)
+        var gameConfiguration = ConfigRepository.GetConfigurationByName(configName);
+        if (gameConfiguration == null)
         {
-            return "Invalid configuration selected.";
-        }
-        
-        var gameResult = GameController.StartNewGame(config);
-        return HandleGameResult(gameResult);
-    }
-
-    protected override string? StartSavedGame(string savedGameName)
-    {
-        var savedGameState = GameRepository.GetGameStateByName(savedGameName);
-        if (savedGameState == null)
-        {
-            Console.WriteLine("Invalid game save selected.");
+            Console.WriteLine("Invalid configuration selected.");
             return null;
         }
-        
-        var gameResult = GameController.StartSavedGame(savedGameState);
-        return HandleGameResult(gameResult);
+
+        var newGame = CreateNewGame(gameConfiguration);
+        GameRepository.SaveNewGame(newGame);
+        return GameController.PlayGame(newGame, GameRepository.SaveGameState, GameRepository.DeleteGame);
     }
 
-    private static string? ValidateSaveGameName(string input)
+    protected override string StartSavedGame(string savedGameName)
     {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return null;
-        }
-        return GameConfigurationValidator.IsAlphanumericRegex().IsMatch(input) ? input : null;
+        var savedGame = GameRepository.GetSavedGameByName(savedGameName);
+        return GameController.PlayGame(savedGame, GameRepository.SaveGameState, GameRepository.DeleteGame);
     }
 
     protected override GameConfiguration CreateNewConfig()
     {
+        Console.WriteLine("---------------------------");
+        Console.WriteLine("Let's make a configuration!");
+        Console.WriteLine("---------------------------\n");
+        
         var name = GetValidatedString(
-            prompt: "Enter game name:",
+            prompt: "Enter a name for the configuration:",
             validationRule: GameConfigurationValidator.ValidateName
         );
 
-        var mode = GetValidatedString(
+        var gameMode = GetValidatedString(
                 prompt: "Enter game mode: [S] - Single Player, [L] - Local Two Player, [O] - Online Two Player, [B] - Bots",
                 validationRule: GameConfigurationValidator.ValidateMode
             ).ToUpper() switch
@@ -117,9 +106,15 @@ public class ConsoleMenuSystem(
             validationRule: GameConfigurationValidator.ValidateStartingPlayer
         ) == 2 ? EGamePiece.Player2 : EGamePiece.Player1;
 
+        Console.WriteLine("---------------------------------------");
+        Console.WriteLine("Great! Configuration successfully made.");
+        Console.WriteLine("---------------------------------------\n");
+        Console.WriteLine("Press any key to return to the list of configurations!");
+        Console.ReadKey();
+
         return new GameConfiguration(
             Name:name,
-            Mode:mode,
+            Mode:gameMode,
             WinCondition:winCondition,
             BoardWidth:boardWidth,
             BoardHeight: boardHeight,
@@ -133,22 +128,62 @@ public class ConsoleMenuSystem(
         );
     }
 
-    private string? HandleGameResult((GameState?, string?) gameResult)
+    private Game CreateNewGame(GameConfiguration gameConfiguration)
     {
-        if (gameResult.Item1 != null)
+        Console.WriteLine("----------------------");
+        Console.WriteLine("Let's make a new game!");
+        Console.WriteLine("----------------------\n");
+        
+        string? gameName;
+        do
         {
-            Console.WriteLine("Enter name for the saved game: ");
-            string? saveName;
+            Console.WriteLine("Enter a name for the game: ");
+            var input = Console.ReadLine() ?? string.Empty;
+            gameName = ValidateNormalInput(input);
+        } while (gameName == null);
+
+        string? passwordP1 = null;
+        string? passwordP2 = null;
+        if (gameConfiguration.Mode == EGameMode.OnlineTwoPlayer)
+        {
             do
             {
-                var input = Console.ReadLine() ?? string.Empty;
-                saveName = ValidateSaveGameName(input);
-            } while (saveName == null);
+                Console.WriteLine("Enter a password for Player 1: ");
+                var inputPassword = Console.ReadLine() ?? String.Empty;
+                passwordP1 = ValidateNormalInput(inputPassword);
+            } while(passwordP1 == null);
             
-            GameRepository.SaveGame(gameState: gameResult.Item1, savedGameName: saveName);
-            return Constants.ReturnToMainShortcut;
+            do
+            {
+                Console.WriteLine("Enter a password for Player 2: ");
+                var inputPassword = Console.ReadLine() ?? String.Empty;
+                passwordP2 = ValidateNormalInput(inputPassword);
+            } while(passwordP2 == null);
+        } else if (gameConfiguration.Mode == EGameMode.SinglePlayer)
+        {
+            do
+            {
+                Console.WriteLine("Enter a password for Player 1: ");
+                var inputPassword = Console.ReadLine() ?? String.Empty;
+                passwordP1 = ValidateNormalInput(inputPassword);
+            } while (passwordP1 == null);
         }
 
-        return gameResult.Item2 ?? null;
+        Console.WriteLine("-----------------------");
+        Console.WriteLine("Game successfully made!");
+        Console.WriteLine("-----------------------\n");
+        Console.WriteLine("Press any key to start playing!");
+        Console.ReadKey();
+
+        var gameState = new GameState(gameConfiguration);
+
+        return new Game(gameName, gameConfiguration, gameState, passwordP1, passwordP2);
+    }
+    
+    private static string? ValidateNormalInput(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return null;
+        
+        return GameConfigurationValidator.IsAlphanumericRegex().IsMatch(input) ? input : null;
     }
 }

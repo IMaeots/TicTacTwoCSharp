@@ -1,41 +1,31 @@
 using Common.Entities;
-using Data;
 using Data.Repositories;
-using GameBrain;
+using GameLogic;
 using static Common.Constants;
 
 namespace MenuSystem;
 
-public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
+public abstract class BaseMenuSystem<TMenu>(
+    IConfigRepository configRepository,
+    IGameRepository gameRepository
+) where TMenu : BaseMenu
 {
-    protected readonly IConfigRepository ConfigRepository;
-    protected readonly IGameRepository GameRepository;
+    protected readonly IConfigRepository ConfigRepository = configRepository;
+    protected readonly IGameRepository GameRepository = gameRepository;
     
-    private readonly TMenu _homeMenu;
-    private readonly TMenu _rulesMenu;
-    
-    protected abstract string? StartGameWithConfig(string configName);
+    protected abstract string? StartNewGameWithConfig(string configName);
     protected abstract string? StartSavedGame(string savedGameName);
     protected abstract GameConfiguration CreateNewConfig();
 
-    protected BaseMenuSystem(IConfigRepository configRepository, IGameRepository gameRepository)
-    {
-        ConfigRepository = configRepository;
-        GameRepository = gameRepository;
-        
-        _rulesMenu = CreateInfoMenu();
-        _homeMenu = CreateHomeMenu();
-    }
-
     public void Run()
     {
-        var result = _homeMenu.Run();
+        var result = CreateHomeMenu().Run();
         while (true)
         {
             switch (result)
             {
                 case ReturnToMainShortcut:
-                    result = _homeMenu.Run();
+                    result = CreateHomeMenu().Run();
                     break;
                 case ExitShortcut:
                     return;
@@ -44,29 +34,52 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
             }
         }
     }
-    
-    private TMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription, List<MenuItem> menuItems)
-    {
-        return (TMenu)Activator.CreateInstance(typeof(TMenu), menuLevel, menuHeader, menuItems, menuDescription)!;
-    }
+
+    private static TMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription, List<MenuItem> menuItems) =>
+        (TMenu)Activator.CreateInstance(typeof(TMenu), menuLevel, menuHeader, menuItems, menuDescription)!;
     
     private TMenu CreateHomeMenu()
     {
         var homeMenuItems = new List<MenuItem>
         {
-            new (MenuNewGameTitle, MenuNewGameShortcut, CreateConfigMenuAndRunIt),
-            new (MenuSavedGamesTitle, MenuSavedGamesShortcut, CreateSavedGamesMenuAndRunIt), 
-            new (MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, _rulesMenu.Run)
+            new (MenuNewGameTitle, MenuNewGameShortcut, CreateNewGameMenu().Run),
+            new (MenuSavedGamesTitle, MenuSavedGamesShortcut, CreateSavedGamesMenu().Run), 
+            new (MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, CreateRulesAndInfoMenu().Run)
         };
 
         return CreateMenu(EMenuLevel.Primary, GameName, null, homeMenuItems);
     }
 
-    private TMenu CreateInfoMenu()
+    private TMenu CreateNewGameMenu()
     {
-        var rulesMenuItems = new List<MenuItem>();
-        return CreateMenu(EMenuLevel.Secondary, MenuRulesAndInfoHeading,
-            MenuRulesAndInfoDescription, rulesMenuItems);
+        var gameConfigurations = new List<MenuItem>
+        {
+            new(
+                title: MenuConfigCreationTitle,
+                shortcut: MenuConfigCreationShortcut,
+                action: CreateNewConfigAndSaveIt
+            )
+        };
+
+        var configNames = ConfigRepository.GetConfigurationNames();
+        for (var i = 0; i < configNames.Count; i++)
+        {
+            var configIndex = i;
+            gameConfigurations.Add(new MenuItem(
+                title: configNames[i],
+                shortcut: (i + 1).ToString(),
+                action: () => StartNewGameWithConfig(configNames[configIndex])
+            ));
+        }
+
+        return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, gameConfigurations);
+    }
+    
+    private string? CreateNewConfigAndSaveIt()
+    {
+        var newConfig = CreateNewConfig();
+        ConfigRepository.SaveConfig(newConfig);
+        return CreateNewGameMenu().Run();
     }
         
     private TMenu CreateSavedGamesMenu()
@@ -86,46 +99,10 @@ public abstract class BaseMenuSystem<TMenu> where TMenu : BaseMenu
         return CreateMenu(EMenuLevel.Secondary, MenuSavedGamesHeading, null, savedGamesMenuItems);
     }
     
-    private string? CreateSavedGamesMenuAndRunIt()
+    private TMenu CreateRulesAndInfoMenu()
     {
-        var savedGamesMenu = CreateSavedGamesMenu();
-        return savedGamesMenu.Run();
-    }
-
-    private TMenu CreateConfigMenu()
-    {
-        var configMenuItems = new List<MenuItem>();
-        var configNames = ConfigRepository.GetConfigurationNames();
-
-        configMenuItems.Add(new MenuItem(
-            title: MenuConfigCreationTitle,
-            shortcut: MenuConfigCreationShortcut,
-            action: CreateNewConfigAndRunIt
-        ));
-        
-        for (var i = 0; i < configNames.Count; i++)
-        {
-            var configIndex = i;
-            configMenuItems.Add(new MenuItem(
-                title: configNames[i],
-                shortcut: (i + 1).ToString(),
-                action: () => StartGameWithConfig(configNames[configIndex])
-            ));
-        }
-
-        return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, configMenuItems);
-    }
-
-    private string? CreateConfigMenuAndRunIt()
-    {
-        var configMenu = CreateConfigMenu();
-        return configMenu.Run();
-    }
-
-    private string? CreateNewConfigAndRunIt()
-    {
-        var newConfig = CreateNewConfig();
-        ConfigRepository.SaveConfig(newConfig);
-        return StartGameWithConfig(newConfig.Name);
+        var rulesMenuItems = new List<MenuItem>();
+        return CreateMenu(EMenuLevel.Secondary, MenuRulesAndInfoHeading,
+            MenuRulesAndInfoDescription, rulesMenuItems);
     }
 }
