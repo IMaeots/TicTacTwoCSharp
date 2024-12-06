@@ -1,6 +1,6 @@
 using static Common.Constants;
 
-namespace GameBrain;
+namespace GameLogic;
 
 public static partial class GameConfigurationValidator
 {

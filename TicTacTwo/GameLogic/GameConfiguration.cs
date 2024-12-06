@@ -1,6 +1,6 @@
 using Common.Entities;
 
-namespace GameBrain;
+namespace GameLogic;
 
 public record GameConfiguration(
     string Name,
