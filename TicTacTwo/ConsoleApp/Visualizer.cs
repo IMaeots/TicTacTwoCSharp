@@ -1,20 +1,21 @@
 using Common;
 using Common.Entities;
+using GameLogic;
 
 namespace ConsoleApp;
 
 public static class Visualizer
 {
-    public static void DrawBoard(GameBrain.GameBrain gameInstance, int currentX, int currentY)
+    public static void DrawBoard(Game game, int currentX, int currentY)
     {
         Console.Clear();
         
-        var boardWidth = gameInstance.BoardWidth;
-        var boardHeight = gameInstance.BoardHeight;
-        var gridWidth = gameInstance.GridWidth;
-        var gridHeight = gameInstance.GridHeight;
-        var gridX = gameInstance.GridX;
-        var gridY = gameInstance.GridY;
+        var boardWidth = game.State.GameBoard.Length;
+        var boardHeight = game.State.GameBoard[0].Length;
+        var gridWidth = game.Configuration.GridWidth;
+        var gridHeight = game.Configuration.GridHeight;
+        var gridX = game.State.GridX;
+        var gridY = game.State.GridY;
         
         for (var y = 0; y < boardHeight; y++)
         {
@@ -30,7 +31,7 @@ public static class Visualizer
                     Console.BackgroundColor = ConsoleColor.Gray;
                 }
                 
-                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x][y]) + " ");
+                Console.Write(" " + DrawGamePiece(game.State.GameBoard[x][y]) + " ");
                 Console.ResetColor();
                 
                 if (x < boardWidth - 1)
