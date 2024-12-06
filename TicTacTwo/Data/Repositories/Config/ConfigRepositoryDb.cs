@@ -2,8 +2,8 @@ using System.Text.Json;
 using Common;
 using Common.Entities;
 using Data.Context;
-using Data.Models;
-using GameBrain;
+using Data.Models.db;
+using GameLogic;
 
 namespace Data.Repositories.Config;
 
@@ -13,12 +13,12 @@ public class ConfigRepositoryDb(GameDbContext dbContext) : IConfigRepository
     {
         CheckAndCreateInitialConfig();
         
-        return dbContext.Configurations.Select(config => config.Name.ToString()).ToList();
+        return dbContext.SavedGameConfigurations.Select(config => config.Name.ToString()).ToList();
     }
 
     public GameConfiguration? GetConfigurationByName(string name)
     {
-        var configuration = dbContext.Configurations.FirstOrDefault(config => config.Name.ToString() == name);
+        var configuration = dbContext.SavedGameConfigurations.FirstOrDefault(config => config.Name.ToString() == name);
         return configuration != null 
             ? JsonSerializer.Deserialize<GameConfiguration>(configuration.JsonConfiguration) 
             : null;
@@ -33,13 +33,13 @@ public class ConfigRepositoryDb(GameDbContext dbContext) : IConfigRepository
             JsonConfiguration = jsonData
         };
 
-        dbContext.Configurations.Add(configuration);
+        dbContext.SavedGameConfigurations.Add(configuration);
         dbContext.SaveChanges();
     }
-    
-    public void CheckAndCreateInitialConfig()
+
+    private void CheckAndCreateInitialConfig()
     {
-        if (dbContext.Configurations.ToList().Count != 0) return;
+        if (dbContext.SavedGameConfigurations.ToList().Count != 0) return;
         
         var defaultGameConfigurations = new List<GameConfiguration>
         {

@@ -1,4 +1,4 @@
-﻿using GameBrain;
+﻿using GameLogic;
 
 namespace Data.Repositories;
 

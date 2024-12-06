@@ -5,23 +5,23 @@
 namespace Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreation : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Configurations",
+                name: "SavedGameConfigurations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    JsonConfiguration = table.Column<string>(type: "TEXT", nullable: false)
+                    JsonConfiguration = table.Column<string>(type: "TEXT", maxLength: 10000, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Configurations", x => x.Id);
+                    table.PrimaryKey("PK_SavedGameConfigurations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -31,25 +31,38 @@ namespace Data.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    CreatedAtDateTime = table.Column<string>(type: "TEXT", nullable: false),
-                    JsonState = table.Column<string>(type: "TEXT", nullable: false),
-                    ConfigurationId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ConfigurationId = table.Column<int>(type: "INTEGER", nullable: false),
+                    JsonGameStates = table.Column<string>(type: "TEXT", nullable: false),
+                    PasswordP1 = table.Column<string>(type: "TEXT", maxLength: 128, nullable: true),
+                    PasswordP2 = table.Column<string>(type: "TEXT", maxLength: 128, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SavedGames", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SavedGames_Configurations_ConfigurationId",
+                        name: "FK_SavedGames_SavedGameConfigurations_ConfigurationId",
                         column: x => x.ConfigurationId,
-                        principalTable: "Configurations",
+                        principalTable: "SavedGameConfigurations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedGameConfigurations_Name",
+                table: "SavedGameConfigurations",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SavedGames_ConfigurationId",
                 table: "SavedGames",
                 column: "ConfigurationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedGames_Name",
+                table: "SavedGames",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -59,7 +72,7 @@ namespace Data.Migrations
                 name: "SavedGames");
 
             migrationBuilder.DropTable(
-                name: "Configurations");
+                name: "SavedGameConfigurations");
         }
     }
 }

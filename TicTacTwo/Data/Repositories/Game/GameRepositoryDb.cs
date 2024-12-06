@@ -1,30 +1,42 @@
-using System.Globalization;
 using System.Text.Json;
 using Data.Context;
-using Data.Models;
-using GameBrain;
+using Data.Models.db;
+using GameLogic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repositories.Game;
 
 public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
 {
-    public List<string> GetSavedGamesNames()
+    public List<string> GetSavedGamesNames() => dbContext.SavedGames.Select(game => game.Name.ToString()).ToList();
+
+    public GameLogic.Game GetSavedGameByName(string gameName)
     {
-        return dbContext.SavedGames.Select(game => game.Name.ToString()).ToList();
+        var savedGame = dbContext.SavedGames
+            .Include(saveGame => saveGame.Configuration)
+            .FirstOrDefault(game => game.Name == gameName);
+        if (savedGame == null)
+        {
+            throw new KeyNotFoundException($"Game {gameName} was not found.");
+        }
+
+        var saveName = savedGame.Name;
+        var configuration = JsonSerializer.Deserialize<GameConfiguration>(savedGame.Configuration.JsonConfiguration);
+        var state = JsonSerializer.Deserialize<GameState>(savedGame.JsonGameStates.Last());
+        var passwordP1 = savedGame.PasswordP1;
+        var passwordP2 = savedGame.PasswordP2;
+        if (configuration is null || state is null)
+        {
+            throw new ArgumentNullException($"Game configuration and/or state was null.");
+        }
+
+        return new GameLogic.Game(saveName, configuration, state, passwordP1, passwordP2);
     }
 
-    public GameState? GetGameStateByName(string savedGameName)
+    public void SaveNewGame(GameLogic.Game game)
     {
-        var game = dbContext.SavedGames.FirstOrDefault(game => game.Name == savedGameName);
-        return game != null 
-            ? JsonSerializer.Deserialize<GameState>(game.JsonState) 
-            : null;
-    }
-
-    public void SaveGame(GameState gameState, string savedGameName)
-    {
-        var configName = gameState.GameConfiguration.Name;
-        var configuration = dbContext.Configurations
+        var configName = game.Configuration.Name;
+        var configuration = dbContext.SavedGameConfigurations
             .FirstOrDefault(config => config.Name == configName);
         
         if (configuration == null)
@@ -32,16 +44,43 @@ public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
             throw new InvalidOperationException($"Configuration '{configName}' does not exist.");
         }
         
-        var jsonData = JsonSerializer.Serialize(gameState);
-        var game = new SaveGame
+        var jsonGameState = JsonSerializer.Serialize(game.State);
+        var newSave = new SaveGame
         {
-            Name = savedGameName,
-            CreatedAtDateTime  = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
-            JsonState = jsonData,
-            ConfigurationId = configuration.Id
+            Name = game.Name,
+            JsonGameStates = [jsonGameState],
+            ConfigurationId = configuration.Id,
+            PasswordP1 = game.PasswordP1,
+            PasswordP2 = game.PasswordP2
         };
 
-        dbContext.SavedGames.Add(game);
+        dbContext.SavedGames.Add(newSave);
+        dbContext.SaveChanges();
+    }
+
+    public void SaveGameState(GameLogic.Game game)
+    {
+        var dbGame = dbContext.SavedGames.FirstOrDefault(g => g.Name == game.Name);
+        if (dbGame == null)
+        {
+            throw new InvalidOperationException($"Game '{game.Name}' does not exist.");
+        }
+        
+        var updatedJsonGameState = JsonSerializer.Serialize(game.State);
+        dbGame.JsonGameStates.Add(updatedJsonGameState);
+        
+        dbContext.SaveChanges();
+    }
+
+    public void DeleteGame(GameLogic.Game game)
+    {
+        var dbGame = dbContext.SavedGames.FirstOrDefault(g => g.Name == game.Name);
+        if (dbGame == null)
+        {
+            throw new InvalidOperationException($"Game '{game.Name}' does not exist.");
+        }
+        
+        dbContext.SavedGames.Remove(dbGame);
         dbContext.SaveChanges();
     }
 }

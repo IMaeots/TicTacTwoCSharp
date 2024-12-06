@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.Models;
+namespace Data.Models.db;
 
 public class SaveGameConfiguration
 {
@@ -9,7 +9,10 @@ public class SaveGameConfiguration
     [MaxLength(128)]
     public required string Name { get; set; }
     
+    [MaxLength(10000)]
     public required string JsonConfiguration { get; set; } = default!;
     
+    // ReSharper disable once CollectionNeverUpdated.Global
     public ICollection<SaveGame>? SavedGames { get; set; }
+    
 }
