@@ -8,13 +8,9 @@ public class GameDbContextFactory : IDesignTimeDbContextFactory<GameDbContext>
 {
     public GameDbContext CreateDbContext(string[] args)
     {
-        var dbDirectory = Path.Combine(Constants.BasePath, "TicTacTwo_Data");
-        if (!Directory.Exists(dbDirectory))
-        {
-            Directory.CreateDirectory(dbDirectory);
-        }
+        if (!Directory.Exists(Constants.DatabaseDirectory)) Directory.CreateDirectory(Constants.DatabaseDirectory);
 
-        var connectionString = $@"Data Source={Path.Combine(dbDirectory, "TicTacTwo.db")}";
+        var connectionString = $@"Data Source={Path.Combine(Constants.DatabaseDirectory, "TicTacTwo.db")}";
 
         var contextOptions = new DbContextOptionsBuilder<GameDbContext>()
             .UseSqlite(connectionString)

@@ -9,18 +9,20 @@ public static class Constants
     public const int MaximumGameDimension = 100;
     public const string JsonFileExtension = ".json";
 
-    public static readonly string BasePath =
+    private static readonly string BasePath =
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
         + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar;
-
-    public static readonly string GamesPath = 
-        Path.Combine(BasePath, "Games" + Path.DirectorySeparatorChar);
+    private static readonly string JsonDirectory = 
+        Path.Combine(BasePath, "JsonData" + Path.DirectorySeparatorChar);
+    public static readonly string DatabaseDirectory = 
+        Path.Combine(BasePath, "Database" + Path.DirectorySeparatorChar);
+    public static readonly string GamesPath =
+        Path.Combine(BasePath, JsonDirectory + "Games" + Path.DirectorySeparatorChar);
     public static readonly string ConfigurationsPath =
-        Path.Combine(BasePath, "Configurations" + Path.DirectorySeparatorChar);
-
+        Path.Combine(BasePath, JsonDirectory + "Configurations" + Path.DirectorySeparatorChar);
+    
     public const string EmptyInputMessage =
         "It would be nice, if you actually choose something!!! Try again... Maybe...";
-
     public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
     public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";

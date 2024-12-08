@@ -44,7 +44,7 @@ namespace Data.Migrations
                         column: x => x.ConfigurationId,
                         principalTable: "SavedGameConfigurations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    [Migration("20241208093251_remove redundant entity rules")]
-    partial class removeredundantentityrules
+    [Migration("20241208104148_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
