@@ -14,3 +14,27 @@ Uni-id: **inmaeo**
 - **GameLogic**: Holds UI game models and encapsulates their respective game logic.
 - **MenuSystem**: Base menu system to be implemented in Console and Web to manage app state.
 - **WebApp**: Contains all components necessary for the web application
+
+### Helpful dev commands:
+
+Overall
+~~~sh
+dotnet tool install --global dotnet-ef 
+dotnet tool update --global dotnet-ef
+
+dotnet tool install --global dotnet-aspnet-codegenerator
+dotnet tool update --global dotnet-aspnet-codegenerator
+~~~
+
+Run from solution folder
+~~~sh
+dotnet ef migrations add InitialCreate --project Data --startup-project ConsoleApp
+dotnet ef database update --project Data --startup-project ConsoleApp
+dotnet ef database drop --project Data --startup-project ConsoleApp 
+~~~
+
+Run from web folder (scaffolding)
+~~~sh
+dotnet aspnet-codegenerator razorpage -m SaveGame -outDir Pages/Games -dc GameDbContext -udl --referenceScriptLibraries -f
+dotnet aspnet-codegenerator razorpage -m SaveGameConfiguration -outDir Pages/Configurations -dc GameDbContext -udl --referenceScriptLibraries -f
+~~~

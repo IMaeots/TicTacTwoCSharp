@@ -10,14 +10,12 @@ public class GameDbContextFactory : IDesignTimeDbContextFactory<GameDbContext>
     {
         if (!Directory.Exists(Constants.DatabaseDirectory)) Directory.CreateDirectory(Constants.DatabaseDirectory);
 
-        var connectionString = $@"Data Source={Path.Combine(Constants.DatabaseDirectory, "TicTacTwo.db")}";
+        var optionsBuilder = new DbContextOptionsBuilder<GameDbContext>();
+        
+        var connectionString = "DataSource=<%location%>app.db;Cache=Shared";
+        connectionString = connectionString.Replace("<%location%>", Constants.DatabaseDirectory);
+        optionsBuilder.UseSqlite(connectionString);
 
-        var contextOptions = new DbContextOptionsBuilder<GameDbContext>()
-            .UseSqlite(connectionString)
-            .EnableDetailedErrors()
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new GameDbContext(contextOptions);
+        return new GameDbContext(optionsBuilder.Options);
     }
 }
