@@ -1,24 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Data.Context;
+using Data.Models.db;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Data.Context;
-using Data.Models.db;
 
 namespace WebApp.Pages.Configurations
 {
-    public class DeleteModel : PageModel
+    public class DeleteModel(GameDbContext context) : PageModel
     {
-        private readonly Data.Context.GameDbContext _context;
-
-        public DeleteModel(Data.Context.GameDbContext context)
-        {
-            _context = context;
-        }
-
         [BindProperty]
         public SaveGameConfiguration SaveGameConfiguration { get; set; } = default!;
 
@@ -29,16 +18,12 @@ namespace WebApp.Pages.Configurations
                 return NotFound();
             }
 
-            var savegameconfiguration = await _context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
+            var saveGameConfiguration = await context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (savegameconfiguration is not null)
-            {
-                SaveGameConfiguration = savegameconfiguration;
+            if (saveGameConfiguration is null) return NotFound();
 
-                return Page();
-            }
-
-            return NotFound();
+            SaveGameConfiguration = saveGameConfiguration;
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
@@ -48,13 +33,12 @@ namespace WebApp.Pages.Configurations
                 return NotFound();
             }
 
-            var savegameconfiguration = await _context.SavedGameConfigurations.FindAsync(id);
-            if (savegameconfiguration != null)
-            {
-                SaveGameConfiguration = savegameconfiguration;
-                _context.SavedGameConfigurations.Remove(SaveGameConfiguration);
-                await _context.SaveChangesAsync();
-            }
+            var saveGameConfiguration = await context.SavedGameConfigurations.FindAsync(id);
+            if (saveGameConfiguration == null) return RedirectToPage("./Index");
+
+            SaveGameConfiguration = saveGameConfiguration;
+            context.SavedGameConfigurations.Remove(SaveGameConfiguration);
+            await context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

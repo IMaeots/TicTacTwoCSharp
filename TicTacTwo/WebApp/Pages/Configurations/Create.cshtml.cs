@@ -1,24 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Data.Context;
 using Data.Models.db;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebApp.Pages.Configurations
 {
-    public class CreateModel : PageModel
+    public class CreateModel(GameDbContext context) : PageModel
     {
-        private readonly Data.Context.GameDbContext _context;
-
-        public CreateModel(Data.Context.GameDbContext context)
-        {
-            _context = context;
-        }
-
         public IActionResult OnGet()
         {
             return Page();
@@ -35,8 +23,8 @@ namespace WebApp.Pages.Configurations
                 return Page();
             }
 
-            _context.SavedGameConfigurations.Add(SaveGameConfiguration);
-            await _context.SaveChangesAsync();
+            context.SavedGameConfigurations.Add(SaveGameConfiguration);
+            await context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

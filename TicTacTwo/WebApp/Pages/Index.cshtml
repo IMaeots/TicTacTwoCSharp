@@ -1,9 +1,49 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">This is the home page!</h1>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Welcome to TicTacTwo!</h1>
+        <p class="lead">Choose an option to get started:</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Start a New Game</h5>
+                    <p class="card-text">Start a brand-new game with your preferred configuration!</p>
+                    <a href="/Play/Setup" class="btn btn-primary btn-lg">Play</a>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Ongoing Games</h5>
+                    <p class="card-text">Resume a game that was left hanging!</p>
+                    <a href="/Games/" class="btn btn-success btn-lg">Go To Saved Games</a>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Game Configurations</h5>
+                    <p class="card-text">Check out all available configurations or make a new one!</p>
+                    <a href="/Configurations/" class="btn btn-warning btn-lg">Go To Configurations</a>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Information & Help</h5>
+                    <p class="card-text">How to play TicTacTwo and a lot more to learn from!</p>
+                    <a href="/Info" class="btn btn-info btn-lg">Go To Info</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+

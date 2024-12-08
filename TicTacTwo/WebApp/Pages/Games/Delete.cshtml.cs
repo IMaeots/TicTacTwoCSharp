@@ -1,24 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Data.Context;
+using Data.Models.db;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Data.Context;
-using Data.Models.db;
 
 namespace WebApp.Pages.Games
 {
-    public class DeleteModel : PageModel
+    public class DeleteModel(GameDbContext context) : PageModel
     {
-        private readonly Data.Context.GameDbContext _context;
-
-        public DeleteModel(Data.Context.GameDbContext context)
-        {
-            _context = context;
-        }
-
         [BindProperty]
         public SaveGame SaveGame { get; set; } = default!;
 
@@ -29,16 +18,12 @@ namespace WebApp.Pages.Games
                 return NotFound();
             }
 
-            var savegame = await _context.SavedGames.FirstOrDefaultAsync(m => m.Id == id);
+            var saveGame = await context.SavedGames.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (savegame is not null)
-            {
-                SaveGame = savegame;
+            if (saveGame is null) return NotFound();
+            SaveGame = saveGame;
 
-                return Page();
-            }
-
-            return NotFound();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
@@ -48,13 +33,12 @@ namespace WebApp.Pages.Games
                 return NotFound();
             }
 
-            var savegame = await _context.SavedGames.FindAsync(id);
-            if (savegame != null)
-            {
-                SaveGame = savegame;
-                _context.SavedGames.Remove(SaveGame);
-                await _context.SaveChangesAsync();
-            }
+            var savegame = await context.SavedGames.FindAsync(id);
+            if (savegame == null) return RedirectToPage("./Index");
+
+            SaveGame = savegame;
+            context.SavedGames.Remove(SaveGame);
+            await context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

@@ -44,7 +44,7 @@ public abstract class BaseMenuSystem<TMenu>(
         {
             new(MenuNewGameTitle, MenuNewGameShortcut, CreateNewGameMenu().Run),
             new(MenuSavedGamesTitle, MenuSavedGamesShortcut, CreateSavedGamesMenu().Run),
-            new(MenuRulesAndInfoTitle, MenuRulesAndInfoShortcut, CreateRulesAndInfoMenu().Run)
+            new(MenuInfoTitle, MenuInfoShortcut, CreateRulesAndInfoMenu().Run)
         };
 
         return CreateMenu(EMenuLevel.Primary, GameName, null, homeMenuItems);

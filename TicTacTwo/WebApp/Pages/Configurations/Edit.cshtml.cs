@@ -1,25 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Data.Context;
 using Data.Models.db;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Configurations
 {
-    public class EditModel : PageModel
+    public class EditModel(GameDbContext context) : PageModel
     {
-        private readonly Data.Context.GameDbContext _context;
-
-        public EditModel(Data.Context.GameDbContext context)
-        {
-            _context = context;
-        }
-
         [BindProperty]
         public SaveGameConfiguration SaveGameConfiguration { get; set; } = default!;
 
@@ -30,17 +18,16 @@ namespace WebApp.Pages.Configurations
                 return NotFound();
             }
 
-            var savegameconfiguration =  await _context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
-            if (savegameconfiguration == null)
+            var saveGameConfiguration = await context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
+            if (saveGameConfiguration == null)
             {
                 return NotFound();
             }
-            SaveGameConfiguration = savegameconfiguration;
+
+            SaveGameConfiguration = saveGameConfiguration;
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -48,22 +35,16 @@ namespace WebApp.Pages.Configurations
                 return Page();
             }
 
-            _context.Attach(SaveGameConfiguration).State = EntityState.Modified;
+            context.Attach(SaveGameConfiguration).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SaveGameConfigurationExists(SaveGameConfiguration.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                if (!SaveGameConfigurationExists(SaveGameConfiguration.Id)) return NotFound();
+                throw;
             }
 
             return RedirectToPage("./Index");
@@ -71,7 +52,7 @@ namespace WebApp.Pages.Configurations
 
         private bool SaveGameConfigurationExists(int id)
         {
-            return _context.SavedGameConfigurations.Any(e => e.Id == id);
+            return context.SavedGameConfigurations.Any(e => e.Id == id);
         }
     }
 }

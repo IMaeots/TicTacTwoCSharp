@@ -42,8 +42,8 @@ public static class Constants
     public const string MenuNewGameShortcut = "N";
     public const string MenuSavedGamesTitle = "Saved Games";
     public const string MenuSavedGamesShortcut = "S";
-    public const string MenuRulesAndInfoTitle = "Rules & Info";
-    public const string MenuRulesAndInfoShortcut = "R";
+    public const string MenuInfoTitle = "Info";
+    public const string MenuInfoShortcut = "I";
     public const string MenuConfigCreationTitle = "Create New Config";
     public const string MenuConfigCreationShortcut = "C";
     public const string MenuChooseConfigHeading = GameName + " Choose Game Gonfiguration";
@@ -73,5 +73,6 @@ public static class Constants
         "- Moves to Enable Special Moves (move grid or already placed marker): Must be greater than 1. \n" +
         "- Starting Player: Must be either player 1 [1] or player 2 [2]. \n" +
         "- Starting Grid Position (X and Y): Is the grid's top left corner location. Must account for the grid's size to fit inside the board!\n" +
+        "\n" +
         "Create your own configuration to enjoy a fresh & interesting game!";
 }

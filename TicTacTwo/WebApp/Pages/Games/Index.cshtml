@@ -1,38 +1,30 @@
 @page
-@model WebApp.Pages.Games.IndexModel
+@model IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Saved Games";
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SaveGame[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SaveGame[0].Configuration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SaveGame[0].JsonGameStates)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SaveGame[0].PasswordP1)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SaveGame[0].PasswordP2)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.SaveGame[0].Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SaveGame[0].Configuration)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SaveGame[0].JsonGameStates)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.SaveGame) {
+    @foreach (var item in Model.SaveGame)
+    {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -44,17 +36,15 @@
                 @Html.DisplayFor(modelItem => item.JsonGameStates)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PasswordP1)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PasswordP2)
-            </td>
-            <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>
+<br/>
+<div>
+    <a asp-page="/Index">Back to Home</a>
+</div>
