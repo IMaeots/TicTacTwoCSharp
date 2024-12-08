@@ -36,14 +36,16 @@ public class ConsoleMenuSystem(
         Console.WriteLine("---------------------------");
         Console.WriteLine("Let's make a configuration!");
         Console.WriteLine("---------------------------\n");
-        
-        var name = GetValidatedString(
+
+        var name = GetValidatedName(
             prompt: "Enter a name for the configuration:",
-            validationRule: GameConfigurationValidator.ValidateName
+            existingNames: ConfigRepository.GetConfigurationNames(),
+            validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
         );
 
         var gameMode = GetValidatedString(
-                prompt: "Enter game mode: [S] - Single Player, [L] - Local Two Player, [O] - Online Two Player, [B] - Bots",
+                prompt:
+                "Enter game mode: [S] - Single Player, [L] - Local Two Player, [O] - Online Two Player, [B] - Bots",
                 validationRule: GameConfigurationValidator.ValidateMode
             ).ToUpper() switch
             {
@@ -53,7 +55,7 @@ public class ConsoleMenuSystem(
                 "B" => EGameMode.Bots,
                 _ => throw new ArgumentOutOfRangeException()
             };
-        
+
 
         var boardWidth = GetValidatedInt(
             prompt: "Enter board width:",
@@ -77,11 +79,13 @@ public class ConsoleMenuSystem(
 
         var winCondition = GetValidatedInt(
             prompt: "Enter win condition:",
-            validationRule: validatedInput => GameConfigurationValidator.ValidateWinCondition(validatedInput, gridHeight, gridWidth)
+            validationRule: validatedInput =>
+                GameConfigurationValidator.ValidateWinCondition(validatedInput, gridHeight, gridWidth)
         );
 
         var moveGridAfterNMoves = GetValidatedInt(
-            prompt: "Enter number of moves to gain the ability to move the grid or already placed down marker (must be > 1):",
+            prompt:
+            "Enter number of moves to gain the ability to move the grid or already placed down marker (must be > 1):",
             validationRule: GameConfigurationValidator.ValidateMoveGridAfterNMoves
         );
 
@@ -98,13 +102,16 @@ public class ConsoleMenuSystem(
 
         var startY = GetValidatedNullableInt(
             prompt: "Enter starting grid's top left corner's Y position (optional):",
-            validationRule: input => GameConfigurationValidator.ValidateStartingGridYPosition(input, boardHeight, gridHeight)
+            validationRule: input =>
+                GameConfigurationValidator.ValidateStartingGridYPosition(input, boardHeight, gridHeight)
         ) ?? (boardHeight - gridHeight) / 2;
 
         var startingPlayer = GetValidatedNullableInt(
             prompt: "Enter starting player - [1] or [2] (optional):",
             validationRule: GameConfigurationValidator.ValidateStartingPlayer
-        ) == 2 ? EGamePiece.Player2 : EGamePiece.Player1;
+        ) == 2
+            ? EGamePiece.Player2
+            : EGamePiece.Player1;
 
         Console.WriteLine("---------------------------------------");
         Console.WriteLine("Great! Configuration successfully made.");
@@ -113,14 +120,14 @@ public class ConsoleMenuSystem(
         Console.ReadKey();
 
         return new GameConfiguration(
-            Name:name,
-            Mode:gameMode,
-            WinCondition:winCondition,
-            BoardWidth:boardWidth,
+            Name: name,
+            Mode: gameMode,
+            WinCondition: winCondition,
+            BoardWidth: boardWidth,
             BoardHeight: boardHeight,
             GridWidth: gridWidth,
             GridHeight: gridHeight,
-            UnlockSpecialMovesAfterNMoves:moveGridAfterNMoves,
+            UnlockSpecialMovesAfterNMoves: moveGridAfterNMoves,
             NumberOfMarkers: numberOfMarkers,
             StartingGridXPosition: startX,
             StartingGridYPosition: startY,
@@ -133,57 +140,49 @@ public class ConsoleMenuSystem(
         Console.WriteLine("----------------------");
         Console.WriteLine("Let's make a new game!");
         Console.WriteLine("----------------------\n");
-        
-        string? gameName;
-        do
-        {
-            Console.WriteLine("Enter a name for the game: ");
-            var input = Console.ReadLine() ?? string.Empty;
-            gameName = ValidateNormalInput(input);
-        } while (gameName == null);
 
-        string? passwordP1 = null;
-        string? passwordP2 = null;
-        if (gameConfiguration.Mode == EGameMode.OnlineTwoPlayer)
+        var name = GetValidatedName(
+            prompt: "Enter a name for the game:",
+            existingNames: GameRepository.GetSavedGamesNames(),
+            validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+        );
+
+        string? passwordP1;
+        string? passwordP2;
+        switch (gameConfiguration.Mode)
         {
-            do
-            {
-                Console.WriteLine("Enter a password for Player 1: ");
-                var inputPassword = Console.ReadLine() ?? String.Empty;
-                passwordP1 = ValidateNormalInput(inputPassword);
-            } while(passwordP1 == null);
-            
-            do
-            {
-                Console.WriteLine("Enter a password for Player 2: ");
-                var inputPassword = Console.ReadLine() ?? String.Empty;
-                passwordP2 = ValidateNormalInput(inputPassword);
-            } while(passwordP2 == null);
-        } else if (gameConfiguration.Mode == EGameMode.SinglePlayer)
-        {
-            do
-            {
-                Console.WriteLine("Enter a password for Player 1: ");
-                var inputPassword = Console.ReadLine() ?? String.Empty;
-                passwordP1 = ValidateNormalInput(inputPassword);
-            } while (passwordP1 == null);
+            case EGameMode.OnlineTwoPlayer:
+                passwordP1 = GetValidatedString(
+                    prompt: "Enter a password for player 1:",
+                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                );
+
+                passwordP2 = GetValidatedString(
+                    prompt: "Enter a password for player 2:",
+                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                );
+                break;
+            case EGameMode.SinglePlayer:
+                passwordP1 = GetValidatedString(
+                    prompt: "Enter a password for player 1:",
+                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                );
+                passwordP2 = null;
+                break;
+            default:
+                passwordP1 = null;
+                passwordP2 = null;
+                break;
         }
 
         Console.WriteLine("-----------------------");
-        Console.WriteLine("Game successfully made!");
+        Console.WriteLine("Game successfully setup!");
         Console.WriteLine("-----------------------\n");
-        Console.WriteLine("Press any key to start playing!");
+        Console.WriteLine("Press any key to save it and start playing!");
         Console.ReadKey();
 
         var gameState = new GameState(gameConfiguration);
 
-        return new Game(gameName, gameConfiguration, gameState, passwordP1, passwordP2);
-    }
-    
-    private static string? ValidateNormalInput(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return null;
-        
-        return GameConfigurationValidator.IsAlphanumericRegex().IsMatch(input) ? input : null;
+        return new Game(name, gameConfiguration, gameState, passwordP1, passwordP2);
     }
 }

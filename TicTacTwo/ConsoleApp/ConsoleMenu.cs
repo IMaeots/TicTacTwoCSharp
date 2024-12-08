@@ -18,7 +18,7 @@ public class ConsoleMenu(
         do
         {
             var menuItem = DisplayMenuAndGetUserChoice();
-            
+
             if (menuItem.MenuItemAction != null) return menuItem.RunAction();
 
             switch (menuItem.Shortcut)
@@ -45,12 +45,12 @@ public class ConsoleMenu(
         do
         {
             DrawMenu();
-            
+
             if (errorMessage != null) Console.WriteLine(errorMessage);
-            
+
             Console.Write(Constants.MenuInputBoxHint);
             var userInput = Console.ReadLine()?.Trim();
-            
+
             if (string.IsNullOrWhiteSpace(userInput))
             {
                 errorMessage = Constants.EmptyInputMessage;
@@ -59,14 +59,14 @@ public class ConsoleMenu(
             {
                 var selectedMenuItem = MenuItems.FirstOrDefault(menuItem =>
                     menuItem.Shortcut.Equals(userInput, StringComparison.CurrentCultureIgnoreCase));
-                
+
                 if (selectedMenuItem != null) return selectedMenuItem;
-                
+
                 errorMessage = Constants.InvalidChoiceMessage + string.Join(", ", MenuItems.Select(mi => mi.Shortcut));
             }
         } while (true);
     }
-    
+
     private void DrawMenu()
     {
         Console.Clear();
@@ -82,10 +82,10 @@ public class ConsoleMenu(
         {
             Console.WriteLine(menuItem);
         }
-        
+
         Console.WriteLine();
     }
-    
+
     private static bool ConfirmExit(string message)
     {
         Console.WriteLine(message);

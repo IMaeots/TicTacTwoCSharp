@@ -4,25 +4,19 @@ namespace GameLogic;
 
 public static class GameExtension
 {
-    public static bool CanPlaceMarker(this Game game)
-    {
-        return game.State.NextMoveBy switch
+    public static bool CanPlaceMarker(this Game game) =>
+        game.State.NextMoveBy switch
         {
             EGamePiece.Player1 => game.State.Player1MarkersPlaced < game.Configuration.NumberOfMarkers,
             EGamePiece.Player2 => game.State.Player2MarkersPlaced < game.Configuration.NumberOfMarkers,
             _ => false
         };
-    }
 
     public static bool PlaceMarker(this Game game, int x, int y)
     {
-        if (game.State.GameBoard[x][y] != EGamePiece.Empty)
-        {
-            return false;
-        }
+        if (game.State.GameBoard[x][y] != EGamePiece.Empty) return false;
 
         game.State.GameBoard[x][y] = game.State.NextMoveBy;
-
         if (game.State.NextMoveBy == EGamePiece.Player1)
         {
             game.State.Player1MarkersPlaced++;
@@ -31,48 +25,37 @@ public static class GameExtension
         {
             game.State.Player2MarkersPlaced++;
         }
-        
+
         game.MoveMade();
         return true;
     }
-    
-    public static bool CanMoveThatMarker(this Game game, int currentX, int currentY)
-    {
-        return game.State.GameBoard[currentX][currentY] == game.State.NextMoveBy;
-    }
+
+    public static bool CanMoveThatMarker(this Game game, int currentX, int currentY) =>
+        game.State.GameBoard[currentX][currentY] == game.State.NextMoveBy;
 
     public static bool MoveMarker(this Game game, int oldX, int oldY, int newX, int newY)
     {
         var canMakeThatMove = game.State.GameBoard[oldX][oldY] == game.State.NextMoveBy ||
                               game.State.GameBoard[newX][newY] == EGamePiece.Empty;
         if (!canMakeThatMove) return false;
-        
+
         game.State.GameBoard[oldX][oldY] = EGamePiece.Empty;
         game.State.GameBoard[newX][newY] = game.State.NextMoveBy;
-            
+
         game.MoveMade();
         return true;
     }
-    
-    public static bool CanPerformSpecialMoves(this Game game)
-    {
-        return game.State.MoveCount / 2 >= game.Configuration.UnlockSpecialMovesAfterNMoves;
-    }
+
+    public static bool CanPerformSpecialMoves(this Game game) =>
+        game.State.MoveCount / 2 >= game.Configuration.UnlockSpecialMovesAfterNMoves;
 
     public static bool MoveGrid(this Game game, int newGridX, int newGridY)
     {
-        var boardWidth = game.Configuration.BoardWidth;
-        var boardHeight = game.Configuration.BoardHeight;
-        var gridWidth = game.Configuration.GridWidth;
-        var gridHeight = game.Configuration.GridHeight;
-        var oldGridX = game.State.GridX;
-        var oldGridY = game.State.GridY;
+        var isOneUnitAway = Math.Abs(newGridX - game.State.GridX) <= 1 && Math.Abs(newGridY - game.State.GridY) <= 1 &&
+                            !(newGridX == game.State.GridX && newGridY == game.State.GridY);
 
-        var isOneUnitAway = Math.Abs(newGridX - oldGridX) <= 1 && Math.Abs(newGridY - oldGridY) <= 1 &&
-                            !(newGridX == oldGridX && newGridY == oldGridY);
-        
-        if (!isOneUnitAway || newGridX < 0 || newGridX + gridWidth > boardWidth 
-            || newGridY < 0 || newGridY + gridHeight > boardHeight)
+        if (!isOneUnitAway || newGridX < 0 || newGridX + game.Configuration.GridWidth > game.Configuration.BoardWidth
+            || newGridY < 0 || newGridY + game.Configuration.GridHeight > game.Configuration.BoardHeight)
         {
             return false;
         }
@@ -84,10 +67,8 @@ public static class GameExtension
         return true;
     }
 
-    public static void UpdateGameOutcome(this Game game)
-    {
+    public static void UpdateGameOutcome(this Game game) =>
         game.State.GameOutcome = GameOutcomeChecker.CheckGameOutcome(game.State, game.Configuration);
-    }
 
     private static void MoveMade(this Game game)
     {

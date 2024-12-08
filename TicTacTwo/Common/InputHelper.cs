@@ -2,6 +2,30 @@ namespace Common;
 
 public static class InputHelper
 {
+    public static string GetValidatedName(string prompt, List<string> existingNames,
+        Func<string, string?> validationRule)
+    {
+        string input;
+        string? errorMessage;
+        do
+        {
+            Console.WriteLine(prompt);
+            input = Console.ReadLine() ?? string.Empty;
+            errorMessage = string.IsNullOrWhiteSpace(input)
+                ? "Input cannot be empty or whitespace."
+                : existingNames.Contains(input)
+                    ? "Name already exists."
+                    : validationRule(input);
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                Console.WriteLine(errorMessage);
+            }
+        } while (!string.IsNullOrEmpty(errorMessage));
+
+        return input;
+    }
+
     public static string GetValidatedString(string prompt, Func<string, string?> validationRule)
     {
         string input;
@@ -10,9 +34,10 @@ public static class InputHelper
         {
             Console.WriteLine(prompt);
             input = Console.ReadLine() ?? string.Empty;
-            errorMessage = string.IsNullOrWhiteSpace(input) ? 
-                "Input cannot be empty or whitespace." : validationRule(input);
-            
+            errorMessage = string.IsNullOrWhiteSpace(input)
+                ? "Input cannot be empty or whitespace."
+                : validationRule(input);
+
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 Console.WriteLine(errorMessage);

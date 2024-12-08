@@ -18,13 +18,11 @@ public static class GameOutcomeChecker
         };
     }
 
-    private static bool CheckForPlayerWin(EGamePiece player, GameState state, GameConfiguration configuration)
-    {
-        return CheckLines(player, CheckDirection.Vertical, state, configuration)
-               || CheckLines(player, CheckDirection.Horizontal, state, configuration)
-               || CheckLines(player, CheckDirection.DiagonalTopLeftToBottomRight, state, configuration)
-               || CheckLines(player, CheckDirection.DiagonalBottomLeftToTopRight, state, configuration);
-    }
+    private static bool CheckForPlayerWin(EGamePiece player, GameState state, GameConfiguration configuration) =>
+        CheckLines(player, CheckDirection.Vertical, state, configuration)
+        || CheckLines(player, CheckDirection.Horizontal, state, configuration)
+        || CheckLines(player, CheckDirection.DiagonalTopLeftToBottomRight, state, configuration)
+        || CheckLines(player, CheckDirection.DiagonalBottomLeftToTopRight, state, configuration);
 
     private static bool CheckLines(EGamePiece player, CheckDirection direction, GameState state,
         GameConfiguration configuration)
@@ -39,20 +37,21 @@ public static class GameOutcomeChecker
         {
             for (var y = gridY; y <= yLimit; y++)
             {
-                if (IsWinningLine(x, y, player, direction, xLimit, yLimit, state, configuration))
-                {
-                    return true;
-                }
+                if (IsWinningLine(x, y, xLimit, yLimit, player, direction, state, configuration)) return true;
             }
         }
 
         return false;
     }
 
-    private static bool IsWinningLine(int startX, int startY, EGamePiece player, CheckDirection direction, int xLimit,
-        int yLimit, GameState state, GameConfiguration configuration)
+    private static bool IsWinningLine(
+        int startX, int startY,
+        int xLimit, int yLimit,
+        EGamePiece player, CheckDirection direction,
+        GameState state, GameConfiguration configuration
+    )
     {
-        if (!HasSpaceForWinCondition(startX, startY, direction, xLimit, yLimit, state, configuration))
+        if (!HasSpaceForWinCondition(startX, startY, xLimit, yLimit, direction, state, configuration))
             return false;
 
         try
@@ -80,8 +79,12 @@ public static class GameOutcomeChecker
         return true;
     }
 
-    private static bool HasSpaceForWinCondition(int startX, int startY, CheckDirection direction, int xLimit, int yLimit,
-        GameState state, GameConfiguration configuration)
+    private static bool HasSpaceForWinCondition(
+        int startX, int startY,
+        int xLimit, int yLimit,
+        CheckDirection direction,
+        GameState state, GameConfiguration configuration
+    )
     {
         var winCondition = configuration.WinCondition;
         return direction switch

@@ -13,7 +13,7 @@ if (useDatabase)
 {
     var dbContext = new GameDbContextFactory().CreateDbContext([]);
     dbContext.Database.Migrate();
-    
+
     configRepository = new ConfigRepositoryDb(dbContext);
     gameRepository = new GameRepositoryDb(dbContext);
 }

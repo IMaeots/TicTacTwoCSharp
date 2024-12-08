@@ -17,7 +17,7 @@ public static class GameController
         {
             Visualizer.DrawBoard(game, _currentX, _currentY);
             Console.CursorVisible = false;
-            
+
             _action = EGameAction.PlaceMarker;
             var nextMoveBy = game.State.NextMoveBy;
             var canPlaceMarker = game.CanPlaceMarker();
@@ -44,9 +44,9 @@ public static class GameController
                                 isSelected = true;
                                 break;
                             }
-                            
+
                             Console.WriteLine($"Choose another option as you have already placed all your markers! ");
-                            break;   
+                            break;
                         case ConsoleKey.G:
                             _action = EGameAction.MoveGrid;
                             Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
@@ -76,13 +76,17 @@ public static class GameController
                         _currentY = (_currentY > 0) ? _currentY - 1 : 0;
                         break;
                     case ConsoleKey.DownArrow:
-                        _currentY = (_currentY < game.Configuration.BoardHeight - 1) ? _currentY + 1 : game.Configuration.BoardHeight - 1;
+                        _currentY = (_currentY < game.Configuration.BoardHeight - 1)
+                            ? _currentY + 1
+                            : game.Configuration.BoardHeight - 1;
                         break;
                     case ConsoleKey.LeftArrow:
                         _currentX = (_currentX > 0) ? _currentX - 1 : 0;
                         break;
                     case ConsoleKey.RightArrow:
-                        _currentX = (_currentX < game.Configuration.BoardWidth - 1) ? _currentX + 1 : game.Configuration.BoardWidth - 1;
+                        _currentX = (_currentX < game.Configuration.BoardWidth - 1)
+                            ? _currentX + 1
+                            : game.Configuration.BoardWidth - 1;
                         break;
                     case ConsoleKey.Enter:
                         if (_action == EGameAction.MoveMarker && !game.CanMoveThatMarker(_currentX, _currentY))
@@ -91,6 +95,7 @@ public static class GameController
                             Console.ReadKey();
                             break;
                         }
+
                         ExecuteGameAction(game);
                         isActionPerformed = true;
                         break;
@@ -100,29 +105,29 @@ public static class GameController
                         Console.WriteLine("See you soon!");
                         return Constants.ExitShortcut;
                 }
-                
+
                 Visualizer.DrawBoard(game, _currentX, _currentY);
                 switch (_action)
-                    {
-                        case EGameAction.PlaceMarker:
-                            Console.WriteLine(!game.CanPerformSpecialMoves()
-                                ? $"Place a marker: {nextMoveBy}!"
-                                : $"You chose to place a marker. Go ahead {nextMoveBy}!"
-                            );
-                            break;
-                        case EGameAction.MoveMarker:
-                            Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
-                            break;
-                        case EGameAction.MoveGrid:
-                            Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
-                            break;
-                    }
+                {
+                    case EGameAction.PlaceMarker:
+                        Console.WriteLine(!game.CanPerformSpecialMoves()
+                            ? $"Place a marker: {nextMoveBy}!"
+                            : $"You chose to place a marker. Go ahead {nextMoveBy}!"
+                        );
+                        break;
+                    case EGameAction.MoveMarker:
+                        Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
+                        break;
+                    case EGameAction.MoveGrid:
+                        Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
+                        break;
+                }
             }
-            
+
             game.UpdateGameOutcome();
             saveGameState(game);
         }
-        
+
         switch (game.State.GameOutcome)
         {
             case EGameOutcome.Draw:
@@ -137,7 +142,7 @@ public static class GameController
             case EGameOutcome.None:
                 throw new ApplicationException("GameOutcome None but Game ended.");
         }
-        
+
         Console.WriteLine("Game over! Press any key to delete the game and return to the main menu.");
         Console.ReadKey();
         deleteGame(game);
@@ -163,14 +168,14 @@ public static class GameController
                 break;
         }
     }
-    
+
     private static void HandleMarkerMovement(Game game)
     {
         var boardWidth = game.State.GameBoard.Length;
         var boardHeight = game.State.GameBoard[0].Length;
         var oldX = _currentX;
         var oldY = _currentY;
-        
+
         Console.WriteLine("Select where to move the marker (use arrow keys):");
         var isMarkerMoveConfirmed = false;
         while (!isMarkerMoveConfirmed)
@@ -193,17 +198,19 @@ public static class GameController
                 case ConsoleKey.Enter:
                     if (!game.MoveMarker(oldX, oldY, _currentX, _currentY))
                     {
-                        Console.WriteLine("Invalid Move. You cannot move that marker there. Press any key to continue.");
+                        Console.WriteLine(
+                            "Invalid Move. You cannot move that marker there. Press any key to continue.");
                         Console.ReadKey();
                         break;
-                    } 
+                    }
+
                     isMarkerMoveConfirmed = true;
                     break;
                 case ConsoleKey.E:
                     Console.WriteLine("See you soon!");
                     return;
             }
-            
+
             Visualizer.DrawBoard(game, _currentX, _currentY);
         }
     }
@@ -211,7 +218,7 @@ public static class GameController
     private static void HandleGridMovement(Game game)
     {
         if (game.MoveGrid(_currentX, _currentY)) return;
-        
+
         Console.WriteLine("Invalid Move. The grid cannot move there. Press any key to continue.");
         Console.ReadKey();
     }

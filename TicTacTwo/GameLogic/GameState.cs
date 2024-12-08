@@ -13,10 +13,12 @@ public class GameState
     public int GridX { get; set; }
     public int GridY { get; set; }
     public int MoveCount { get; set; }
-    
+
     [JsonConstructor]
-    public GameState(EGamePiece[][] gameBoard, EGamePiece nextMoveBy, EGameOutcome gameOutcome,
-        int player1MarkersPlaced, int player2MarkersPlaced, int gridX, int gridY, int moveCount)
+    public GameState(
+        EGamePiece[][] gameBoard, EGamePiece nextMoveBy, EGameOutcome gameOutcome,
+        int player1MarkersPlaced, int player2MarkersPlaced, int gridX, int gridY, int moveCount
+    )
     {
         GameBoard = gameBoard;
         NextMoveBy = nextMoveBy;
@@ -30,18 +32,17 @@ public class GameState
 
     public GameState(GameConfiguration gameConfiguration)
     {
-        var boardWidth = gameConfiguration.BoardWidth;
-        var boardHeight = gameConfiguration.BoardHeight;
-        GameBoard = new EGamePiece[boardWidth][];
+        GameBoard = new EGamePiece[gameConfiguration.BoardWidth][];
         for (var x = 0; x < GameBoard.Length; x++)
         {
-            GameBoard[x] = new EGamePiece[boardHeight];
+            GameBoard[x] = new EGamePiece[gameConfiguration.BoardHeight];
         }
+
         GameBoard = Enumerable
-            .Range(0, boardWidth)
-            .Select(_ => new EGamePiece[boardHeight])
+            .Range(0, gameConfiguration.BoardWidth)
+            .Select(_ => new EGamePiece[gameConfiguration.BoardHeight])
             .ToArray();
-        
+
         GridX = gameConfiguration.StartingGridXPosition;
         GridY = gameConfiguration.StartingGridYPosition;
         NextMoveBy = gameConfiguration.StartingPlayer == EGamePiece.Player2 ? EGamePiece.Player2 : EGamePiece.Player1;
@@ -50,8 +51,5 @@ public class GameState
         MoveCount = 0;
     }
 
-    public override string ToString()
-    {
-        return System.Text.Json.JsonSerializer.Serialize(this);
-    }
+    public override string ToString() => System.Text.Json.JsonSerializer.Serialize(this);
 }

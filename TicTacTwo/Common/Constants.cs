@@ -8,13 +8,19 @@ public static class Constants
     public const int MinimumGameDimension = 2;
     public const int MaximumGameDimension = 100;
     public const string JsonFileExtension = ".json";
-    public static readonly string BasePath = Environment
-                                                 .GetFolderPath(Environment.SpecialFolder.UserProfile)
-                                             + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar;
-    public static readonly string GamesPath =Path.Combine(BasePath, "Games" + Path.DirectorySeparatorChar);
-    public static readonly string ConfigurationsPath = Path.Combine(BasePath, "Configurations" + Path.DirectorySeparatorChar);
-    
-    public const string EmptyInputMessage = "It would be nice, if you actually choose something!!! Try again... Maybe...";
+
+    public static readonly string BasePath =
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+        + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar;
+
+    public static readonly string GamesPath = 
+        Path.Combine(BasePath, "Games" + Path.DirectorySeparatorChar);
+    public static readonly string ConfigurationsPath =
+        Path.Combine(BasePath, "Configurations" + Path.DirectorySeparatorChar);
+
+    public const string EmptyInputMessage =
+        "It would be nice, if you actually choose something!!! Try again... Maybe...";
+
     public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
     public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";
@@ -26,7 +32,7 @@ public static class Constants
     public const string ReturnShortcut = "R";
     public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
-    
+
     public const string MenuDescriptionDivider = "---------------";
     public const string MenuDivider = "===============";
     public const string MenuInputBoxHint = ">";
@@ -41,7 +47,8 @@ public static class Constants
     public const string MenuChooseConfigHeading = GameName + " Choose Game Gonfiguration";
     public const string MenuSavedGamesHeading = GameName + " Saved Games";
     public const string MenuRulesAndInfoHeading = GameName + " Information";
-    public const string MenuRulesAndInfoDescription = 
+
+    public const string MenuRulesAndInfoDescription =
         "How to Play: \n" +
         "TicTacTwo is an enhanced version of Tic-Tac-Toe.\n" +
         "Players take turns placing their markers on the game board that also includes the winning grid.\n" +

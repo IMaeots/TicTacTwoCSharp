@@ -15,7 +15,7 @@ public class GameDbContextFactory : IDesignTimeDbContextFactory<GameDbContext>
         }
 
         var connectionString = $@"Data Source={Path.Combine(dbDirectory, "TicTacTwo.db")}";
-            
+
         var contextOptions = new DbContextOptionsBuilder<GameDbContext>()
             .UseSqlite(connectionString)
             .EnableDetailedErrors()
