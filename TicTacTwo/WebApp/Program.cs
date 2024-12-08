@@ -1,6 +1,8 @@
-
 using Common;
 using Data.Context;
+using Data.Repositories;
+using Data.Repositories.Config;
+using Data.Repositories.Game;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,19 @@ connectionString = connectionString.Replace("<%location%>", Constants.DatabaseDi
 builder.Services.AddDbContext<GameDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
+
+const bool useDatabase = true;
+if (useDatabase)
+{
+    builder.Services.AddScoped<IGameRepository, GameRepositoryDb>();
+    builder.Services.AddScoped<IConfigRepository, ConfigRepositoryDb>();
+}
+else
+{
+    builder.Services.AddScoped<IGameRepository, GameRepositoryJson>();
+    builder.Services.AddScoped<IConfigRepository, ConfigRepositoryJson>();
+}
+
 
 var app = builder.Build();
 
