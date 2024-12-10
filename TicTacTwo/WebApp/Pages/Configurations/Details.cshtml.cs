@@ -1,28 +1,19 @@
-using Data.Context;
-using Data.Models.db;
+using Data.Repositories;
+using GameLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
-namespace WebApp.Pages.Configurations
+namespace WebApp.Pages.Configurations;
+
+public class DetailsModel(IConfigRepository configRepository) : PageModel
 {
-    public class DetailsModel(GameDbContext context) : PageModel
+    public GameConfiguration Configuration { get; set; } = default!;
+
+    [BindProperty(SupportsGet = true)]
+    public required string Id { get; set; }
+
+    public async Task OnGetAsync()
     {
-        public SaveGameConfiguration SaveGameConfiguration { get; set; } = default!;
-
-        public async Task<IActionResult> OnGetAsync(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var saveGameConfiguration = await context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
-
-            if (saveGameConfiguration is null) return NotFound();
-
-            SaveGameConfiguration = saveGameConfiguration;
-            return Page();
-        }
+        Configuration = await configRepository.GetConfigurationByNameAsync(Id);
     }
 }

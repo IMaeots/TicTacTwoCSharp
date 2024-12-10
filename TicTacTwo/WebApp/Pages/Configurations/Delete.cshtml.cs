@@ -1,45 +1,25 @@
-using Data.Context;
-using Data.Models.db;
+using Data.Repositories;
+using GameLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Configurations
 {
-    public class DeleteModel(GameDbContext context) : PageModel
+    public class DeleteModel(IConfigRepository configRepository) : PageModel
     {
-        [BindProperty]
-        public SaveGameConfiguration SaveGameConfiguration { get; set; } = default!;
+        [BindProperty(SupportsGet = true)]
+        public required string Id { get; set; }
+        private GameConfiguration Configuration { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var saveGameConfiguration = await context.SavedGameConfigurations.FirstOrDefaultAsync(m => m.Id == id);
-
-            if (saveGameConfiguration is null) return NotFound();
-
-            SaveGameConfiguration = saveGameConfiguration;
+            Configuration = await configRepository.GetConfigurationByNameAsync(Id);
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var saveGameConfiguration = await context.SavedGameConfigurations.FindAsync(id);
-            if (saveGameConfiguration == null) return RedirectToPage("./Index");
-
-            SaveGameConfiguration = saveGameConfiguration;
-            context.SavedGameConfigurations.Remove(SaveGameConfiguration);
-            await context.SaveChangesAsync();
-
+            await configRepository.DeleteConfigAsync(Id);
             return RedirectToPage("./Index");
         }
     }

@@ -1,60 +1,41 @@
-using Data.Context;
-using Data.Models.db;
+using Data.Repositories;
+using GameLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Games
 {
-    public class EditModel(GameDbContext context) : PageModel
+    public class EditModel(IGameRepository gameRepository) : PageModel
     {
         [BindProperty]
-        public SaveGame SaveGame { get; set; } = default!;
+        public string NewName { get; set; } = string.Empty;
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        [BindProperty(SupportsGet = true)]
+        public required string Id { get; set; }
+
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var game = await gameRepository.GetSavedGameByNameAsync(Id);
 
-            var saveGame = await context.SavedGames.FirstOrDefaultAsync(m => m.Id == id);
-            if (saveGame == null)
-            {
-                return NotFound();
-            }
-
-            SaveGame = saveGame;
-            ViewData["ConfigurationId"] = new SelectList(context.SavedGameConfigurations, "Id", "JsonConfiguration");
+            NewName = game.Name;
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            var errorMessage = GameConfigurationValidator.ValidateInputAsAlphanumeric(NewName);
+            if (errorMessage != null)
             {
+                ModelState.AddModelError(string.Empty, errorMessage);
                 return Page();
             }
 
-            context.Attach(SaveGame).State = EntityState.Modified;
+            if (!ModelState.IsValid) return Page();
 
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SaveGameExists(SaveGame.Id)) return NotFound();
-                throw;
-            }
-
+            var originalGame = await gameRepository.GetSavedGameByNameAsync(Id);
+            await gameRepository.EditGameNameAsync(originalGame, NewName);
+            
             return RedirectToPage("./Index");
-        }
-
-        private bool SaveGameExists(int id)
-        {
-            return context.SavedGames.Any(e => e.Id == id);
         }
     }
 }

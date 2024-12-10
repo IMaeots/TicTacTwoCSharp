@@ -5,7 +5,7 @@
     ViewData["Title"] = "Help & Information";
 }
 
-<div class="container my-5">
+<div class="container my-2">
     <div class="card shadow-lg p-4">
         <h2 class="card-title text-start mb-3">@ViewData["Title"]</h2>
         <div class="card-body text-start p-0">
@@ -13,7 +13,6 @@
         </div>
     </div>
 </div>
-<br/>
-<div>
-    <a asp-page="/Index">Back to Home</a>
+<div class="text-end">
+    <a asp-page="/Index" class="btn btn-outline-secondary me-3">Back to Home</a>
 </div>

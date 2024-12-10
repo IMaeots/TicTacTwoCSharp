@@ -1,17 +1,20 @@
-using Data.Context;
-using Data.Models.db;
+using Data.Repositories;
+using GameLogic;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Configurations
 {
-    public class IndexModel(GameDbContext context) : PageModel
+    public class ConfigurationsModel(IConfigRepository configRepository) : PageModel
     {
-        public IList<SaveGameConfiguration> SaveGameConfiguration { get; set; } = default!;
+        public IList<GameConfiguration> Configurations { get; set; } = new List<GameConfiguration>();
 
         public async Task OnGetAsync()
         {
-            SaveGameConfiguration = await context.SavedGameConfigurations.ToListAsync();
+            var configNames = await configRepository.GetConfigurationNamesAsync();
+            foreach (var configName in configNames)
+            {
+                Configurations.Add(await configRepository.GetConfigurationByNameAsync(configName));
+            }
         }
     }
 }

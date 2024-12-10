@@ -1,18 +1,20 @@
-using Data.Context;
-using Data.Models.db;
+using Data.Repositories;
+using GameLogic;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Games
 {
-    public class IndexModel(GameDbContext context) : PageModel
+    public class SavedGamesModel(IGameRepository gameRepository) : PageModel
     {
-        public IList<SaveGame> SaveGame { get; set; } = default!;
+        public IList<Game> Games { get; set; } = new List<Game>();
 
         public async Task OnGetAsync()
         {
-            SaveGame = await context.SavedGames
-                .Include(s => s.Configuration).ToListAsync();
+            var gameNames = await gameRepository.GetSavedGamesNamesAsync();
+            foreach (var gameName in gameNames)
+            {
+                Games.Add(await gameRepository.GetSavedGameByNameAsync(gameName));
+            }
         }
     }
 }

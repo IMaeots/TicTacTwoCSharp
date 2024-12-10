@@ -1,47 +1,61 @@
 @page
-@model WebApp.Pages.Configurations.IndexModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfigurationsModel
 
 @{
     ViewData["Title"] = "Configurations";
 }
 
-<h1>@ViewData["Title"]</h1>
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<br/>
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.SaveGameConfiguration[0].Name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SaveGameConfiguration[0].JsonConfiguration)
-        </th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model.SaveGameConfiguration)
-    {
+<h2>
+    @ViewData["Title"]
+    <a asp-page="Create" title="Create New">
+        <i class="bi bi-plus-square-fill px-2 fs-2"></i>
+    </a>
+</h2>
+<hr/>
+@if (Model.Configurations.Any())
+{
+    <table class="table table-striped">
+        <thead>
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JsonConfiguration)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+            <th>Name</th>
+            <th>Game mode</th>
+            <th>Board size</th>
+            <th>Grid size</th>
+            <th class="text-end"></th>
         </tr>
-    }
-    </tbody>
-</table>
-<br/>
-<div>
-    <a asp-page="/Index">Back to Home</a>
+        </thead>
+        <tbody>
+        @foreach (var config in Model.Configurations)
+        {
+            <tr>
+                <td>
+                    @config.Name
+                </td>
+                <td>
+                    @config.Mode
+                </td>
+                <td>
+                    @config.BoardWidth x @config.BoardHeight
+                </td>
+                <td>
+                    @config.GridWidth x @config.GridHeight
+                </td>
+                <td class="text-end">
+                    <a asp-page="Details" asp-route-id="@config.Name">Details</a> |
+                    <a asp-page="Delete" asp-route-id="@config.Name">Delete</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <h4>There are no configurations. Go an create one to start playing!</h4>
+    <hr/>
+}
+
+<div class="text-end">
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
 </div>

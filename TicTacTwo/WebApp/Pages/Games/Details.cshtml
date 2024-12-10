@@ -1,49 +1,103 @@
-@page
-@model WebApp.Pages.Games.DetailsModel
+@page "{id}"
+@using Common.Entities
+@model DetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = $"Game Details: {Model.Id}";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>SaveGame</h4>
-    <hr/>
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGame.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGame.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGame.Configuration)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGame.Configuration.JsonConfiguration)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGame.JsonGameStates)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGame.JsonGameStates)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGame.PasswordP1)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGame.PasswordP1)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGame.PasswordP2)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGame.PasswordP2)
-        </dd>
-    </dl>
+<h2>
+    @ViewData["Title"]
+    <a asp-page="Edit" asp-route-id="@Model.Id" title="Edit Game">
+        <i class="bi bi-pencil-fill px-2 fs-2"></i>
+    </a>
+</h2>
+<hr />
+<div class="card shadow-lg mb-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Name
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @Model.Game.Name
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Current Outcome
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @switch (Model.Game.State.GameOutcome)
+                {
+                    case EGameOutcome.None:
+                        @:Ongoing
+                        break;
+                    case EGameOutcome.Draw:
+                        @:Draw
+                        break;
+                    case EGameOutcome.Player1Won:
+                        @:Player 1 has won
+                        break;
+                    case EGameOutcome.Player2Won:
+                        @:Player 2 has won
+                        break;
+                    default:
+                        @:Unknown Outcome
+                        break;
+                }
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Game Mode
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @switch (Model.Game.Configuration.Mode)
+                {
+                    case EGameMode.SinglePlayer:
+                        @:Single Player
+                        break;
+                    case EGameMode.LocalTwoPlayer:
+                        @:Local Two Player
+                        break;
+                    case EGameMode.OnlineTwoPlayer:
+                        @:Online Two Player
+                        break;
+                    case EGameMode.Bots:
+                        @:AI vs AI
+                        break;
+                    default:
+                        @:Unknown Mode
+                        break;
+                }
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Move Counts
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @Model.Game.State.MoveCount
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Board Size & Grid Size
+            </dt>
+            <dd class="col-sm-8 text-wrap">
+                @Model.Game.Configuration.BoardHeight x @Model.Game.Configuration.BoardWidth
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                @Model.Game.Configuration.GridHeight x @Model.Game.Configuration.GridWidth
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Win Condition
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @Model.Game.Configuration.WinCondition pieces in a row, column or diagonal
+            </dd>
+            <dt class="col-sm-4 text-muted fw-semibold">
+                Special Moves Unlocked After
+            </dt>
+            <dd class="col-sm-8 text-wrap text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                @Model.Game.Configuration.UnlockSpecialMovesAfterNMoves Moves
+            </dd>
+        </dl>
+    </div>
 </div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.SaveGame.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+
+<div class="text-end">
+    <a asp-page="./Index" class="btn btn-outline-secondary">Back to List</a>
 </div>

@@ -1,50 +1,66 @@
 @page
-@model IndexModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SavedGamesModel
 
 @{
     ViewData["Title"] = "Saved Games";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.SaveGame[0].Name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SaveGame[0].Configuration)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SaveGame[0].JsonGameStates)
-        </th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model.SaveGame)
-    {
+<h2>
+    @ViewData["Title"]
+    <a asp-page="/Play/Setup" title="Create New">
+        <i class="bi bi-plus-square-fill px-2 fs-2"></i>
+    </a>
+</h2>
+<hr/>
+@if (Model.Games.Any())
+{
+    <table class="table table-striped">
+        <thead>
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Configuration.JsonConfiguration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JsonGameStates)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+            <th>Name</th>
+            <th>Configuration name</th>
+            <th>Game status</th>
+            <th>Game mode</th>
+            <th>Number of moves made</th>
+            <th class="text-end"></th>
         </tr>
-    }
-    </tbody>
-</table>
-<br/>
-<div>
-    <a asp-page="/Index">Back to Home</a>
+        </thead>
+        <tbody>
+        @foreach (var game in Model.Games)
+        {
+            <tr>
+                <td>
+                    @game.Name
+                </td>
+                <td>
+                    @game.Configuration.Name
+                </td>
+                <td>
+                    @game.State.GameOutcome
+                </td>
+                <td>
+                    @game.Configuration.Mode
+                </td>
+                <td>
+                    @game.State.MoveCount
+                </td>
+                <td class="text-end">
+                    <a asp-page="Edit" asp-route-id="@game.Name">Edit</a> |
+                    <a asp-page="Details" asp-route-id="@game.Name">Details</a> |
+                    <a asp-page="Delete" asp-route-id="@game.Name">Delete</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <h4>There are no saved games. Go and play!</h4>
+    <hr/>
+}
+
+<div class="text-end">
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
 </div>

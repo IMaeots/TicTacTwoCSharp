@@ -1,31 +1,30 @@
-@page
-@model WebApp.Pages.Configurations.DetailsModel
+@page "{id}"
+@model DetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = $"Configuration Details: {Model.Id}";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>SaveGameConfiguration</h4>
-    <hr/>
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGameConfiguration.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGameConfiguration.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SaveGameConfiguration.JsonConfiguration)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SaveGameConfiguration.JsonConfiguration)
-        </dd>
-    </dl>
+<h2>
+    @ViewData["Title"]
+</h2>
+<hr/>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row">
+            @foreach (var property in Model.Configuration.GetType().GetProperties())
+            {
+                <dt class="col-sm-3 text-muted">
+                    @property.Name
+                </dt>
+                <dd class="col-sm-9 text-truncate" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@property.GetValue(Model.Configuration)">
+                    @property.GetValue(Model.Configuration)
+                </dd>
+            }
+        </dl>
+    </div>
 </div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.SaveGameConfiguration.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+
+<div class="text-end">
+    <a asp-page="./Index" class="btn btn-outline-secondary">Back to List</a>
 </div>

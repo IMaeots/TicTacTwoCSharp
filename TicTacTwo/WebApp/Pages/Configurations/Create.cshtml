@@ -1,39 +1,115 @@
 @page
+@using Common.Entities
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model WebApp.Pages.Configurations.CreateModel
 
-        @{
-        ViewData["Title"] = "Create";
-        }
-        
-        <h1>Create</h1>
-        
-    <h4>SaveGameConfiguration</h4>
-    <hr />
-    <div class="row">
-    <div class="col-md-4">
-    <form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@{
+    ViewData["Title"] = "Create Configuration";
+}
+
+<h2>
+    @ViewData["Title"]
+</h2>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="SaveGameConfiguration.Name" class="control-label"></label>
-                <input asp-for="SaveGameConfiguration.Name" class="form-control" />
-                <span asp-validation-for="SaveGameConfiguration.Name" class="text-danger"></span>
+                <label asp-for="Configuration.Name" class="control-label"></label>
+                <input asp-for="Configuration.Name" class="form-control" />
+                <span asp-validation-for="Configuration.Name" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="SaveGameConfiguration.JsonConfiguration" class="control-label"></label>
-                <input asp-for="SaveGameConfiguration.JsonConfiguration" class="form-control" />
-                <span asp-validation-for="SaveGameConfiguration.JsonConfiguration" class="text-danger"></span>
+                <label asp-for="Configuration.Mode" class="control-label"></label>
+                <select asp-for="Configuration.Mode" class="form-control">
+                    <option value="">Select Mode</option>
+                    <option value="@EGameMode.SinglePlayer">Single Player</option>
+                    <option value="@EGameMode.LocalTwoPlayer">Local Two Player</option>
+                    <option value="@EGameMode.OnlineTwoPlayer">Online Two Player</option>
+                    <option value="@EGameMode.Bots">AI vs AI</option>
+                </select>
+                <span asp-validation-for="Configuration.Mode" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.StartingPlayer" class="control-label"></label>
+                <select asp-for="Configuration.StartingPlayer" class="form-control">
+                    <option value="">Select Starting Player</option>
+                    <option value="@EGamePiece.Player1">Player 1 (X)</option>
+                    <option value="@EGamePiece.Player2">Player 2 (O)</option>
+                </select>
+                <span asp-validation-for="Configuration.StartingPlayer" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.WinCondition" class="control-label"></label>
+                <input asp-for="Configuration.WinCondition" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.WinCondition" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.BoardWidth" class="control-label"></label>
+                <input asp-for="Configuration.BoardWidth" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.BoardWidth" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.BoardHeight" class="control-label"></label>
+                <input asp-for="Configuration.BoardHeight" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.BoardHeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.GridWidth" class="control-label"></label>
+                <input asp-for="Configuration.GridWidth" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.GridWidth" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.GridHeight" class="control-label"></label>
+                <input asp-for="Configuration.GridHeight" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.GridHeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.UnlockSpecialMovesAfterNMoves" class="control-label"></label>
+                <input asp-for="Configuration.UnlockSpecialMovesAfterNMoves" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Configuration.UnlockSpecialMovesAfterNMoves" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.NumberOfMarkers" class="control-label"></label>
+                <input asp-for="Configuration.NumberOfMarkers" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Configuration.NumberOfMarkers" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.StartingGridXPosition" class="control-label"></label>
+                <input asp-for="Configuration.StartingGridXPosition" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Configuration.StartingGridXPosition" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Configuration.StartingGridYPosition" class="control-label"></label>
+                <input asp-for="Configuration.StartingGridYPosition" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Configuration.StartingGridYPosition" class="text-danger"></span>
+            </div>
+            <br/>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
-<br/>
-<div>
-    <a asp-page="/Index">Back to Home</a>
+<br />
+
+<div class="text-start">
+    <a asp-page="./Index" class="btn btn-outline-secondary">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
