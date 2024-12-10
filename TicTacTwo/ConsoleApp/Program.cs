@@ -1,4 +1,4 @@
-﻿using ConsoleApp;
+﻿using ConsoleApp.MenuSystem;
 using Data.Context;
 using Data.Repositories;
 using Data.Repositories.Config;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 IGameRepository gameRepository;
 IConfigRepository configRepository;
 
-const bool useDatabase = true;
+const bool useDatabase = false;
 if (useDatabase)
 {
     var dbContext = new GameDbContextFactory().CreateDbContext([]);

@@ -1,5 +1,6 @@
 using Common;
 using Common.Entities;
+using ConsoleApp.MenuSystem;
 using GameLogic;
 
 namespace ConsoleApp;
@@ -29,7 +30,6 @@ public static class GameController
             else
             {
                 Console.WriteLine($"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
-
                 var isSelected = false;
                 while (!isSelected)
                 {
@@ -57,11 +57,22 @@ public static class GameController
                             Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
                             isSelected = true;
                             break;
-                        case ConsoleKey.R:
-                            return Constants.ReturnToMainShortcut;
+                        case ConsoleKey.L:
+                            if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText)) return Constants.LeaveGameShortcut;
+                            break;
                         case ConsoleKey.E:
-                            Console.WriteLine("See you soon!");
-                            return Constants.ExitShortcut;
+                            if (ConsoleMenu.ConfirmExit(Constants.ConfirmExitText))
+                            {
+                                Console.WriteLine("See you soon!");
+                                return Constants.ManualExitShortcut;
+                            }
+                            break;
+                    }
+
+                    if (!isSelected)
+                    {
+                        Visualizer.DrawBoard(game, _currentX, _currentY);
+                        Console.WriteLine($"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
                     }
                 }
             }
@@ -100,10 +111,15 @@ public static class GameController
                         isActionPerformed = true;
                         break;
                     case ConsoleKey.L:
-                        return Constants.ReturnToMainShortcut;
+                        if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText)) return Constants.LeaveGameShortcut;
+                        break;
                     case ConsoleKey.E:
-                        Console.WriteLine("See you soon!");
-                        return Constants.ExitShortcut;
+                        if (ConsoleMenu.ConfirmExit(Constants.ConfirmExitText))
+                        {
+                            Console.WriteLine("See you soon!");
+                            return Constants.ManualExitShortcut;
+                        }
+                        break;
                 }
 
                 Visualizer.DrawBoard(game, _currentX, _currentY);
@@ -206,9 +222,6 @@ public static class GameController
 
                     isMarkerMoveConfirmed = true;
                     break;
-                case ConsoleKey.E:
-                    Console.WriteLine("See you soon!");
-                    return;
             }
 
             Visualizer.DrawBoard(game, _currentX, _currentY);

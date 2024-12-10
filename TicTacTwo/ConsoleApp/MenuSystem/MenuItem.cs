@@ -1,4 +1,4 @@
-namespace MenuSystem;
+namespace ConsoleApp.MenuSystem;
 
 public class MenuItem
 {

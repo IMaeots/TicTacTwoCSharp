@@ -34,6 +34,7 @@ public static class Constants
     public const string ReturnShortcut = "R";
     public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
+    public const string ManualExitShortcut = "EXIT";
 
     public const string MenuDescriptionDivider = "---------------";
     public const string MenuDivider = "===============";

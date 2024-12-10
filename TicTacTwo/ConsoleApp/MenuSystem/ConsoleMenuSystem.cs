@@ -1,37 +1,128 @@
+using Common;
 using Common.Entities;
 using Data.Repositories;
 using GameLogic;
-using MenuSystem;
 using static Common.InputHelper;
 
-namespace ConsoleApp;
+namespace ConsoleApp.MenuSystem;
 
-public class ConsoleMenuSystem(
-    IConfigRepository configRepository,
-    IGameRepository gameRepository
-) : BaseMenuSystem<ConsoleMenu>(configRepository, gameRepository)
+public class ConsoleMenuSystem(IConfigRepository configRepository, IGameRepository gameRepository)
 {
-    protected override string? StartNewGameWithConfig(string configName)
+    public void Run()
     {
-        var gameConfiguration = ConfigRepository.GetConfigurationByName(configName);
-        if (gameConfiguration == null)
+        var result = CreateHomeMenu().Run();
+        while (true)
         {
-            Console.WriteLine("Invalid configuration selected.");
-            return null;
+            switch (result)
+            {
+                case Constants.ReturnToMainShortcut:
+                case Constants.LeaveGameShortcut:
+                    result = CreateHomeMenu().Run();
+                    break;
+                case Constants.ManualExitShortcut:
+                case Constants.ExitShortcut:
+                case null:
+                    return;
+            }
+        }
+    }
+
+    private static ConsoleMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription,
+        List<MenuItem> menuItems) =>
+        new(menuLevel, menuHeader, menuItems, menuDescription);
+
+    private ConsoleMenu CreateHomeMenu()
+    {
+        var homeMenuItems = new List<MenuItem>
+        {
+            new(Constants.MenuNewGameTitle, Constants.MenuNewGameShortcut, () => CreateNewGameMenu().Run()),
+            new(Constants.MenuSavedGamesTitle, Constants.MenuSavedGamesShortcut, () => CreateSavedGamesMenu().Run()),
+            new(Constants.MenuInfoTitle, Constants.MenuInfoShortcut, () => CreateRulesAndInfoMenu().Run())
+        };
+
+        return CreateMenu(EMenuLevel.Primary, Constants.GameName, null, homeMenuItems);
+    }
+
+    private ConsoleMenu CreateNewGameMenu()
+    {
+        var gameConfigurations = new List<MenuItem>
+        {
+            new(
+                title: Constants.MenuConfigCreationTitle,
+                shortcut: Constants.MenuConfigCreationShortcut,
+                action: CreateNewConfigAndSaveIt
+            )
+        };
+
+        var configNames = configRepository.GetConfigurationNamesAsync().Result;
+        for (var i = 0; i < configNames.Count; i++)
+        {
+            var configIndex = i;
+            gameConfigurations.Add(new MenuItem(
+                title: configNames[i],
+                shortcut: (i + 1).ToString(),
+                action: () => StartNewGameWithConfig(configNames[configIndex])
+            ));
         }
 
-        var newGame = CreateNewGame(gameConfiguration);
-        GameRepository.SaveNewGame(newGame);
-        return GameController.PlayGame(newGame, GameRepository.SaveGameState, GameRepository.DeleteGame);
+        return CreateMenu(EMenuLevel.Secondary, Constants.MenuChooseConfigHeading, null, gameConfigurations);
     }
 
-    protected override string StartSavedGame(string savedGameName)
+    private string? CreateNewConfigAndSaveIt()
     {
-        var savedGame = GameRepository.GetSavedGameByName(savedGameName);
-        return GameController.PlayGame(savedGame, GameRepository.SaveGameState, GameRepository.DeleteGame);
+        var newConfig = CreateNewConfig();
+        configRepository.SaveConfigAsync(newConfig);
+        return CreateNewGameMenu().Run();
     }
 
-    protected override GameConfiguration CreateNewConfig()
+    private ConsoleMenu CreateSavedGamesMenu()
+    {
+        var savedGamesMenuItems = new List<MenuItem>();
+        var savedGamesNames = gameRepository.GetSavedGamesNamesAsync().Result;
+        for (var i = 0; i < savedGamesNames.Count; i++)
+        {
+            var saveIndex = i;
+            savedGamesMenuItems.Add(new MenuItem(
+                title: savedGamesNames[i],
+                shortcut: (i + 1).ToString(),
+                action: () => StartSavedGame(savedGamesNames[saveIndex])
+            ));
+        }
+
+        return CreateMenu(EMenuLevel.Secondary, Constants.MenuSavedGamesHeading, null, savedGamesMenuItems);
+    }
+
+    private ConsoleMenu CreateRulesAndInfoMenu()
+    {
+        var rulesMenuItems = new List<MenuItem>();
+        return CreateMenu(EMenuLevel.Secondary, Constants.MenuRulesAndInfoHeading,
+            Constants.MenuRulesAndInfoDescription, rulesMenuItems);
+    }
+
+    private string StartNewGameWithConfig(string configName)
+    {
+        var gameConfiguration = configRepository.GetConfigurationByNameAsync(configName).Result;
+
+        var newGame = CreateNewGame(gameConfiguration);
+        gameRepository.SaveNewGameAsync(newGame);
+        return GameController.PlayGame(
+            newGame,
+            game => Task.Run(() => gameRepository.SaveGameStateAsync(game)),
+            game => Task.Run(() => gameRepository.DeleteGameAsync(game))
+        );
+    }
+
+    private string StartSavedGame(string savedGameName)
+    {
+        var savedGame = gameRepository.GetSavedGameByNameAsync(savedGameName).Result;
+        return GameController.PlayGame(
+            savedGame,
+            game => Task.Run(() => gameRepository.SaveGameStateAsync(game)),
+            game => Task.Run(() => gameRepository.DeleteGameAsync(game))
+        );
+    }
+
+    private GameConfiguration CreateNewConfig()
     {
         Console.WriteLine("---------------------------");
         Console.WriteLine("Let's make a configuration!");
@@ -39,7 +130,7 @@ public class ConsoleMenuSystem(
 
         var name = GetValidatedName(
             prompt: "Enter a name for the configuration:",
-            existingNames: ConfigRepository.GetConfigurationNames(),
+            existingNames: configRepository.GetConfigurationNamesAsync().Result,
             validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
         );
 
@@ -55,7 +146,6 @@ public class ConsoleMenuSystem(
                 "B" => EGameMode.Bots,
                 _ => throw new ArgumentOutOfRangeException()
             };
-
 
         var boardWidth = GetValidatedInt(
             prompt: "Enter board width:",
@@ -143,7 +233,7 @@ public class ConsoleMenuSystem(
 
         var name = GetValidatedName(
             prompt: "Enter a name for the game:",
-            existingNames: GameRepository.GetSavedGamesNames(),
+            existingNames: gameRepository.GetSavedGamesNamesAsync().Result.ToList(),
             validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
         );
 
