@@ -1,29 +1,38 @@
 using System.Text.Json;
-using Common.Entities;
 using Data.Context;
 using Data.Models.db;
 using GameLogic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repositories.Config;
 
 public class ConfigRepositoryDb(GameDbContext dbContext) : IConfigRepository
 {
-    public List<string> GetConfigurationNames()
+    public async Task<List<string>> GetConfigurationNamesAsync()
     {
-        CheckAndCreateInitialConfig();
+        await CheckAndCreateInitialConfigAsync();
 
-        return dbContext.SavedGameConfigurations.Select(config => config.Name.ToString()).ToList();
+        return await dbContext.SavedGameConfigurations
+            .Select(config => config.Name)
+            .ToListAsync();
     }
 
-    public GameConfiguration? GetConfigurationByName(string name)
+    public async Task<GameConfiguration> GetConfigurationByNameAsync(string name)
     {
-        var configuration = dbContext.SavedGameConfigurations.FirstOrDefault(config => config.Name.ToString() == name);
-        return configuration != null
-            ? JsonSerializer.Deserialize<GameConfiguration>(configuration.JsonConfiguration)
-            : null;
+        var savedConfiguration = await dbContext.SavedGameConfigurations
+            .FirstOrDefaultAsync(config => config.Name == name);
+
+        if (savedConfiguration == null)
+            throw new KeyNotFoundException($"Configuration {name} not found");
+
+        var gameConfiguration = JsonSerializer.Deserialize<GameConfiguration>(savedConfiguration.JsonConfiguration);
+        if (gameConfiguration == null)
+            throw new InvalidOperationException($"Configuration for {name} could not be deserialized.");
+
+        return gameConfiguration;
     }
 
-    public void SaveConfig(GameConfiguration newConfig)
+    public async Task SaveConfigAsync(GameConfiguration newConfig)
     {
         var jsonData = JsonSerializer.Serialize(newConfig);
         var configuration = new SaveGameConfiguration
@@ -32,27 +41,30 @@ public class ConfigRepositoryDb(GameDbContext dbContext) : IConfigRepository
             JsonConfiguration = jsonData
         };
 
-        dbContext.SavedGameConfigurations.Add(configuration);
-        dbContext.SaveChanges();
+        await dbContext.SavedGameConfigurations.AddAsync(configuration);
+        await dbContext.SaveChangesAsync();
     }
 
-    private void CheckAndCreateInitialConfig()
+    public async Task DeleteConfigAsync(string name)
     {
-        if (dbContext.SavedGameConfigurations.ToList().Count != 0) return;
+        var configuration = await dbContext.SavedGameConfigurations
+            .FirstOrDefaultAsync(config => config.Name == name);
 
-        var defaultGameConfigurations = new List<GameConfiguration>
-        {
-            new(Name: "Classical", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player1, WinCondition: 3,
-                BoardWidth: 5, BoardHeight: 5, GridWidth: 3, GridHeight: 3, UnlockSpecialMovesAfterNMoves: 2,
-                NumberOfMarkers: 4, StartingGridXPosition: 1, StartingGridYPosition: 1),
-            new(Name: "Big Board", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player2, WinCondition: 4,
-                BoardWidth: 10, BoardHeight: 10, GridWidth: 4, GridHeight: 4, UnlockSpecialMovesAfterNMoves: 4,
-                NumberOfMarkers: 6, StartingGridXPosition: 3, StartingGridYPosition: 3)
-        };
+        if (configuration == null)
+            throw new KeyNotFoundException($"Configuration {name} not found");
 
+        dbContext.SavedGameConfigurations.Remove(configuration);
+        await dbContext.SaveChangesAsync();
+    }
+
+    private async Task CheckAndCreateInitialConfigAsync()
+    {
+        if (await dbContext.SavedGameConfigurations.AnyAsync()) return;
+
+        var defaultGameConfigurations = GameConfiguration.GetDefaultGameConfigurations();
         foreach (var config in defaultGameConfigurations)
         {
-            SaveConfig(config);
+            await SaveConfigAsync(config);
         }
     }
 }

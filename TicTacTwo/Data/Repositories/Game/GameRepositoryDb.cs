@@ -8,33 +8,31 @@ namespace Data.Repositories.Game;
 
 public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
 {
-    public List<string> GetSavedGamesNames() =>
-        dbContext.SavedGames.Select(game => game.Name.ToString()).ToList();
+    public async Task<List<string>> GetSavedGamesNamesAsync() => await dbContext.SavedGames
+        .Select(game => game.Name)
+        .ToListAsync();
 
-    public GameLogic.Game GetSavedGameByName(string gameName)
+    public async Task<GameLogic.Game> GetSavedGameByNameAsync(string gameName)
     {
-        var savedGame = dbContext.SavedGames
+        var savedGame = await dbContext.SavedGames
                             .Include(saveGame => saveGame.Configuration)
-                            .FirstOrDefault(game => game.Name == gameName)
-                        ?? throw new KeyNotFoundException($"Game {gameName} not found");
+                            .FirstOrDefaultAsync(game => game.Name == gameName)
+                        ?? throw new KeyNotFoundException($"Game {gameName} not found.");
 
-        var saveName = savedGame.Name;
         var configuration = JsonSerializer.Deserialize<GameConfiguration>(savedGame.Configuration.JsonConfiguration);
         var state = JsonSerializer.Deserialize<GameState>(savedGame.JsonGameStates.Last());
-        var passwordP1 = savedGame.PasswordP1;
-        var passwordP2 = savedGame.PasswordP2;
 
-        if (configuration is null || state is null)
-            throw new ArgumentNullException($"Game configuration and/or state was null.");
+        if (configuration == null || state == null)
+            throw new ArgumentNullException($"Game configuration or state is missing or invalid.");
 
-        return new GameLogic.Game(saveName, configuration, state, passwordP1, passwordP2);
+        return new GameLogic.Game(savedGame.Name, configuration, state, savedGame.PasswordP1, savedGame.PasswordP2);
     }
 
-    public void SaveNewGame(GameLogic.Game game)
+    public async Task SaveNewGameAsync(GameLogic.Game game)
     {
         var configName = game.Configuration.Name;
-        var configuration = dbContext.SavedGameConfigurations
-            .FirstOrDefault(config => config.Name == configName);
+        var configuration = await dbContext.SavedGameConfigurations
+            .FirstOrDefaultAsync(config => config.Name == configName);
 
         if (configuration == null)
             throw new InvalidOperationException($"Configuration '{configName}' does not exist.");
@@ -49,27 +47,44 @@ public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
             PasswordP2 = game.PasswordP2
         };
 
-        dbContext.SavedGames.Add(newSave);
-        dbContext.SaveChanges();
+        await dbContext.SavedGames.AddAsync(newSave);
+        await dbContext.SaveChangesAsync();
     }
 
-    public void SaveGameState(GameLogic.Game game)
+    public async Task SaveGameStateAsync(GameLogic.Game game)
     {
-        var dbGame = dbContext.SavedGames.FirstOrDefault(g => g.Name == game.Name)
+        var dbGame = await dbContext.SavedGames
+                         .FirstOrDefaultAsync(g => g.Name == game.Name)
                      ?? throw new InvalidOperationException($"Game '{game.Name}' does not exist.");
 
         var updatedJsonGameState = JsonSerializer.Serialize(game.State);
         dbGame.JsonGameStates.Add(updatedJsonGameState);
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 
-    public void DeleteGame(GameLogic.Game game)
+    public async Task DeleteGameAsync(GameLogic.Game game)
     {
-        var dbGame = dbContext.SavedGames.FirstOrDefault(g => g.Name == game.Name)
+        var dbGame = await dbContext.SavedGames
+                         .FirstOrDefaultAsync(g => g.Name == game.Name)
                      ?? throw new InvalidOperationException($"Game '{game.Name}' does not exist.");
 
         dbContext.SavedGames.Remove(dbGame);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task EditGameNameAsync(GameLogic.Game game, string newName)
+    {
+        var dbGame = await dbContext.SavedGames
+                         .FirstOrDefaultAsync(g => g.Name == game.Name)
+                     ?? throw new InvalidOperationException($"Game '{game.Name}' does not exist.");
+
+        if (await dbContext.SavedGames.AnyAsync(g => g.Name == newName))
+            throw new InvalidOperationException($"A game with name '{newName}' already exists.");
+
+        dbGame.Name = newName;
+
+        dbContext.SavedGames.Update(dbGame);
+        await dbContext.SaveChangesAsync();
     }
 }

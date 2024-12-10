@@ -4,7 +4,8 @@ namespace Data.Repositories;
 
 public interface IConfigRepository
 {
-    List<string> GetConfigurationNames();
-    GameConfiguration? GetConfigurationByName(string name);
-    void SaveConfig(GameConfiguration newConfig);
+    Task<List<string>> GetConfigurationNamesAsync();
+    Task<GameConfiguration> GetConfigurationByNameAsync(string name);
+    Task SaveConfigAsync(GameConfiguration newConfig);
+    Task DeleteConfigAsync(string name);
 }

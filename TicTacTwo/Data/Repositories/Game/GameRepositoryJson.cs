@@ -13,19 +13,22 @@ public class GameRepositoryJson : IGameRepository
         if (!Directory.Exists(Constants.ConfigurationsPath)) Directory.CreateDirectory(Constants.ConfigurationsPath);
     }
 
-    public List<string> GetSavedGamesNames() => Directory
-        .GetFiles(Constants.GamesPath, "*" + Constants.JsonFileExtension)
-        .Select(Path.GetFileNameWithoutExtension)
-        .Where(name => name != null)
-        .Cast<string>()
-        .ToList();
+    public async Task<List<string>> GetSavedGamesNamesAsync()
+    {
+        var files = await Task.Run(() => Directory.GetFiles(Constants.GamesPath, "*" + Constants.JsonFileExtension));
+        return files
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(name => name != null)
+            .Cast<string>()
+            .ToList();
+    }
 
-    public GameLogic.Game GetSavedGameByName(string gameName)
+    public async Task<GameLogic.Game> GetSavedGameByNameAsync(string gameName)
     {
         var filePath = GetGameFilePath(gameName);
         if (!File.Exists(filePath)) throw new FileNotFoundException($"Game {gameName} not found.");
 
-        var savedGameJsonStr = File.ReadAllText(filePath);
+        var savedGameJsonStr = await File.ReadAllTextAsync(filePath);
         var savedGame = JsonSerializer.Deserialize<JsonGameModel>(savedGameJsonStr);
 
         if (savedGame == null) throw new FileNotFoundException($"Game {gameName} was not found.");
@@ -42,7 +45,7 @@ public class GameRepositoryJson : IGameRepository
         );
     }
 
-    public void SaveNewGame(GameLogic.Game game)
+    public async Task SaveNewGameAsync(GameLogic.Game game)
     {
         var configFilePath = GetConfigurationFilePath(game.Configuration.Name);
         if (!File.Exists(configFilePath))
@@ -55,22 +58,22 @@ public class GameRepositoryJson : IGameRepository
         var jsonGameModel = new JsonGameModel
         {
             Name = game.Name,
-            JsonConfiguration = File.ReadAllText(configFilePath),
+            JsonConfiguration = await File.ReadAllTextAsync(configFilePath),
             JsonGameStates = [jsonGameState],
             PasswordP1 = game.PasswordP1,
             PasswordP2 = game.PasswordP2
         };
 
-        File.WriteAllText(gameFilePath, JsonSerializer.Serialize(jsonGameModel));
+        await File.WriteAllTextAsync(gameFilePath, JsonSerializer.Serialize(jsonGameModel));
     }
 
-    public void SaveGameState(GameLogic.Game game)
+    public async Task SaveGameStateAsync(GameLogic.Game game)
     {
         var filePath = GetGameFilePath(game.Name);
         if (!File.Exists(filePath))
             throw new FileNotFoundException("The game file does not exist and cannot be updated.", filePath);
 
-        var savedGameJsonStr = File.ReadAllText(filePath);
+        var savedGameJsonStr = await File.ReadAllTextAsync(filePath);
         var savedGame = JsonSerializer.Deserialize<JsonGameModel>(savedGameJsonStr);
         if (savedGame == null)
             throw new InvalidOperationException($"Game '{game.Name}' data could not be deserialized.");
@@ -78,28 +81,49 @@ public class GameRepositoryJson : IGameRepository
         var updatedJsonGameState = JsonSerializer.Serialize(game.State);
         savedGame.JsonGameStates.Add(updatedJsonGameState);
 
-        File.WriteAllText(filePath, JsonSerializer.Serialize(savedGame));
+        await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(savedGame));
     }
 
-    public void DeleteGame(GameLogic.Game game)
+    public async Task DeleteGameAsync(GameLogic.Game game)
     {
         var filePath = GetGameFilePath(game.Name);
         if (!File.Exists(filePath)) throw new FileNotFoundException($"Game '{game.Name}' does not exist.", filePath);
 
-        File.Delete(filePath);
+        await Task.Run(() => File.Delete(filePath));
     }
 
-    private string GetGameFilePath(string gameName) =>
+    public async Task EditGameNameAsync(GameLogic.Game game, string newName)
+    {
+        var oldFilePath = GetGameFilePath(game.Name);
+        if (!File.Exists(oldFilePath))
+            throw new FileNotFoundException($"Game '{game.Name}' does not exist.", oldFilePath);
+
+        var newFilePath = GetGameFilePath(newName);
+        if (File.Exists(newFilePath))
+            throw new InvalidOperationException($"Game with name '{newName}' already exists.");
+
+        await Task.Run(() => File.Move(oldFilePath, newFilePath));
+
+        var savedGameJsonStr = await File.ReadAllTextAsync(newFilePath);
+        var savedGame = JsonSerializer.Deserialize<JsonGameModel>(savedGameJsonStr);
+        if (savedGame == null)
+            throw new InvalidOperationException($"Game '{newName}' data could not be deserialized.");
+
+        savedGame.Name = newName;
+        await File.WriteAllTextAsync(newFilePath, JsonSerializer.Serialize(savedGame));
+    }
+
+    private static string GetGameFilePath(string gameName) =>
         Path.Combine(Constants.GamesPath, gameName + Constants.JsonFileExtension);
 
-    private string GetConfigurationFilePath(string configName) =>
+    private static string GetConfigurationFilePath(string configName) =>
         Path.Combine(Constants.ConfigurationsPath, configName + Constants.JsonFileExtension);
 
-    private GameConfiguration GetGameConfiguration(string jsonConfiguration) =>
+    private static GameConfiguration GetGameConfiguration(string jsonConfiguration) =>
         JsonSerializer.Deserialize<GameConfiguration>(jsonConfiguration) ??
         throw new InvalidOperationException("Failed to deserialize game configuration.");
 
-    private GameState GetGameState(string jsonGameState) =>
+    private static GameState GetGameState(string jsonGameState) =>
         JsonSerializer.Deserialize<GameState>(jsonGameState) ??
         throw new InvalidOperationException("Failed to deserialize game state.");
 }

@@ -2,9 +2,10 @@ namespace Data.Repositories;
 
 public interface IGameRepository
 {
-    List<string> GetSavedGamesNames();
-    GameLogic.Game GetSavedGameByName(string gameName);
-    void SaveNewGame(GameLogic.Game game);
-    void SaveGameState(GameLogic.Game game);
-    void DeleteGame(GameLogic.Game game);
+    Task<List<string>> GetSavedGamesNamesAsync();
+    Task<GameLogic.Game> GetSavedGameByNameAsync(string gameName);
+    Task SaveNewGameAsync(GameLogic.Game game);
+    Task SaveGameStateAsync(GameLogic.Game game);
+    Task DeleteGameAsync(GameLogic.Game game);
+    Task EditGameNameAsync(GameLogic.Game game, string newName);
 }

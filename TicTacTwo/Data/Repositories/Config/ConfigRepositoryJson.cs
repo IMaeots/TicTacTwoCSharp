@@ -1,15 +1,14 @@
 using System.Text.Json;
 using Common;
-using Common.Entities;
 using GameLogic;
 
 namespace Data.Repositories.Config;
 
 public class ConfigRepositoryJson : IConfigRepository
 {
-    public List<string> GetConfigurationNames()
+    public async Task<List<string>> GetConfigurationNamesAsync()
     {
-        CheckAndCreateInitialConfig();
+        await CheckAndCreateInitialConfigAsync();
 
         return Directory
             .GetFiles(Constants.ConfigurationsPath, "*" + Constants.JsonFileExtension)
@@ -19,20 +18,42 @@ public class ConfigRepositoryJson : IConfigRepository
             .ToList();
     }
 
-    public GameConfiguration? GetConfigurationByName(string name)
+    public async Task<GameConfiguration> GetConfigurationByNameAsync(string name)
     {
-        var configJsonStr = File.ReadAllText(Constants.ConfigurationsPath + name + Constants.JsonFileExtension);
+        var filePath = Path.Combine(Constants.ConfigurationsPath, name + Constants.JsonFileExtension);
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Configuration file for {name} not found at {filePath}");
+
+        var configJsonStr = await File.ReadAllTextAsync(filePath);
         var config = JsonSerializer.Deserialize<GameConfiguration>(configJsonStr);
+
+        if (config == null)
+            throw new InvalidOperationException(
+                $"Failed to deserialize the configuration for {name}. The JSON content might be invalid or empty."
+            );
+
         return config;
     }
 
-    public void SaveConfig(GameConfiguration newConfig) =>
-        File.WriteAllText(
-            path: Path.Combine(Constants.ConfigurationsPath, newConfig.Name + Constants.JsonFileExtension),
-            contents: JsonSerializer.Serialize(newConfig)
-        );
+    public async Task SaveConfigAsync(GameConfiguration newConfig)
+    {
+        var filePath = Path.Combine(Constants.ConfigurationsPath, newConfig.Name + Constants.JsonFileExtension);
+        var configJsonStr = JsonSerializer.Serialize(newConfig);
+        await File.WriteAllTextAsync(filePath, configJsonStr);
+    }
 
-    private void CheckAndCreateInitialConfig()
+    public async Task DeleteConfigAsync(string name)
+    {
+        var filePath = Path.Combine(Constants.ConfigurationsPath, name + Constants.JsonFileExtension);
+
+        if (File.Exists(filePath))
+            await Task.Run(() => File.Delete(filePath));
+        else
+            throw new FileNotFoundException($"Configuration file for {name} not found at {filePath}");
+    }
+
+    private async Task CheckAndCreateInitialConfigAsync()
     {
         if (!Directory.Exists(Constants.ConfigurationsPath))
             Directory.CreateDirectory(Constants.ConfigurationsPath);
@@ -40,19 +61,10 @@ public class ConfigRepositoryJson : IConfigRepository
         var data = Directory.GetFiles(Constants.ConfigurationsPath, "*" + Constants.JsonFileExtension).ToList();
         if (data.Count != 0) return;
 
-        var defaultGameConfigurations = new List<GameConfiguration>
-        {
-            new(Name: "Classical", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player1, WinCondition: 3,
-                BoardWidth: 5, BoardHeight: 5, GridWidth: 3, GridHeight: 3, UnlockSpecialMovesAfterNMoves: 2,
-                NumberOfMarkers: 4, StartingGridXPosition: 1, StartingGridYPosition: 1),
-            new(Name: "Big Board", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player2, WinCondition: 4,
-                BoardWidth: 10, BoardHeight: 10, GridWidth: 4, GridHeight: 4, UnlockSpecialMovesAfterNMoves: 4,
-                NumberOfMarkers: 6, StartingGridXPosition: 3, StartingGridYPosition: 3)
-        };
-
+        var defaultGameConfigurations = GameConfiguration.GetDefaultGameConfigurations();
         foreach (var config in defaultGameConfigurations)
         {
-            SaveConfig(config);
+            await SaveConfigAsync(config);
         }
     }
 }
