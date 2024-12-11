@@ -1,14 +1,14 @@
-@page "{id}"
+@page "{gameName}"
 @using Common.Entities
 @model DetailsModel
 
 @{
-    ViewData["Title"] = $"Game Details: {Model.Id}";
+    ViewData["Title"] = $"Game Details: {Model.GameName}";
 }
 
 <h2>
     @ViewData["Title"]
-    <a asp-page="Edit" asp-route-id="@Model.Id" title="Edit Game">
+    <a asp-page="Edit" asp-route-gameName="@Model.GameName" title="Edit Game">
         <i class="bi bi-pencil-fill px-2 fs-2"></i>
     </a>
 </h2>

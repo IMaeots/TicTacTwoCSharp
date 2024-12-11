@@ -1,8 +1,8 @@
-@page "{Id}"
+@page "{gameName}"
 @model WebApp.Pages.Games.EditModel
 
 @{
-    ViewData["Title"] = $"Edit Game: {Model.Id}";
+    ViewData["Title"] = $"Edit Game: {Model.GameName}";
 }
 
 <h2>
@@ -16,7 +16,7 @@
 
             <div class="form-group">
                 <label for="NewName" class="control-label">New name for the game:</label>
-                <input type="text" id="NewName" name="NewName" class="form-control" />
+                <input type="text" id="NewName" value="@Model.GameName" name="NewName" class="form-control" />
                 <span asp-validation-for="NewName" class="text-danger"></span>
             </div>
             <br/>

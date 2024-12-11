@@ -10,10 +10,11 @@ public class DetailsModel(IConfigRepository configRepository) : PageModel
     public GameConfiguration Configuration { get; set; } = default!;
 
     [BindProperty(SupportsGet = true)]
-    public required string Id { get; set; }
+    public required string ConfigName { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(string configName)
     {
-        Configuration = await configRepository.GetConfigurationByNameAsync(Id);
+        ConfigName = configName;
+        Configuration = await configRepository.GetConfigurationByNameAsync(ConfigName);
     }
 }

@@ -10,10 +10,11 @@ public class DetailsModel(IGameRepository gameRepository) : PageModel
     public Game Game { get; set; } = default!;
 
     [BindProperty(SupportsGet = true)]
-    public required string Id { get; set; }
+    public required string GameName { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(string gameName)
     {
-        Game = await gameRepository.GetSavedGameByNameAsync(Id);
+        GameName = gameName;
+        Game = await gameRepository.GetSavedGameByNameAsync(GameName);
     }
 }

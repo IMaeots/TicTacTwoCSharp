@@ -10,10 +10,6 @@ namespace WebApp.Pages.Configurations
         [BindProperty]
         public GameConfiguration Configuration { get; set; } = default!;
 
-        public void OnGet()
-        {
-        }
-
         public async Task<IActionResult> OnPostAsync()
         {
             var nameValidation = GameConfigurationValidator.ValidateInputAsAlphanumeric(Configuration.Name);

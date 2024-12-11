@@ -42,8 +42,8 @@
                     @config.GridWidth x @config.GridHeight
                 </td>
                 <td class="text-end">
-                    <a asp-page="Details" asp-route-id="@config.Name">Details</a> |
-                    <a asp-page="Delete" asp-route-id="@config.Name">Delete</a>
+                    <a asp-page="Details" asp-route-configName="@config.Name">Details</a> |
+                    <a asp-page="Delete" asp-route-configName="@config.Name">Delete</a>
                 </td>
             </tr>
         }

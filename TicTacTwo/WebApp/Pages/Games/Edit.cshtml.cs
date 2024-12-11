@@ -11,11 +11,12 @@ namespace WebApp.Pages.Games
         public string NewName { get; set; } = string.Empty;
 
         [BindProperty(SupportsGet = true)]
-        public required string Id { get; set; }
+        public required string GameName { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string gameName)
         {
-            var game = await gameRepository.GetSavedGameByNameAsync(Id);
+            GameName = gameName;
+            var game = await gameRepository.GetSavedGameByNameAsync(GameName);
 
             NewName = game.Name;
             return Page();
@@ -32,7 +33,7 @@ namespace WebApp.Pages.Games
 
             if (!ModelState.IsValid) return Page();
 
-            var originalGame = await gameRepository.GetSavedGameByNameAsync(Id);
+            var originalGame = await gameRepository.GetSavedGameByNameAsync(GameName);
             await gameRepository.EditGameNameAsync(originalGame, NewName);
             
             return RedirectToPage("./Index");

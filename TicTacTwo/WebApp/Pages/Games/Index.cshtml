@@ -18,6 +18,7 @@
     <table class="table table-striped">
         <thead>
         <tr>
+            <th></th>
             <th>Name</th>
             <th>Configuration name</th>
             <th>Game status</th>
@@ -30,6 +31,11 @@
         @foreach (var game in Model.Games)
         {
             <tr>
+                <td class="text-start">
+                    <a asp-page="/Play/Index" asp-route-gameName="@game.Name" title="Play game">
+                        <i class="bi bi-play-fill"></i>
+                    </a>
+                </td>
                 <td>
                     @game.Name
                 </td>
@@ -46,9 +52,9 @@
                     @game.State.MoveCount
                 </td>
                 <td class="text-end">
-                    <a asp-page="Edit" asp-route-id="@game.Name">Edit</a> |
-                    <a asp-page="Details" asp-route-id="@game.Name">Details</a> |
-                    <a asp-page="Delete" asp-route-id="@game.Name">Delete</a>
+                    <a asp-page="Edit" asp-route-gameName="@game.Name">Edit</a> | 
+                    <a asp-page="Details" asp-route-gameName="@game.Name">Details</a> |
+                    <a asp-page="Delete" asp-route-gameName="@game.Name">Delete</a>
                 </td>
             </tr>
         }
