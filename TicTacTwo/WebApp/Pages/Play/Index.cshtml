@@ -2,3 +2,15 @@
 @model WebApp.Pages.Play.PlayGameModel
 
 <h1>Playing Game: @Model.GameName</h1>
+@if (!string.IsNullOrEmpty(Model.Password))
+{
+    <p>Password: @Model.Password</p>
+}
+
+<form method="post">
+    <div>
+        <label for="Password">Enter Password:</label>
+        <input type="text" id="Password" name="Password" value="@Model.Password" />
+    </div>
+    <button type="submit">Submit</button>
+</form>

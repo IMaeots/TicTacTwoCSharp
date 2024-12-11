@@ -1,8 +1,8 @@
 @page
-@model WebApp.Pages.Play.Setup
+@model SetupModel
 
 @{
-    ViewData["Title"] = "New Game";
+    ViewData["Title"] = "Create New Game";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -11,31 +11,35 @@
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="SaveGame.Name" class="control-label"></label>
-                <input asp-for="SaveGame.Name" class="form-control"/>
-                <span asp-validation-for="SaveGame.Name" class="text-danger"></span>
+                <label asp-for="GameName" class="control-label"></label>
+                <input asp-for="GameName" class="form-control"/>
+                <span asp-validation-for="GameName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="SaveGame.ConfigurationId" class="control-label"></label>
-                <select asp-for="SaveGame.ConfigurationId" class="form-control"
-                        asp-items="ViewBag.ConfigurationId"></select>
+                <label asp-for="ConfigurationName" class="control-label"></label>
+                <select asp-for="ConfigurationName" class="form-select" asp-items="Model.ConfigurationNames"
+                        id="ConfigurationName">
+                    <option value="">Select Game Configuration</option>
+                </select>
+                <span asp-validation-for="ConfigurationName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SaveGame.JsonGameStates" class="control-label"></label>
-                <input asp-for="SaveGame.JsonGameStates" class="form-control"/>
-                <span asp-validation-for="SaveGame.JsonGameStates" class="text-danger"></span>
+
+            <div class="form-group" id="passwordP1Field">
+                <label asp-for="PasswordP1" class="control-label"></label>
+                <input asp-for="PasswordP1" class="form-control"/>
+                <span asp-validation-for="PasswordP1" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SaveGame.PasswordP1" class="control-label"></label>
-                <input asp-for="SaveGame.PasswordP1" class="form-control"/>
-                <span asp-validation-for="SaveGame.PasswordP1" class="text-danger"></span>
+
+            <div class="form-group" id="passwordP2Field">
+                <label asp-for="PasswordP2" class="control-label"></label>
+                <input asp-for="PasswordP2" class="form-control"/>
+                <span asp-validation-for="PasswordP2" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SaveGame.PasswordP2" class="control-label"></label>
-                <input asp-for="SaveGame.PasswordP2" class="form-control"/>
-                <span asp-validation-for="SaveGame.PasswordP2" class="text-danger"></span>
-            </div>
+
+            <br/>
             <div class="form-group">
                 <input type="submit" value="Create & Play" class="btn btn-primary"/>
             </div>
@@ -44,9 +48,5 @@
 </div>
 <br/>
 <div class="text-start">
-    <a asp-page="" class="btn btn-outline-secondary">Back to Home</a>
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
 </div>
-
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-}
