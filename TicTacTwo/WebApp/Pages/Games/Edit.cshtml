@@ -12,12 +12,12 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger no-bullet"></div>
 
             <div class="form-group">
                 <label for="NewName" class="control-label">New name for the game:</label>
                 <input type="text" id="NewName" value="@Model.GameName" name="NewName" class="form-control" />
-                <span asp-validation-for="NewName" class="text-danger"></span>
+                <span asp-validation-for="NewName" class="text-danger no-bullet"></span>
             </div>
             <br/>
             <div class="form-group">

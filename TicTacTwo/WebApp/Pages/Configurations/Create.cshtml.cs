@@ -12,6 +12,8 @@ namespace WebApp.Pages.Configurations
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!ModelState.IsValid) return Page();
+            
             var nameValidation = GameConfigurationValidator.ValidateInputAsAlphanumeric(Configuration.Name);
             if (!string.IsNullOrEmpty(nameValidation))
             {

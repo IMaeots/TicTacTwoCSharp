@@ -14,12 +14,12 @@
 <div class="row">
     <div class="col-md-6">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger no-bullet"></div>
 
             <div class="form-group">
                 <label asp-for="Configuration.Name" class="control-label"></label>
                 <input asp-for="Configuration.Name" class="form-control" />
-                <span asp-validation-for="Configuration.Name" class="text-danger"></span>
+                <span asp-validation-for="Configuration.Name" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
@@ -31,7 +31,7 @@
                     <option value="@EGameMode.OnlineTwoPlayer">Online Two Player</option>
                     <option value="@EGameMode.Bots">AI vs AI</option>
                 </select>
-                <span asp-validation-for="Configuration.Mode" class="text-danger"></span>
+                <span asp-validation-for="Configuration.Mode" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
@@ -41,61 +41,61 @@
                     <option value="@EGamePiece.Player1">Player 1 (X)</option>
                     <option value="@EGamePiece.Player2">Player 2 (O)</option>
                 </select>
-                <span asp-validation-for="Configuration.StartingPlayer" class="text-danger"></span>
+                <span asp-validation-for="Configuration.StartingPlayer" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.WinCondition" class="control-label"></label>
                 <input asp-for="Configuration.WinCondition" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.WinCondition" class="text-danger"></span>
+                <span asp-validation-for="Configuration.WinCondition" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.BoardWidth" class="control-label"></label>
                 <input asp-for="Configuration.BoardWidth" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.BoardWidth" class="text-danger"></span>
+                <span asp-validation-for="Configuration.BoardWidth" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.BoardHeight" class="control-label"></label>
                 <input asp-for="Configuration.BoardHeight" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.BoardHeight" class="text-danger"></span>
+                <span asp-validation-for="Configuration.BoardHeight" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.GridWidth" class="control-label"></label>
                 <input asp-for="Configuration.GridWidth" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.GridWidth" class="text-danger"></span>
+                <span asp-validation-for="Configuration.GridWidth" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.GridHeight" class="control-label"></label>
                 <input asp-for="Configuration.GridHeight" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.GridHeight" class="text-danger"></span>
+                <span asp-validation-for="Configuration.GridHeight" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.UnlockSpecialMovesAfterNMoves" class="control-label"></label>
                 <input asp-for="Configuration.UnlockSpecialMovesAfterNMoves" class="form-control" type="number" min="0" />
-                <span asp-validation-for="Configuration.UnlockSpecialMovesAfterNMoves" class="text-danger"></span>
+                <span asp-validation-for="Configuration.UnlockSpecialMovesAfterNMoves" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.NumberOfMarkers" class="control-label"></label>
                 <input asp-for="Configuration.NumberOfMarkers" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Configuration.NumberOfMarkers" class="text-danger"></span>
+                <span asp-validation-for="Configuration.NumberOfMarkers" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.StartingGridXPosition" class="control-label"></label>
                 <input asp-for="Configuration.StartingGridXPosition" class="form-control" type="number" min="0" />
-                <span asp-validation-for="Configuration.StartingGridXPosition" class="text-danger"></span>
+                <span asp-validation-for="Configuration.StartingGridXPosition" class="text-danger no-bullet"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Configuration.StartingGridYPosition" class="control-label"></label>
                 <input asp-for="Configuration.StartingGridYPosition" class="form-control" type="number" min="0" />
-                <span asp-validation-for="Configuration.StartingGridYPosition" class="text-danger"></span>
+                <span asp-validation-for="Configuration.StartingGridYPosition" class="text-danger no-bullet"></span>
             </div>
             <br/>
             <div class="form-group">

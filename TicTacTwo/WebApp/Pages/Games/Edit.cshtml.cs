@@ -24,6 +24,8 @@ namespace WebApp.Pages.Games
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!ModelState.IsValid) return Page();
+            
             var errorMessage = GameConfigurationValidator.ValidateInputAsAlphanumeric(NewName);
             if (errorMessage != null)
             {

@@ -41,11 +41,13 @@ public class ResultModel(IGameRepository gameRepository) : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        if (!ModelState.IsValid) return Page();
+        
         try
         {
             Game = await gameRepository.GetSavedGameByNameAsync(GameName);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             if (Game == null) return RedirectToPage("/Index");
         }
@@ -55,7 +57,7 @@ public class ResultModel(IGameRepository gameRepository) : PageModel
             if (Game != null) await gameRepository.DeleteGameAsync(Game);
             return RedirectToPage("/Index");
         }
-        catch (Exception e)
+        catch (Exception)
         {
             ModelState.AddModelError(string.Empty, "There was an issue deleting the game. Please try again later.");
         }
