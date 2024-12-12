@@ -1,0 +1,72 @@
+@page "{gameName}"
+@using Common.Entities
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ResultModel
+
+@{
+    ViewData["Title"] = $" Result for: {Model.GameName}";
+}
+
+<h2>
+    @ViewData["Title"]
+    <a href="javascript:void(0);" title="Share this game's result!" onclick="copyGameLink()">
+        <i class="bi bi-share-fill px-2 fs-2"></i>
+    </a>
+</h2>
+
+<hr/>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="alert alert-info text-center">
+    <h4>@Model.WinnerMessage</h4>
+</div>
+
+@if (Model.Game != null)
+{
+    <div class="d-grid mx-auto"
+         style="width: 90%; max-width: 500px; display: grid; grid-template-columns: repeat(@Model.Game.Configuration.BoardWidth, 1fr); gap: 2px; justify-content: center;">
+        @for (var x = 0; x < Model.Game.Configuration.BoardHeight; x++)
+        {
+            @for (var y = 0; y < Model.Game.Configuration.BoardWidth; y++)
+            {
+                <div
+                    class="border border-secondary bg-light position-relative"
+                    style="aspect-ratio: 1/1; display: flex; align-items: stretch; justify-content: stretch;">
+                    <form method="post" style="width: 100%; height: 100%; margin: 0;">
+                        <button class="w-100 h-100 border-0 bg-transparent" disabled>
+                            @Model.Game.State.GameBoard[x][y].ToSymbol()
+                        </button>
+                        @if (x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth && y >= Model.Game.State.GridY && y < Model.Game.State.GridY + Model.Game.Configuration.GridHeight)
+                        {
+                            <div class="position-absolute bg-primary bg-opacity-25 w-100 h-100"
+                                 style="top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+                        }
+                    </form>
+                </div>
+            }
+        }
+    </div>   
+}
+
+<hr/>
+
+<div class="d-flex justify-content-end gap-2">
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
+    <form method="post" asp-page="/Play/Result" asp-route-gameName="@Model.GameName">
+        <button type="submit" class="btn btn-danger">Back to Home and Delete Game</button>
+    </form>
+
+</div>
+
+<script>
+    function copyGameLink() {
+        const baseUrl = window.location.origin + '/Play/Result/' + '@Model.GameName';
+        navigator.clipboard.writeText(baseUrl).then(() => {
+            alert('Game result\'s link copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy game result\'s link:', err);
+            alert('Failed to copy the game result\'s link.');
+        });
+    }
+</script>
