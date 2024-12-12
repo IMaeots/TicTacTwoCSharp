@@ -75,4 +75,22 @@ public static class GameExtension
         game.State.NextMoveBy = game.State.NextMoveBy == EGamePiece.Player1 ? EGamePiece.Player2 : EGamePiece.Player1;
         game.State.MoveCount++;
     }
+
+    public static bool IsBotsTurn(this Game game, EGamePiece? userPlayerType) => userPlayerType != null && 
+        (game.Configuration.Mode is EGameMode.Bots || (game.Configuration.Mode is EGameMode.SinglePlayer && userPlayerType != game.State.NextMoveBy));
+
+    public static bool IsUsersTurn(this Game game, EGamePiece? userPlayerType) => userPlayerType != null 
+        && (game.State.NextMoveBy == userPlayerType || (userPlayerType == EGamePiece.Empty && !game.IsBotsTurn(userPlayerType)));
+
+    public static bool IsPasswordNeeded(this Game game) => game.Configuration.Mode is EGameMode.SinglePlayer or EGameMode.OnlineTwoPlayer;
+    
+    public static EGamePiece? GetPlayerTypeByPassword(this Game game, string? password)
+    {
+        return game.Configuration.Mode switch
+        {
+            EGameMode.SinglePlayer or EGameMode.OnlineTwoPlayer when password == game.PasswordP1 => EGamePiece.Player1,
+            EGameMode.OnlineTwoPlayer when password == game.PasswordP2 => EGamePiece.Player2,
+            _ => null
+        };
+    }
 }

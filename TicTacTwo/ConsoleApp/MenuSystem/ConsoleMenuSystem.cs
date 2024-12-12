@@ -105,22 +105,69 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
 
         var newGame = CreateNewGame(gameConfiguration);
         gameRepository.SaveNewGameAsync(newGame);
+
+        var playerType = GetPlayerType(newGame);
+        if (playerType == null) return Constants.ReturnToMainShortcut;
+        
         return GameController.PlayGame(
             newGame,
-            game => Task.Run(() => gameRepository.SaveGameStateAsync(game)),
-            game => Task.Run(() => gameRepository.DeleteGameAsync(game))
+            playerType.Value,
+            () => gameRepository.GetSavedGameByNameAsync(newGame.Name).Result,
+            game => gameRepository.SaveGameStateAsync(game).Wait(),
+            game => gameRepository.DeleteGameAsync(game).Wait()
         );
     }
 
     private string StartSavedGame(string savedGameName)
     {
         var savedGame = gameRepository.GetSavedGameByNameAsync(savedGameName).Result;
+
+        var playerType = GetPlayerType(savedGame);
+        if (playerType == null) return Constants.ReturnToMainShortcut;
+        
         return GameController.PlayGame(
             savedGame,
-            game => Task.Run(() => gameRepository.SaveGameStateAsync(game)),
-            game => Task.Run(() => gameRepository.DeleteGameAsync(game))
+            playerType.Value,
+            () => gameRepository.GetSavedGameByNameAsync(savedGame.Name).Result,
+            game => gameRepository.SaveGameStateAsync(game).Wait(),
+            game => gameRepository.DeleteGameAsync(game).Wait()
         );
     }
+
+    private EGamePiece? GetPlayerType(Game game)
+    {
+        var isEscaping = false;
+        EGamePiece? playerType = null;
+        if (game.IsPasswordNeeded())
+        {
+            while (!isEscaping)
+            {
+                Console.WriteLine($"Please enter password for the game ({game.Name}): ");
+                var password = Console.ReadLine();
+                var type = game.GetPlayerTypeByPassword(password);
+
+                if (type == null)
+                {
+                    Console.WriteLine("\nInvalid password.");
+                    Console.WriteLine("Press [R] to return to the main menu. To try new password, enter any other key.");
+                    if (Console.ReadKey().Key == ConsoleKey.R) { isEscaping = true; }
+                }
+                else
+                {
+                    playerType = type.Value;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            playerType = EGamePiece.Empty;
+        }
+
+        Console.Clear();
+        return playerType;
+    }
+
 
     private GameConfiguration CreateNewConfig()
     {

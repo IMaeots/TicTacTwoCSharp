@@ -11,7 +11,7 @@ public static class GameController
     private static int _currentY;
     private static EGameAction _action;
 
-    public static string PlayGame(Game game, Action<Game> saveGameState, Action<Game> deleteGame)
+    public static string PlayGame(Game game, EGamePiece userPlayerType, Func<Game> getRefreshedGame, Action<Game> saveGameState, Action<Game> deleteGame)
     {
         Visualizer.DrawBoard(game, _currentX, _currentY);
         while (game.State.GameOutcome == EGameOutcome.None)
@@ -19,46 +19,113 @@ public static class GameController
             Visualizer.DrawBoard(game, _currentX, _currentY);
             Console.CursorVisible = false;
 
-            _action = EGameAction.PlaceMarker;
-            var nextMoveBy = game.State.NextMoveBy;
-            var canPlaceMarker = game.CanPlaceMarker();
-
-            if (!game.CanPerformSpecialMoves() && canPlaceMarker)
+            if (game.IsBotsTurn(userPlayerType))
             {
-                Console.WriteLine($"Place a marker: {nextMoveBy}!");
+                Console.WriteLine("It is BOT's turn.");
+                Console.WriteLine("Press any key to make it make a move.");
+                Console.ReadKey();
+                GameBot.MakeMove(game);
             }
-            else
+            else if (game.IsUsersTurn(userPlayerType))
             {
-                Console.WriteLine($"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
-                var isSelected = false;
-                while (!isSelected)
+                _action = EGameAction.PlaceMarker;
+                var nextMoveBy = game.State.NextMoveBy;
+                var canPlaceMarker = game.CanPlaceMarker();
+                if (!game.CanPerformSpecialMoves() && canPlaceMarker)
                 {
-                    var key = Console.ReadKey(true).Key;
-                    switch (key)
+                    Console.WriteLine($"Place a marker: {nextMoveBy}!");
+                }
+                else
+                {
+                    Console.WriteLine(
+                        $"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
+                    var isSelected = false;
+                    while (!isSelected)
                     {
-                        case ConsoleKey.P:
-                            if (canPlaceMarker)
-                            {
-                                _action = EGameAction.PlaceMarker;
-                                Console.WriteLine($"You chose to place a marker. Go ahead {nextMoveBy}!");
+                        var key = Console.ReadKey(true).Key;
+                        switch (key)
+                        {
+                            case ConsoleKey.P:
+                                if (canPlaceMarker)
+                                {
+                                    _action = EGameAction.PlaceMarker;
+                                    Console.WriteLine($"You chose to place a marker. Go ahead {nextMoveBy}!");
+                                    isSelected = true;
+                                    break;
+                                }
+
+                                Console.WriteLine(
+                                    $"Choose another option as you have already placed all your markers! ");
+                                break;
+                            case ConsoleKey.G:
+                                _action = EGameAction.MoveGrid;
+                                Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
                                 isSelected = true;
+                                break;
+                            case ConsoleKey.M:
+                                _action = EGameAction.MoveMarker;
+                                Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
+                                isSelected = true;
+                                break;
+                            case ConsoleKey.L:
+                                if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText))
+                                    return Constants.LeaveGameShortcut;
+                                break;
+                            case ConsoleKey.E:
+                                if (ConsoleMenu.ConfirmExit(Constants.ConfirmExitText))
+                                {
+                                    Console.WriteLine("See you soon!");
+                                    return Constants.ManualExitShortcut;
+                                }
+
+                                break;
+                        }
+
+                        if (!isSelected)
+                        {
+                            Visualizer.DrawBoard(game, _currentX, _currentY);
+                            Console.WriteLine(
+                                $"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
+                        }
+                    }
+                }
+
+                var isActionPerformed = false;
+                while (!isActionPerformed)
+                {
+                    var movementKey = Console.ReadKey(true).Key;
+                    switch (movementKey)
+                    {
+                        case ConsoleKey.UpArrow:
+                            _currentY = (_currentY > 0) ? _currentY - 1 : 0;
+                            break;
+                        case ConsoleKey.DownArrow:
+                            _currentY = (_currentY < game.Configuration.BoardHeight - 1)
+                                ? _currentY + 1
+                                : game.Configuration.BoardHeight - 1;
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            _currentX = (_currentX > 0) ? _currentX - 1 : 0;
+                            break;
+                        case ConsoleKey.RightArrow:
+                            _currentX = (_currentX < game.Configuration.BoardWidth - 1)
+                                ? _currentX + 1
+                                : game.Configuration.BoardWidth - 1;
+                            break;
+                        case ConsoleKey.Enter:
+                            if (_action == EGameAction.MoveMarker && !game.CanMoveThatMarker(_currentX, _currentY))
+                            {
+                                Console.WriteLine("This seems to not be your marker! Select another marker.");
+                                Console.ReadKey();
                                 break;
                             }
 
-                            Console.WriteLine($"Choose another option as you have already placed all your markers! ");
-                            break;
-                        case ConsoleKey.G:
-                            _action = EGameAction.MoveGrid;
-                            Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
-                            isSelected = true;
-                            break;
-                        case ConsoleKey.M:
-                            _action = EGameAction.MoveMarker;
-                            Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
-                            isSelected = true;
+                            ExecuteGameAction(game);
+                            isActionPerformed = true;
                             break;
                         case ConsoleKey.L:
-                            if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText)) return Constants.LeaveGameShortcut;
+                            if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText))
+                                return Constants.LeaveGameShortcut;
                             break;
                         case ConsoleKey.E:
                             if (ConsoleMenu.ConfirmExit(Constants.ConfirmExitText))
@@ -66,78 +133,36 @@ public static class GameController
                                 Console.WriteLine("See you soon!");
                                 return Constants.ManualExitShortcut;
                             }
+
                             break;
                     }
 
-                    if (!isSelected)
+                    Visualizer.DrawBoard(game, _currentX, _currentY);
+                    switch (_action)
                     {
-                        Visualizer.DrawBoard(game, _currentX, _currentY);
-                        Console.WriteLine($"{nextMoveBy}'s turn! Choose an option: [P] Place marker, [G] Move grid, [M] Move marker:");
+                        case EGameAction.PlaceMarker:
+                            Console.WriteLine(!game.CanPerformSpecialMoves()
+                                ? $"Place a marker: {nextMoveBy}!"
+                                : $"You chose to place a marker. Go ahead {nextMoveBy}!"
+                            );
+                            break;
+                        case EGameAction.MoveMarker:
+                            Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
+                            break;
+                        case EGameAction.MoveGrid:
+                            Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
+                            break;
                     }
                 }
             }
-
-            var isActionPerformed = false;
-            while (!isActionPerformed)
+            else
             {
-                var movementKey = Console.ReadKey(true).Key;
-                switch (movementKey)
-                {
-                    case ConsoleKey.UpArrow:
-                        _currentY = (_currentY > 0) ? _currentY - 1 : 0;
-                        break;
-                    case ConsoleKey.DownArrow:
-                        _currentY = (_currentY < game.Configuration.BoardHeight - 1)
-                            ? _currentY + 1
-                            : game.Configuration.BoardHeight - 1;
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        _currentX = (_currentX > 0) ? _currentX - 1 : 0;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        _currentX = (_currentX < game.Configuration.BoardWidth - 1)
-                            ? _currentX + 1
-                            : game.Configuration.BoardWidth - 1;
-                        break;
-                    case ConsoleKey.Enter:
-                        if (_action == EGameAction.MoveMarker && !game.CanMoveThatMarker(_currentX, _currentY))
-                        {
-                            Console.WriteLine("This seems to not be your marker! Select another marker.");
-                            Console.ReadKey();
-                            break;
-                        }
-
-                        ExecuteGameAction(game);
-                        isActionPerformed = true;
-                        break;
-                    case ConsoleKey.L:
-                        if (ConsoleMenu.ConfirmExit(Constants.ConfirmLeaveGameText)) return Constants.LeaveGameShortcut;
-                        break;
-                    case ConsoleKey.E:
-                        if (ConsoleMenu.ConfirmExit(Constants.ConfirmExitText))
-                        {
-                            Console.WriteLine("See you soon!");
-                            return Constants.ManualExitShortcut;
-                        }
-                        break;
-                }
-
-                Visualizer.DrawBoard(game, _currentX, _currentY);
-                switch (_action)
-                {
-                    case EGameAction.PlaceMarker:
-                        Console.WriteLine(!game.CanPerformSpecialMoves()
-                            ? $"Place a marker: {nextMoveBy}!"
-                            : $"You chose to place a marker. Go ahead {nextMoveBy}!"
-                        );
-                        break;
-                    case EGameAction.MoveMarker:
-                        Console.WriteLine($"You chose to move a marker. Go ahead {nextMoveBy}!");
-                        break;
-                    case EGameAction.MoveGrid:
-                        Console.WriteLine($"You chose to move the grid. Go ahead {nextMoveBy}!");
-                        break;
-                }
+                Console.WriteLine("It is the oppositions turn. ");
+                Console.WriteLine("Press [L] to leave the game or any other key to refresh and see if the opponent has made a move.");
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.L) return Constants.LeaveGameShortcut;
+                game = getRefreshedGame();
+                continue;
             }
 
             game.UpdateGameOutcome();
@@ -175,6 +200,7 @@ public static class GameController
                     Console.WriteLine("Invalid Move. The cell is already occupied. Press any key to continue.");
                     Console.ReadKey();
                 }
+
                 break;
             case EGameAction.MoveMarker:
                 HandleMarkerMovement(game);
