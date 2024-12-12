@@ -1,4 +1,3 @@
-using Common;
 using Common.Entities;
 using GameLogic;
 
@@ -31,7 +30,7 @@ public static class Visualizer
                     Console.BackgroundColor = ConsoleColor.Gray;
                 }
 
-                Console.Write(" " + DrawGamePiece(game.State.GameBoard[x][y]) + " ");
+                Console.Write(" " + game.State.GameBoard[x][y].ToSymbol() + " ");
                 Console.ResetColor();
 
                 if (x < boardWidth - 1)
@@ -60,12 +59,4 @@ public static class Visualizer
 
         Console.ResetColor();
     }
-
-    private static string DrawGamePiece(EGamePiece piece) =>
-        piece switch
-        {
-            EGamePiece.Player1 => Constants.FirstPlayerSymbol,
-            EGamePiece.Player2 => Constants.SecondPlayerSymbol,
-            _ => " "
-        };
 }

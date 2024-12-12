@@ -1,4 +1,5 @@
 @page
+@using Common.Entities
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model SavedGamesModel
 
@@ -43,7 +44,7 @@
                     @game.Configuration.Name
                 </td>
                 <td>
-                    @game.State.GameOutcome
+                    @(game.State.GameOutcome == EGameOutcome.None ? "Ongoing" : game.State.GameOutcome.ToString())
                 </td>
                 <td>
                     @game.Configuration.Mode

@@ -32,12 +32,6 @@ public class GameState
 
     public GameState(GameConfiguration gameConfiguration)
     {
-        GameBoard = new EGamePiece[gameConfiguration.BoardWidth][];
-        for (var x = 0; x < GameBoard.Length; x++)
-        {
-            GameBoard[x] = new EGamePiece[gameConfiguration.BoardHeight];
-        }
-
         GameBoard = Enumerable
             .Range(0, gameConfiguration.BoardWidth)
             .Select(_ => new EGamePiece[gameConfiguration.BoardHeight])

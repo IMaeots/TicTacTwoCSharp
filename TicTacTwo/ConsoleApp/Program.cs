@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 IGameRepository gameRepository;
 IConfigRepository configRepository;
 
-const bool useDatabase = false;
+const bool useDatabase = true;
 if (useDatabase)
 {
     var dbContext = new GameDbContextFactory().CreateDbContext([]);
