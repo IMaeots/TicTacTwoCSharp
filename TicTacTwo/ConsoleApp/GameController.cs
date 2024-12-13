@@ -169,6 +169,8 @@ public static class GameController
             saveGameState(game);
         }
 
+        Console.Clear();
+        Visualizer.DrawBoard(game, _currentX, _currentY);
         switch (game.State.GameOutcome)
         {
             case EGameOutcome.Draw:
@@ -186,7 +188,9 @@ public static class GameController
 
         Console.WriteLine("Game over! Press any key to delete the game and return to the main menu.");
         Console.ReadKey();
-        deleteGame(game);
+        try { deleteGame(game); }
+        catch (Exception) { /* ignored */ }
+
         return Constants.ReturnToMainShortcut;
     }
 
