@@ -1,16 +1,137 @@
 @page "{gameName}"
-@model WebApp.Pages.Play.PlayGameModel
+@using Common.Entities
+@using GameLogic
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model PlayGameModel
 
-<h1>Playing Game: @Model.GameName</h1>
-@if (!string.IsNullOrEmpty(Model.Password))
-{
-    <p>Password: @Model.Password</p>
+@{
+    ViewData["Title"] = $"Playing game: {Model.GameName}";
 }
 
-<form method="post">
-    <div>
-        <label for="Password">Enter Password:</label>
-        <input type="text" id="Password" name="Password" value="@Model.Password" />
+<h2>
+    @ViewData["Title"]
+    <a href="javascript:void(0);" title="Share this game" onclick="copyGameLink('@Model.GameName')">
+        <i class="bi bi-share-fill px-2 fs-2"></i>
+    </a>
+</h2>
+<hr/>
+
+@if (Model.Game.IsPasswordNeeded() && Model.UserPlayerType == null)
+{
+    <form method="get" class="text-center">
+        <div asp-validation-summary="ModelOnly" class="text-danger no-bullet"></div>
+        <div>
+            <label asp-for="Password">Enter Password:</label>
+            <input asp-for="Password" class="form-control d-inline w-auto"/>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </form>
+}
+else
+{
+    <div asp-validation-summary="ModelOnly" class="text-danger no-bullet text-center"></div>
+    <div class="text-center">
+        @if (Model.Game.IsBotsTurn(Model.UserPlayerType))
+        {
+            <p>It is Bot's turn!</p>
+            <form method="post" class="d-inline">
+                <button type="submit" name="bot" value="true" class="btn btn-primary mb-2">Ask Bot to make a move</button>
+                <input asp-for="UserPlayerType" value="@Model.UserPlayerType" type="hidden" />
+            </form>
+        }
+        else if (Model.Game.IsUsersTurn(Model.UserPlayerType))
+        {
+            <p>It is your turn! (@Model.Game.State.NextMoveBy.ToSymbol())</p>
+            @if (Model.Game.CanPerformSpecialMoves())
+            {
+                <div class="text-center my-2">
+                    <form method="get" class="d-inline" id="actionForm">
+                        <div class="form-group">
+                            <label for="actionSelect">Choose an Action:</label>
+                            <select id="actionSelect" asp-for="Action" class="form-control d-inline w-auto">
+                                @if (Model.Action == EGameAction.PlaceMarker) { <option value="@EGameAction.PlaceMarker" selected>Place Marker</option> }
+                                else { <option value="@EGameAction.PlaceMarker">Place Marker</option> }
+                                @if (Model.Action == EGameAction.MoveGrid) { <option value="@EGameAction.MoveGrid" selected>Move Grid</option> }
+                                else { <option value="@EGameAction.MoveGrid">Move Grid</option> }
+                                @if (Model.Action == EGameAction.MoveMarker) { <option value="@EGameAction.MoveMarker" selected>Move Marker</option> }
+                                else { <option value="@EGameAction.MoveMarker">Move Marker</option> }
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <p class="text-center my-2">Specials moves not activated. Place Marker selected by default!</p>
+            }
+        }
+        else
+        {
+            <p>It is not your turn!</p>
+        }
     </div>
-    <button type="submit">Submit</button>
-</form>
+
+    <div class="d-grid mx-auto" 
+         style="width: 90%; max-width: 500px; display: grid; grid-template-columns: repeat(@Model.Game.Configuration.BoardWidth, 1fr); gap: 2px; justify-content: center;">
+        @for (var y = 0; y < Model.Game.Configuration.BoardHeight; y++)
+        {
+            @for (var x = 0; x < Model.Game.Configuration.BoardWidth; x++)
+            {
+                <div
+                    class="border border-secondary bg-light position-relative"
+                    style="aspect-ratio: 1/1; display: flex; align-items: stretch; justify-content: stretch;">
+                    <form method="post" style="width: 100%; height: 100%; margin: 0;">
+                        <button
+                            class="w-100 h-100 border-0 bg-transparent"
+                            type="submit"
+                            name="move"
+                            value="@($"{x},{y}")"
+                            @if (!Model.Game.IsUsersTurn(Model.UserPlayerType))
+                            {
+                                <text>disabled</text>
+                            }>
+                            @Model.Game.State.GameBoard[x][y].ToSymbol()
+                        </button>
+                        @if (x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth && y >= Model.Game.State.GridY && y < Model.Game.State.GridY + Model.Game.Configuration.GridHeight)
+                        {
+                            <div class="position-absolute bg-primary bg-opacity-25 w-100 h-100"
+                                 style="top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.SelectedMarker) && x == Model.ParseMove(Model.SelectedMarker).x && y == Model.ParseMove(Model.SelectedMarker).y)
+                        {
+                            <div class="position-absolute bg-black bg-opacity-10 w-100 h-100"
+                                 style="top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+                        }
+                        <input asp-for="SelectedMarker" value="@Model.SelectedMarker" type="hidden" />
+                    </form>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="text-end mt-3">
+        <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
+    </div>
+}
+
+<script>
+    function copyGameLink(gameName) {
+        const baseUrl = window.location.origin + '/Play/' + gameName;
+        navigator.clipboard.writeText(baseUrl).then(() => {
+            alert('Game link copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy game link:', err);
+            alert('Failed to copy the game link.');
+        });
+    }
+</script>
+
+<script>
+    document.getElementById("actionSelect").addEventListener("change", function() {
+        let actionValue = this.value;
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('action', actionValue);
+
+        window.location.href = currentUrl.toString();
+    });
+</script>
