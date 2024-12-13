@@ -4,13 +4,10 @@ namespace GameLogic;
 
 public static class GameBot
 {
-    private static EGamePiece BotPlayer { get; set; }
     private static readonly Random Random = new();
 
-    public static void MakeMove(Game game)
+    public static void MakeMove(this Game game)
     {
-        BotPlayer = game.State.NextMoveBy;
-
         if (game.CanPlaceMarker())
         {
             var markerPlacement = GetBotMarkerPlace(game);
@@ -56,13 +53,14 @@ public static class GameBot
 
     private static (int x, int y) FindWinningMove(Game game)
     {
+        var bot = game.State.NextMoveBy;
         for (var x = game.State.GridX; x < game.State.GridX + game.Configuration.GridWidth; x++)
         {
             for (var y = game.State.GridY; y < game.State.GridY + game.Configuration.GridHeight; y++)
             {
                 if (game.State.GameBoard[x][y] == EGamePiece.Empty)
                 {
-                    if (SimulateMove(game, x, y, BotPlayer)) return (x, y);
+                    if (SimulateMove(game, x, y, bot)) return (x, y);
                 }
             }
         }
@@ -72,7 +70,7 @@ public static class GameBot
 
     private static (int x, int y) FindBlockingMove(Game game)
     {
-        var opponent = BotPlayer == EGamePiece.Player1 ? EGamePiece.Player2 : EGamePiece.Player1;
+        var opponent = game.State.NextMoveBy == EGamePiece.Player1 ? EGamePiece.Player2 : EGamePiece.Player1;
         for (var x = game.State.GridX; x < game.State.GridX + game.Configuration.GridWidth; x++)
         {
             for (var y = game.State.GridY; y < game.State.GridY + game.Configuration.GridHeight; y++)
@@ -172,7 +170,7 @@ public static class GameBot
         {
             for (var y = game.State.GridY; y < game.State.GridY + game.Configuration.GridHeight; y++)
             {
-                if (game.State.GameBoard[x][y] == BotPlayer)
+                if (game.State.GameBoard[x][y] == game.State.NextMoveBy)
                 {
                     allBotMarkers.Add((x, y));
                 }

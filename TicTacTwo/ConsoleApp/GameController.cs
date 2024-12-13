@@ -202,7 +202,7 @@ public static class GameController
             case EGameAction.PlaceMarker:
                 if (!game.PlaceMarker(_currentX, _currentY))
                 {
-                    Console.WriteLine("Invalid Move. The cell is already occupied. Press any key to continue.");
+                    Console.WriteLine("Invalid Move. Press any key to continue.");
                     Console.ReadKey();
                 }
 
