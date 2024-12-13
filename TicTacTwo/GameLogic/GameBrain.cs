@@ -35,9 +35,13 @@ public static class GameExtension
 
     public static bool MoveMarker(this Game game, int oldX, int oldY, int newX, int newY)
     {
-        var canMakeThatMove = game.State.GameBoard[oldX][oldY] == game.State.NextMoveBy ||
-                              game.State.GameBoard[newX][newY] == EGamePiece.Empty;
-        if (!canMakeThatMove) return false;
+        try
+        {
+            var canMakeThatMove = game.State.GameBoard[oldX][oldY] == game.State.NextMoveBy &&
+                                  game.State.GameBoard[newX][newY] == EGamePiece.Empty;
+            if (!canMakeThatMove) return false;
+        }
+        catch { return false; }
 
         game.State.GameBoard[oldX][oldY] = EGamePiece.Empty;
         game.State.GameBoard[newX][newY] = game.State.NextMoveBy;

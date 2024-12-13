@@ -19,7 +19,7 @@
 @if (Model.Game.IsPasswordNeeded() && Model.UserPlayerType == null)
 {
     <form method="get" class="text-center">
-        <div asp-validation-summary="ModelOnly" class="text-danger no-bullet"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div>
             <label asp-for="Password">Enter Password:</label>
             <input asp-for="Password" class="form-control d-inline w-auto"/>
@@ -29,7 +29,7 @@
 }
 else
 {
-    <div asp-validation-summary="ModelOnly" class="text-danger no-bullet text-center"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger text-center"></div>
     <div class="text-center">
         @if (Model.Game.IsBotsTurn(Model.UserPlayerType))
         {

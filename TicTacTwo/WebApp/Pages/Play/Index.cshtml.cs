@@ -85,7 +85,8 @@ namespace WebApp.Pages.Play
                 {
                     if (string.IsNullOrEmpty(SelectedMarker))
                     {
-                        SelectedMarker = move;
+                        if (Game.CanMoveThatMarker(x, y)) SelectedMarker = move;
+                        else ModelState.AddModelError(string.Empty, "Invalid move. You cannot select that spot.");
                         return Page();
                     }
 

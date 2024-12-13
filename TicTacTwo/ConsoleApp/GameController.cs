@@ -22,8 +22,9 @@ public static class GameController
             if (game.IsBotsTurn(userPlayerType))
             {
                 Console.WriteLine("It is BOT's turn.");
-                Console.WriteLine("Press any key to make it make a move.");
-                Console.ReadKey();
+                Console.WriteLine("Press [L] to leave or any other key to make BOT make a move.");
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.L) return Constants.ReturnToMainShortcut;
                 GameBot.MakeMove(game);
             }
             else if (game.IsUsersTurn(userPlayerType))

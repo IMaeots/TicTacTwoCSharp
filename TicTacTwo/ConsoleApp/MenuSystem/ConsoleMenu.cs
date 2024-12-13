@@ -25,7 +25,7 @@ public class ConsoleMenu
         _menuDescription = menuDescription;
     }
 
-    public string? Run()
+    public string Run()
     {
         Console.Clear();
         do

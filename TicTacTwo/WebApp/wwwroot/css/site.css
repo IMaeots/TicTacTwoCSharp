@@ -30,7 +30,7 @@ body {
   text-align: start;
 }
 
-.no-bullet {
+.text-danger ul {
   list-style-type: none;
   padding-left: 0;
 }
