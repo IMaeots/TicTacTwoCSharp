@@ -11,9 +11,8 @@ Uni-id: **inmaeo**
 - **Common**: Shared strings, utilities, entities.
 - **ConsoleApp**: Contains all components necessary for the console application, including controllers and user interface elements.
 - **Data**: Manages data access, manipulation, and persistence for the application.
-- **GameLogic**: Holds UI game models and encapsulates their respective game logic.
-- **MenuSystem**: Base menu system to be implemented in Console and Web to manage app state.
-- **WebApp**: Contains all components necessary for the web application
+- **GameLogic**: Holds UI game models and encapsulates their respective game logic & manipulation.
+- **WebApp**: Contains all components necessary for the web application, including views & models.
 
 ### Helpful dev commands:
 
