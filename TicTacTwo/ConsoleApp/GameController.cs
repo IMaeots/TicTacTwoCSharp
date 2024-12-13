@@ -116,7 +116,7 @@ public static class GameController
                         case ConsoleKey.Enter:
                             if (_action == EGameAction.MoveMarker && !game.CanMoveThatMarker(_currentX, _currentY))
                             {
-                                Console.WriteLine("This seems to not be your marker! Select another marker.");
+                                Console.WriteLine("You must pick your own marker from inside the grid!");
                                 Console.ReadKey();
                                 break;
                             }
