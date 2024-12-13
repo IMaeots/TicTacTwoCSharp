@@ -24,11 +24,11 @@
 
 @if (Model.Game != null)
 {
-    <div class="d-grid mx-auto"
+    <div class="d-grid mx-auto" 
          style="width: 90%; max-width: 500px; display: grid; grid-template-columns: repeat(@Model.Game.Configuration.BoardWidth, 1fr); gap: 2px; justify-content: center;">
-        @for (var x = 0; x < Model.Game.Configuration.BoardHeight; x++)
+        @for (var y = 0; y < Model.Game.Configuration.BoardHeight; y++)
         {
-            @for (var y = 0; y < Model.Game.Configuration.BoardWidth; y++)
+            @for (var x = 0; x < Model.Game.Configuration.BoardWidth; x++)
             {
                 <div
                     class="border border-secondary bg-light position-relative"
@@ -46,7 +46,7 @@
                 </div>
             }
         }
-    </div>   
+    </div>
 }
 
 <hr/>
