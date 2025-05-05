@@ -5,6 +5,15 @@ namespace ConsoleApp.MenuSystem;
 
 public class ConsoleMenu
 {
+    private const string MenuDescriptionDivider = "---------------";
+    private const string MenuDivider = "===============";
+    private const string MenuInputBoxHint = ">";
+    private const string ExitTitle = "Exit";
+    private const string ReturnTitle = "Return";
+    private const string ReturnToMainTitle = "Return to Main menu";
+    private const string EmptyInputMessage = "It would be nice, if you actually choose something!!! Try again... Maybe...";
+    private const string InvalidChoiceMessage = "Invalid choice. Available options: ";
+    
     private readonly EMenuLevel _menuLevel;
     private readonly string _menuHeader;
     private readonly string? _menuDescription;
@@ -77,7 +86,7 @@ public class ConsoleMenu
             
             if (string.IsNullOrWhiteSpace(userInput))
             {
-                errorMessage = Constants.EmptyInputMessage;
+                errorMessage = EmptyInputMessage;
                 continue;
             }
             
@@ -89,7 +98,7 @@ public class ConsoleMenu
                 return selectedMenuItem;
             }
             
-            errorMessage = $"{Constants.InvalidChoiceMessage}{GetAvailableOptions()}";
+            errorMessage = $"{InvalidChoiceMessage}{GetAvailableOptions()}";
         }
     }
 
@@ -100,7 +109,7 @@ public class ConsoleMenu
 
     private string ReadUserInput()
     {
-        Console.Write(Constants.MenuInputBoxHint);
+        Console.Write(MenuInputBoxHint);
         return Console.ReadLine()?.Trim() ?? string.Empty;
     }
 
@@ -111,11 +120,11 @@ public class ConsoleMenu
         
         if (_menuDescription != null)
         {
-            Console.WriteLine(Constants.MenuDescriptionDivider);
+            Console.WriteLine(MenuDescriptionDivider);
             Console.WriteLine(_menuDescription);
         }
 
-        Console.WriteLine(Constants.MenuDivider);
+        Console.WriteLine(MenuDivider);
         
         foreach (var menuItem in _menuItems)
         {
@@ -153,16 +162,16 @@ public class ConsoleMenu
     {
         var result = new List<MenuItem>(menuItems);
         
-        result.Add(new MenuItem(Constants.ExitTitle, Constants.ExitShortcut));
+        result.Add(new MenuItem(ExitTitle, Constants.ExitShortcut));
 
         if (menuLevel != EMenuLevel.Primary)
         {
-            result.Add(new MenuItem(Constants.ReturnTitle, Constants.ReturnShortcut));
+            result.Add(new MenuItem(ReturnTitle, Constants.ReturnShortcut));
         }
 
         if (menuLevel == EMenuLevel.Tertiary)
         {
-            result.Add(new MenuItem(Constants.ReturnToMainTitle, Constants.ReturnToMainShortcut));
+            result.Add(new MenuItem(ReturnToMainTitle, Constants.ReturnToMainShortcut));
         }
 
         return result;

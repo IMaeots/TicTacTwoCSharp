@@ -10,47 +10,19 @@ public static class Constants
     public const string JsonFileExtension = ".json";
 
     private static readonly string BasePath =
-        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-        + Path.DirectorySeparatorChar + "icd0008-24f" + Path.DirectorySeparatorChar;
-    private static readonly string JsonDirectory = 
-        Path.Combine(BasePath, "JsonData" + Path.DirectorySeparatorChar);
-    public static readonly string DatabaseDirectory = 
-        Path.Combine(BasePath, "Database" + Path.DirectorySeparatorChar);
-    public static readonly string GamesPath =
-        Path.Combine(BasePath, JsonDirectory + "Games" + Path.DirectorySeparatorChar);
-    public static readonly string ConfigurationsPath =
-        Path.Combine(BasePath, JsonDirectory + "Configurations" + Path.DirectorySeparatorChar);
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TicTacTwo");
+    private static readonly string JsonDirectory = Path.Combine(BasePath, "JsonData");
+    public static readonly string DatabaseDirectory = Path.Combine(BasePath, "Database");
+    public static readonly string GamesPath = Path.Combine(JsonDirectory, "Games");
+    public static readonly string ConfigurationsPath = Path.Combine(JsonDirectory, "Configurations");
     
-    public const string EmptyInputMessage =
-        "It would be nice, if you actually choose something!!! Try again... Maybe...";
-    public const string InvalidChoiceMessage = "Invalid choice. Available options: ";
-    public const string ExitTitle = "Exit";
     public const string ExitShortcut = "E";
-    public const string ConfirmExitText = "Are you sure you want to close the game? (Y/N)";
-    public const string ConfirmSymbol = "Y";
-    public const string LeaveGameShortcut = "L";
-    public const string ConfirmLeaveGameText = "Are you sure you want to leave the game? (Y/N)";
-    public const string ReturnTitle = "Return";
     public const string ReturnShortcut = "R";
-    public const string ReturnToMainTitle = "Return to Main menu";
     public const string ReturnToMainShortcut = "M";
+    public const string LeaveGameShortcut = "L";
     public const string ManualExitShortcut = "EXIT";
-
-    public const string MenuDescriptionDivider = "---------------";
-    public const string MenuDivider = "===============";
-    public const string MenuInputBoxHint = ">";
-    public const string MenuNewGameTitle = "New Game";
-    public const string MenuNewGameShortcut = "N";
-    public const string MenuSavedGamesTitle = "Saved Games";
-    public const string MenuSavedGamesShortcut = "S";
-    public const string MenuInfoTitle = "Info";
-    public const string MenuInfoShortcut = "I";
-    public const string MenuConfigCreationTitle = "Create New Config";
-    public const string MenuConfigCreationShortcut = "C";
-    public const string MenuChooseConfigHeading = GameName + " Choose Game Gonfiguration";
-    public const string MenuSavedGamesHeading = GameName + " Saved Games";
-    public const string MenuRulesAndInfoHeading = GameName + " Information";
-
+    public const string ConfirmSymbol = "Y";
+    
     public const string MenuRulesAndInfoDescription =
         "How to Play: \n" +
         "TicTacTwo is an enhanced version of Tic-Tac-Toe.\n" +
