@@ -60,7 +60,7 @@ namespace WebApp.Pages.Configurations
                 ModelState.AddModelError(string.Empty, specialMovesValidation);
             }
 
-            var markersValidation = GameConfigurationValidator.ValidateMarkers(Configuration.NumberOfMarkers, Configuration.WinCondition);
+            var markersValidation = GameConfigurationValidator.ValidateNumberOfMarkers(Configuration.NumberOfMarkers, Configuration.WinCondition);
             if (!string.IsNullOrEmpty(markersValidation))
             {
                 ModelState.AddModelError(string.Empty, markersValidation);

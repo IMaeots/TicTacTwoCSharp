@@ -30,87 +30,149 @@
 else
 {
     <div asp-validation-summary="ModelOnly" class="text-danger text-center"></div>
-    <div class="text-center">
-        @if (Model.Game.IsBotsTurn(Model.UserPlayerType))
-        {
-            <p>It is Bot's turn!</p>
-            <form method="post" class="d-inline">
-                <button type="submit" name="bot" value="true" class="btn btn-primary mb-2">Ask Bot to make a move</button>
-                <input asp-for="UserPlayerType" value="@Model.UserPlayerType" type="hidden" />
-            </form>
-        }
-        else if (Model.Game.IsUsersTurn(Model.UserPlayerType))
-        {
-            <p>It is your turn! (@Model.Game.State.NextMoveBy.ToSymbol())</p>
-            @if (Model.Game.CanPerformSpecialMoves())
+    
+    <div class="text-center mb-4">
+        <div class="d-flex justify-content-center gap-4 mb-2">
+            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player1 ? "border-primary bg-light" : "border-secondary")">
+                <strong>Player X</strong>: @Model.Game.State.Player1MarkersPlaced/@Model.Game.Configuration.NumberOfMarkers
+            </div>
+            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player2 ? "border-primary bg-light" : "border-secondary")">
+                <strong>Player O</strong>: @Model.Game.State.Player2MarkersPlaced/@Model.Game.Configuration.NumberOfMarkers
+            </div>
+        </div>
+
+        <div class="mb-3">
+            @if (Model.Game.IsBotsTurn(Model.UserPlayerType))
             {
-                <div class="text-center my-2">
-                    <form method="get" class="d-inline" id="actionForm">
-                        <div class="form-group">
-                            <label for="actionSelect">Choose an Action:</label>
-                            <select id="actionSelect" asp-for="Action" class="form-control d-inline w-auto">
-                                @if (Model.Action == EGameAction.PlaceMarker) { <option value="@EGameAction.PlaceMarker" selected>Place Marker</option> }
-                                else { <option value="@EGameAction.PlaceMarker">Place Marker</option> }
-                                @if (Model.Action == EGameAction.MoveGrid) { <option value="@EGameAction.MoveGrid" selected>Move Grid</option> }
-                                else { <option value="@EGameAction.MoveGrid">Move Grid</option> }
-                                @if (Model.Action == EGameAction.MoveMarker) { <option value="@EGameAction.MoveMarker" selected>Move Marker</option> }
-                                else { <option value="@EGameAction.MoveMarker">Move Marker</option> }
-                            </select>
-                        </div>
-                    </form>
-                </div>
+                <form method="post" class="d-inline">
+                    <button type="submit" name="bot" value="true" class="btn btn-primary">Ask Bot to make a move</button>
+                    <input asp-for="UserPlayerType" value="@Model.UserPlayerType" type="hidden" />
+                </form>
             }
-            else
+            else if (Model.Game.Configuration.Mode == EGameMode.OnlineTwoPlayer && !Model.Game.IsUsersTurn(Model.UserPlayerType))
             {
-                <p class="text-center my-2">Specials moves not activated. Place Marker selected by default!</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Game
+                </button>
             }
-        }
-        else
-        {
-            <p>It is not your turn!</p>
-        }
+        </div>
     </div>
 
-    <div class="d-grid mx-auto" 
-         style="width: 90%; max-width: 500px; display: grid; grid-template-columns: repeat(@Model.Game.Configuration.BoardWidth, 1fr); gap: 2px; justify-content: center;">
-        @for (var y = 0; y < Model.Game.Configuration.BoardHeight; y++)
+    <div class="position-relative mx-auto" style="width: 100%; max-width: 500px; margin-top: 50px; margin-bottom: 50px;">
+        @if (Model.Game.CanPerformSpecialMoves() && Model.Game.IsUsersTurn(Model.UserPlayerType))
         {
-            @for (var x = 0; x < Model.Game.Configuration.BoardWidth; x++)
+            @if (Model.Game.State.GridY > 0)
             {
-                <div
-                    class="border border-secondary bg-light position-relative"
-                    style="aspect-ratio: 1/1; display: flex; align-items: stretch; justify-content: stretch;">
-                    <form method="post" style="width: 100%; height: 100%; margin: 0;">
-                        <button
-                            class="w-100 h-100 border-0 bg-transparent"
-                            type="submit"
-                            name="move"
-                            value="@($"{x},{y}")"
-                            @if (!Model.Game.IsUsersTurn(Model.UserPlayerType))
-                            {
-                                <text>disabled</text>
-                            }>
-                            @Model.Game.State.GameBoard[x][y].ToSymbol()
-                        </button>
-                        @if (x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth && y >= Model.Game.State.GridY && y < Model.Game.State.GridY + Model.Game.Configuration.GridHeight)
-                        {
-                            <div class="position-absolute bg-primary bg-opacity-25 w-100 h-100"
-                                 style="top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.SelectedMarker) && x == Model.ParseMove(Model.SelectedMarker).x && y == Model.ParseMove(Model.SelectedMarker).y)
-                        {
-                            <div class="position-absolute bg-black bg-opacity-10 w-100 h-100"
-                                 style="top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
-                        }
-                        <input asp-for="SelectedMarker" value="@Model.SelectedMarker" type="hidden" />
-                    </form>
-                </div>
+                <form method="post" class="position-absolute" style="top: -45px; left: 50%; transform: translateX(-50%);">
+                    <button type="submit" class="btn btn-outline-secondary" name="move" value="@($"{Model.Game.State.GridX},{Model.Game.State.GridY-1}")">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <input type="hidden" name="action" value="@EGameAction.MoveGrid" />
+                </form>
+            }
+            
+            @if (Model.Game.State.GridX > 0)
+            {
+                <form method="post" class="position-absolute" style="top: 50%; left: -45px; transform: translateY(-50%);">
+                    <button type="submit" class="btn btn-outline-secondary" name="move" value="@($"{Model.Game.State.GridX-1},{Model.Game.State.GridY}")">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <input type="hidden" name="action" value="@EGameAction.MoveGrid" />
+                </form>
+            }
+            
+            @if (Model.Game.State.GridX < Model.Game.Configuration.BoardWidth - Model.Game.Configuration.GridWidth)
+            {
+                <form method="post" class="position-absolute" style="top: 50%; right: -45px; transform: translateY(-50%);">
+                    <button type="submit" class="btn btn-outline-secondary" name="move" value="@($"{Model.Game.State.GridX+1},{Model.Game.State.GridY}")">
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <input type="hidden" name="action" value="@EGameAction.MoveGrid" />
+                </form>
+            }
+            
+            @if (Model.Game.State.GridY < Model.Game.Configuration.BoardHeight - Model.Game.Configuration.GridHeight)
+            {
+                <form method="post" class="position-absolute" style="bottom: -45px; left: 50%; transform: translateX(-50%);">
+                    <button type="submit" class="btn btn-outline-secondary" name="move" value="@($"{Model.Game.State.GridX},{Model.Game.State.GridY+1}")">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+                    <input type="hidden" name="action" value="@EGameAction.MoveGrid" />
+                </form>
             }
         }
+    
+        <div class="mx-auto" 
+             style="width: 100%; max-width: 500px; display: grid; grid-template-columns: repeat(@Model.Game.Configuration.BoardWidth, 1fr); gap: 2px; justify-content: center;">
+            @for (var y = 0; y < Model.Game.Configuration.BoardHeight; y++)
+            {
+                @for (var x = 0; x < Model.Game.Configuration.BoardWidth; x++)
+                {
+                    bool isInActiveGrid = x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth &&
+                                         y >= Model.Game.State.GridY && y < Model.Game.State.GridY + Model.Game.Configuration.GridHeight;
+                    
+                    bool isSelectedMarker = !string.IsNullOrEmpty(Model.SelectedMarker) && 
+                                           x == Model.ParseMove(Model.SelectedMarker).x && 
+                                           y == Model.ParseMove(Model.SelectedMarker).y;
+                    
+                    string cellClass = isSelectedMarker 
+                        ? "border border-warning border-3 bg-warning bg-opacity-25" 
+                        : (isInActiveGrid 
+                            ? "border border-primary border-2 bg-light" 
+                            : "border border-secondary bg-secondary bg-opacity-10");
+                    
+                    <div class="@cellClass" style="aspect-ratio: 1/1; display: flex;">
+                        <form method="post" style="width: 100%; height: 100%; margin: 0;">
+                            <button
+                                class="w-100 h-100 border-0 bg-transparent"
+                                type="submit"
+                                name="move"
+                                value="@($"{x},{y}")"
+                                @if (!Model.Game.IsUsersTurn(Model.UserPlayerType) || (!isInActiveGrid && string.IsNullOrEmpty(Model.SelectedMarker)))
+                                {
+                                    <text>disabled</text>
+                                }>
+                                @if (Model.Game.State.GameBoard[x][y] == EGamePiece.Player1)
+                                {
+                                    <span style="color: #dc3545; font-weight: bold; font-size: 1.2rem;">X</span>
+                                }
+                                else if (Model.Game.State.GameBoard[x][y] == EGamePiece.Player2)
+                                {
+                                    <span style="color: #0d6efd; font-weight: bold; font-size: 1.2rem;">O</span>
+                                }
+                                else
+                                {
+                                    @Model.Game.State.GameBoard[x][y].ToSymbol()
+                                }
+                            </button>
+                            
+                            @if (!string.IsNullOrEmpty(Model.SelectedMarker))
+                            {
+                                <input type="hidden" name="action" value="@EGameAction.MoveMarker" />
+                                <input asp-for="SelectedMarker" type="hidden" />
+                                
+                                @if (isSelectedMarker)
+                                {
+                                    <input type="hidden" name="deselect" value="true" />
+                                }
+                            }
+                            else if (Model.Game.CanPerformSpecialMoves() && Model.Game.State.GameBoard[x][y] == Model.Game.State.NextMoveBy)
+                            {
+                                <input type="hidden" name="action" value="@EGameAction.MoveMarker" />
+                            }
+                            else
+                            {
+                                <input type="hidden" name="action" value="@EGameAction.PlaceMarker" />
+                            }
+                        </form>
+                    </div>
+                }
+            }
+        </div>
     </div>
 
     <div class="text-end mt-3">
-        <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
+        <a asp-page="/Index" class="btn btn-outline-secondary">Home</a>
     </div>
 }
 
@@ -124,14 +186,4 @@ else
             alert('Failed to copy the game link.');
         });
     }
-</script>
-
-<script>
-    document.getElementById("actionSelect").addEventListener("change", function() {
-        let actionValue = this.value;
-        let currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('action', actionValue);
-
-        window.location.href = currentUrl.toString();
-    });
 </script>

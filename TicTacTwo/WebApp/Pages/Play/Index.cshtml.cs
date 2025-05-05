@@ -41,7 +41,7 @@ namespace WebApp.Pages.Play
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string? move, bool? bot)
+        public async Task<IActionResult> OnPostAsync(string? move, bool? bot, bool? deselect)
         {
             if (!ModelState.IsValid) return Page();
             if (await LoadingGameFailed()) return NotFound();
@@ -59,6 +59,12 @@ namespace WebApp.Pages.Play
             }
 
             if (string.IsNullOrEmpty(move)) return Page();
+
+            if (deselect == true && !string.IsNullOrEmpty(SelectedMarker))
+            {
+                SelectedMarker = null;
+                return Page();
+            }
 
             var (x, y) = ParseMove(move);
 
