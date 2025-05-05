@@ -20,43 +20,74 @@ public class ConfigRepositoryJson : IConfigRepository
 
     public async Task<GameConfiguration> GetConfigurationByNameAsync(string name)
     {
-        var filePath = Path.Combine(Constants.ConfigurationsPath, name + Constants.JsonFileExtension);
+        await EnsureDirectoriesExistAsync();
+        
+        var filePath = GetConfigurationFilePath(name);
 
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Configuration file for {name} not found at {filePath}");
 
-        var configJsonStr = await File.ReadAllTextAsync(filePath);
-        var config = JsonSerializer.Deserialize<GameConfiguration>(configJsonStr);
+        try
+        {
+            var configJsonStr = await File.ReadAllTextAsync(filePath);
+            var config = JsonSerializer.Deserialize<GameConfiguration>(configJsonStr);
 
-        if (config == null)
-            throw new InvalidOperationException(
-                $"Failed to deserialize the configuration for {name}. The JSON content might be invalid or empty."
-            );
+            if (config == null)
+                throw new InvalidOperationException(
+                    $"Failed to deserialize the configuration for {name}. The JSON content might be invalid or empty."
+                );
 
-        return config;
+            return config;
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"Error parsing configuration data for {name}: {ex.Message}", ex);
+        }
+        catch (Exception ex) when (ex is not FileNotFoundException and not InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Unexpected error loading configuration {name}: {ex.Message}", ex);
+        }
     }
 
     public async Task SaveConfigAsync(GameConfiguration newConfig)
     {
-        var filePath = Path.Combine(Constants.ConfigurationsPath, newConfig.Name + Constants.JsonFileExtension);
-        var configJsonStr = JsonSerializer.Serialize(newConfig);
-        await File.WriteAllTextAsync(filePath, configJsonStr);
+        await EnsureDirectoriesExistAsync();
+        
+        var filePath = GetConfigurationFilePath(newConfig.Name);
+        
+        try
+        {
+            var configJsonStr = JsonSerializer.Serialize(newConfig);
+            await File.WriteAllTextAsync(filePath, configJsonStr);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to save configuration '{newConfig.Name}': {ex.Message}", ex);
+        }
     }
 
     public async Task DeleteConfigAsync(string name)
     {
-        var filePath = Path.Combine(Constants.ConfigurationsPath, name + Constants.JsonFileExtension);
+        await EnsureDirectoriesExistAsync();
+        
+        var filePath = GetConfigurationFilePath(name);
 
-        if (File.Exists(filePath))
-            await Task.Run(() => File.Delete(filePath));
-        else
+        if (!File.Exists(filePath))
             throw new FileNotFoundException($"Configuration file for {name} not found at {filePath}");
+            
+        try
+        {
+            await Task.Run(() => File.Delete(filePath));
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to delete configuration '{name}': {ex.Message}", ex);
+        }
     }
 
     private async Task CheckAndCreateInitialConfigAsync()
     {
-        if (!Directory.Exists(Constants.ConfigurationsPath))
-            Directory.CreateDirectory(Constants.ConfigurationsPath);
+        await EnsureDirectoriesExistAsync();
 
         var data = Directory.GetFiles(Constants.ConfigurationsPath, "*" + Constants.JsonFileExtension).ToList();
         if (data.Count != 0) return;
@@ -66,5 +97,19 @@ public class ConfigRepositoryJson : IConfigRepository
         {
             await SaveConfigAsync(config);
         }
+    }
+    
+    private static string GetConfigurationFilePath(string configName) =>
+        Path.Combine(Constants.ConfigurationsPath, configName + Constants.JsonFileExtension);
+        
+    private static async Task EnsureDirectoriesExistAsync()
+    {
+        await Task.Run(() => {
+            if (!Directory.Exists(Constants.ConfigurationsPath))
+                Directory.CreateDirectory(Constants.ConfigurationsPath);
+            
+            if (!Directory.Exists(Constants.GamesPath))
+                Directory.CreateDirectory(Constants.GamesPath);
+        });
     }
 }
