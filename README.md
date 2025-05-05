@@ -80,7 +80,7 @@ TicTacTwo is an advanced version of **Tic-Tac-Toe** with unique game mechanics:
 Clone this repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/IMaeots/TicTacTwoCSharp.git
 cd TicTacTwoCSharp
 ```
 
