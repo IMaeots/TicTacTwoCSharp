@@ -14,7 +14,7 @@ public static partial class GameConfigurationValidator
             ? null
             : "Mode must be a single character representing wished mode from the options.";
 
-    public static string? ValidateWinCondition(int winCondition, int gridHeight, int gridWidth) =>
+    public static string? ValidateWinCondition(int winCondition, int gridWidth, int gridHeight) =>
         winCondition <= 0
             ? "Win condition must be a positive integer."
             : winCondition > gridHeight && winCondition > gridWidth
@@ -39,10 +39,16 @@ public static partial class GameConfigurationValidator
 
     public static string? ValidateMoveGridAfterNMoves(int moves) =>
         moves <= 1 ? "Moves required to move grid must be greater than 1." : null;
+        
+    public static string? ValidateUnlockSpecialMovesAfterNMoves(int moves) =>
+        moves <= 1 ? "Moves required to unlock special moves must be greater than 1." : null;
 
-    public static string? ValidateMarkers(int markers, int winCondition) =>
-        markers <= 0 ? "Number of markers must be a positive integer." :
-        markers < winCondition ? $"Number of markers must be greater or equal to winCondition ({winCondition})." : null;
+    public static string? ValidateNumberOfMarkers(int markers, int winCondition) =>
+        markers <= 0 
+            ? "Number of markers must be a positive integer." 
+            : markers < winCondition 
+                ? $"Number of markers must be greater or equal to win condition ({winCondition})." 
+                : null;
 
     public static string? ValidateStartingGridXPosition(int position, int boardWidth, int gridWidth) =>
         ValidateStartingPosition(position, boardWidth, gridWidth, "X");
@@ -50,10 +56,11 @@ public static partial class GameConfigurationValidator
     public static string? ValidateStartingGridYPosition(int position, int boardHeight, int gridHeight) =>
         ValidateStartingPosition(position, boardHeight, gridHeight, "Y");
 
-    public static string? ValidateStartingPlayer(int player) =>
-        player is < 1 or > 2 ? "Starting player must be either 1 or 2." : null;
+    public static string? ValidateStartingPlayer(string player) =>
+        !int.TryParse(player, out var playerNum) || playerNum is < 1 or > 2 
+            ? "Starting player must be either 1 or 2." 
+            : null;
 
-    // Helpers
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z0-9]+$")]
     private static partial System.Text.RegularExpressions.Regex IsAlphanumericRegex();
 

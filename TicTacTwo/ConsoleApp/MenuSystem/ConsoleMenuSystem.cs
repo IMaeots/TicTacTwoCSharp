@@ -8,6 +8,20 @@ namespace ConsoleApp.MenuSystem;
 
 public class ConsoleMenuSystem(IConfigRepository configRepository, IGameRepository gameRepository)
 {
+    private const string MenuNewGameTitle = "New Game";
+    private const string MenuNewGameShortcut = "N";
+    private const string MenuSavedGamesTitle = "Saved Games";
+    private const string MenuSavedGamesShortcut = "S";
+    private const string MenuInfoTitle = "Info";
+    private const string MenuInfoShortcut = "I";
+    private const string MenuConfigCreationTitle = "Create New Config";
+    private const string MenuConfigCreationShortcut = "C";
+    private const string MenuChooseConfigHeading = Constants.GameName + " Choose Game Configuration";
+    private const string MenuSavedGamesHeading = Constants.GameName + " Saved Games";
+    private const string MenuRulesAndInfoHeading = Constants.GameName + " Information";
+    private const string ConfirmExitText = "Are you sure you want to close the game? (Y/N)";
+    private const string ConfirmLeaveGameText = "Are you sure you want to leave the game? (Y/N)";
+
     public void Run()
     {
         var result = CreateHomeMenu().Run();
@@ -19,15 +33,19 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
                 case Constants.LeaveGameShortcut:
                     result = CreateHomeMenu().Run();
                     break;
-                case Constants.ManualExitShortcut:
                 case Constants.ExitShortcut:
+                    if (ConfirmExit(ConfirmExitText))
+                        return;
+                    result = CreateHomeMenu().Run();
+                    break;
+                case Constants.ManualExitShortcut:
                 case null:
                     return;
             }
         }
     }
 
-    private static ConsoleMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription,
+    private ConsoleMenu CreateMenu(EMenuLevel menuLevel, string menuHeader, string? menuDescription,
         List<MenuItem> menuItems) =>
         new(menuLevel, menuHeader, menuItems, menuDescription);
 
@@ -35,9 +53,9 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
     {
         var homeMenuItems = new List<MenuItem>
         {
-            new(Constants.MenuNewGameTitle, Constants.MenuNewGameShortcut, () => CreateNewGameMenu().Run()),
-            new(Constants.MenuSavedGamesTitle, Constants.MenuSavedGamesShortcut, () => CreateSavedGamesMenu().Run()),
-            new(Constants.MenuInfoTitle, Constants.MenuInfoShortcut, () => CreateRulesAndInfoMenu().Run())
+            new(MenuNewGameTitle, MenuNewGameShortcut, () => CreateNewGameMenu().Run()),
+            new(MenuSavedGamesTitle, MenuSavedGamesShortcut, () => CreateSavedGamesMenu().Run()),
+            new(MenuInfoTitle, MenuInfoShortcut, () => CreateRulesAndInfoMenu().Run())
         };
 
         return CreateMenu(EMenuLevel.Primary, Constants.GameName, null, homeMenuItems);
@@ -48,8 +66,8 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         var gameConfigurations = new List<MenuItem>
         {
             new(
-                title: Constants.MenuConfigCreationTitle,
-                shortcut: Constants.MenuConfigCreationShortcut,
+                title: MenuConfigCreationTitle,
+                shortcut: MenuConfigCreationShortcut,
                 action: CreateNewConfigAndSaveIt
             )
         };
@@ -65,7 +83,7 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
             ));
         }
 
-        return CreateMenu(EMenuLevel.Secondary, Constants.MenuChooseConfigHeading, null, gameConfigurations);
+        return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, gameConfigurations);
     }
 
     private string? CreateNewConfigAndSaveIt()
@@ -89,13 +107,13 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
             ));
         }
 
-        return CreateMenu(EMenuLevel.Secondary, Constants.MenuSavedGamesHeading, null, savedGamesMenuItems);
+        return CreateMenu(EMenuLevel.Secondary, MenuSavedGamesHeading, null, savedGamesMenuItems);
     }
 
     private ConsoleMenu CreateRulesAndInfoMenu()
     {
         var rulesMenuItems = new List<MenuItem>();
-        return CreateMenu(EMenuLevel.Secondary, Constants.MenuRulesAndInfoHeading,
+        return CreateMenu(EMenuLevel.Secondary, MenuRulesAndInfoHeading,
             Constants.MenuRulesAndInfoDescription, rulesMenuItems);
     }
 
@@ -109,13 +127,15 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         var playerType = GetPlayerType(newGame);
         if (playerType == null) return Constants.ReturnToMainShortcut;
         
-        return GameController.PlayGame(
+        var gameController = new GameController(
             newGame,
             playerType.Value,
             () => gameRepository.GetSavedGameByNameAsync(newGame.Name).Result,
             game => gameRepository.SaveGameStateAsync(game).Wait(),
             game => gameRepository.DeleteGameAsync(game).Wait()
         );
+        
+        return gameController.Play();
     }
 
     private string StartSavedGame(string savedGameName)
@@ -125,13 +145,15 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         var playerType = GetPlayerType(savedGame);
         if (playerType == null) return Constants.ReturnToMainShortcut;
         
-        return GameController.PlayGame(
+        var gameController = new GameController(
             savedGame,
             playerType.Value,
             () => gameRepository.GetSavedGameByNameAsync(savedGame.Name).Result,
             game => gameRepository.SaveGameStateAsync(game).Wait(),
             game => gameRepository.DeleteGameAsync(game).Wait()
         );
+        
+        return gameController.Play();
     }
 
     private EGamePiece? GetPlayerType(Game game)
@@ -167,7 +189,6 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         Console.Clear();
         return playerType;
     }
-
 
     private GameConfiguration CreateNewConfig()
     {
@@ -206,120 +227,105 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
 
         var gridWidth = GetValidatedInt(
             prompt: "Enter grid width:",
-            validationRule: validatedInput => GameConfigurationValidator.ValidateGridWidth(validatedInput, boardWidth)
+            validationRule: width => GameConfigurationValidator.ValidateGridWidth(width, boardWidth)
         );
 
         var gridHeight = GetValidatedInt(
             prompt: "Enter grid height:",
-            validationRule: validatedInput => GameConfigurationValidator.ValidateGridHeight(validatedInput, boardHeight)
+            validationRule: height => GameConfigurationValidator.ValidateGridHeight(height, boardHeight)
         );
 
         var winCondition = GetValidatedInt(
-            prompt: "Enter win condition:",
-            validationRule: validatedInput =>
-                GameConfigurationValidator.ValidateWinCondition(validatedInput, gridHeight, gridWidth)
-        );
-
-        var moveGridAfterNMoves = GetValidatedInt(
-            prompt:
-            "Enter number of moves to gain the ability to move the grid or already placed down marker (must be > 1):",
-            validationRule: GameConfigurationValidator.ValidateMoveGridAfterNMoves
+            prompt: "Enter win condition (how many in a row needed to win):",
+            validationRule: condition => GameConfigurationValidator.ValidateWinCondition(condition, gridWidth, gridHeight)
         );
 
         var numberOfMarkers = GetValidatedInt(
-            prompt: "Enter number of markers per player:",
-            validationRule: validatedInput => GameConfigurationValidator.ValidateMarkers(validatedInput, winCondition)
+            prompt: "Enter number of markers each player can place:",
+            validationRule: markers => GameConfigurationValidator.ValidateNumberOfMarkers(markers, winCondition)
         );
 
-        var startX = GetValidatedNullableInt(
-            prompt: "Enter starting grid's top left corner's X position (optional):",
-            validationRule: input =>
-                GameConfigurationValidator.ValidateStartingGridXPosition(input, boardWidth, gridWidth)
-        ) ?? (boardWidth - gridWidth) / 2;
+        var unlockSpecialMovesAfterNMoves = GetValidatedInt(
+            prompt: "After how many moves (by both players) should special moves (moving grid, moving placed markers) be enabled:",
+            validationRule: GameConfigurationValidator.ValidateUnlockSpecialMovesAfterNMoves
+        );
 
-        var startY = GetValidatedNullableInt(
-            prompt: "Enter starting grid's top left corner's Y position (optional):",
-            validationRule: input =>
-                GameConfigurationValidator.ValidateStartingGridYPosition(input, boardHeight, gridHeight)
-        ) ?? (boardHeight - gridHeight) / 2;
+        var startingPlayer = GetValidatedString(
+                prompt: "Enter starting player: [1] - Player 1, [2] - Player 2",
+                validationRule: GameConfigurationValidator.ValidateStartingPlayer
+            ).Trim() == "1"
+            ? EGamePiece.Player1
+            : EGamePiece.Player2;
 
-        var startingPlayer = GetValidatedNullableInt(
-            prompt: "Enter starting player - [1] or [2] (optional):",
-            validationRule: GameConfigurationValidator.ValidateStartingPlayer
-        ) == 2
-            ? EGamePiece.Player2
-            : EGamePiece.Player1;
+        var startingGridXPosition = GetValidatedInt(
+            prompt: "Enter starting grid X position:",
+            validationRule: x => GameConfigurationValidator.ValidateStartingGridXPosition(x, boardWidth, gridWidth)
+        );
 
-        Console.WriteLine("---------------------------------------");
-        Console.WriteLine("Great! Configuration successfully made.");
-        Console.WriteLine("---------------------------------------\n");
-        Console.WriteLine("Press any key to return to the list of configurations!");
-        Console.ReadKey();
+        var startingGridYPosition = GetValidatedInt(
+            prompt: "Enter starting grid Y position:",
+            validationRule: y => GameConfigurationValidator.ValidateStartingGridYPosition(y, boardHeight, gridHeight)
+        );
 
         return new GameConfiguration(
-            Name: name,
-            Mode: gameMode,
-            WinCondition: winCondition,
-            BoardWidth: boardWidth,
-            BoardHeight: boardHeight,
-            GridWidth: gridWidth,
-            GridHeight: gridHeight,
-            UnlockSpecialMovesAfterNMoves: moveGridAfterNMoves,
-            NumberOfMarkers: numberOfMarkers,
-            StartingGridXPosition: startX,
-            StartingGridYPosition: startY,
-            StartingPlayer: startingPlayer
+            name,
+            gameMode,
+            startingPlayer,
+            winCondition,
+            boardWidth,
+            boardHeight,
+            gridWidth,
+            gridHeight,
+            unlockSpecialMovesAfterNMoves,
+            numberOfMarkers,
+            startingGridXPosition,
+            startingGridYPosition
         );
     }
 
     private Game CreateNewGame(GameConfiguration gameConfiguration)
     {
-        Console.WriteLine("----------------------");
-        Console.WriteLine("Let's make a new game!");
-        Console.WriteLine("----------------------\n");
-
-        var name = GetValidatedName(
-            prompt: "Enter a name for the game:",
-            existingNames: gameRepository.GetSavedGamesNamesAsync().Result.ToList(),
+        var gameName = GetValidatedName(
+            prompt: "Enter a name for your game:",
+            existingNames: gameRepository.GetSavedGamesNamesAsync().Result,
             validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
         );
 
-        string? passwordP1;
-        string? passwordP2;
+        var passwordP1 = string.Empty;
+        var passwordP2 = string.Empty;
         switch (gameConfiguration.Mode)
         {
-            case EGameMode.OnlineTwoPlayer:
-                passwordP1 = GetValidatedString(
-                    prompt: "Enter a password for player 1:",
-                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
-                );
-
-                passwordP2 = GetValidatedString(
-                    prompt: "Enter a password for player 2:",
-                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
-                );
-                break;
             case EGameMode.SinglePlayer:
                 passwordP1 = GetValidatedString(
-                    prompt: "Enter a password for player 1:",
+                    prompt: "Enter a password to access this game:",
                     validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
                 );
-                passwordP2 = null;
                 break;
-            default:
-                passwordP1 = null;
-                passwordP2 = null;
+            case EGameMode.OnlineTwoPlayer:
+                passwordP1 = GetValidatedString(
+                    prompt: "Enter a password for Player 1:",
+                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                );
+                passwordP2 = GetValidatedString(
+                    prompt: "Enter a password for Player 2:",
+                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                );
                 break;
         }
 
-        Console.WriteLine("-----------------------");
-        Console.WriteLine("Game successfully setup!");
-        Console.WriteLine("-----------------------\n");
-        Console.WriteLine("Press any key to save it and start playing!");
-        Console.ReadKey();
-
         var gameState = new GameState(gameConfiguration);
+        return new Game(
+            Name: gameName, 
+            Configuration: gameConfiguration, 
+            State: gameState, 
+            PasswordP1: passwordP1, 
+            PasswordP2: passwordP2
+        );
+    }
 
-        return new Game(name, gameConfiguration, gameState, passwordP1, passwordP2);
+    private bool ConfirmExit(string confirmationMessage)
+    {
+        Console.WriteLine(confirmationMessage);
+        return Console.ReadKey().Key.ToString().ToUpper() == Constants.ConfirmSymbol;
     }
 }
