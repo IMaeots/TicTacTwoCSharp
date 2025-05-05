@@ -14,32 +14,33 @@ public static class GameBot
             game.PlaceMarker(markerPlacement.x, markerPlacement.y);
         }
         else if (game.CanPerformSpecialMoves())
+        {
+            var gridMove = GetBotGridMove(game);
+            var markerMove = GetBotMarkerMove(game);
+            
             if (Random.NextDouble() > 0.5)
             {
-                var gridMove = GetBotGridMove(game);
                 if (gridMove != (-1, -1))
                 {
                     game.MoveGrid(gridMove.x, gridMove.y);
                 }
-                else
+                else if (markerMove != (-1, -1, -1, -1))
                 {
-                    var markerMove = GetBotMarkerMove(game);
                     game.MoveMarker(markerMove.oldX, markerMove.oldY, markerMove.newX, markerMove.newY);
                 }
             }
             else
             {
-                var markerMove = GetBotMarkerMove(game);
                 if (markerMove != (-1, -1, -1, -1))
                 {
                     game.MoveMarker(markerMove.oldX, markerMove.oldY, markerMove.newX, markerMove.newY);
                 }
-                else
+                else if (gridMove != (-1, -1))
                 {
-                    var gridMove = GetBotGridMove(game);
                     game.MoveGrid(gridMove.x, gridMove.y);
                 }
             }
+        }
     }
 
     private static (int x, int y) GetBotMarkerPlace(Game game)
@@ -48,7 +49,7 @@ public static class GameBot
         if (winningMove != (-1, -1)) return winningMove;
 
         var blockingMove = FindBlockingMove(game);
-        return FindBlockingMove(game) != (-1, -1) ? blockingMove : ChooseStrategicMove(game);
+        return blockingMove != (-1, -1) ? blockingMove : ChooseStrategicMove(game);
     }
 
     private static (int x, int y) FindWinningMove(Game game)
@@ -98,12 +99,17 @@ public static class GameBot
 
         foreach (var (x, y) in strategicPositions)
         {
-            if (game.State.GameBoard[x][y] == EGamePiece.Empty) return (x, y);
+            if (x >= game.State.GridX && x < game.State.GridX + game.Configuration.GridWidth &&
+                y >= game.State.GridY && y < game.State.GridY + game.Configuration.GridHeight &&
+                game.State.GameBoard[x][y] == EGamePiece.Empty)
+            {
+                return (x, y);
+            }
         }
 
-        for (var x = 0; x < game.Configuration.BoardWidth; x++)
+        for (var x = game.State.GridX; x < game.State.GridX + game.Configuration.GridWidth; x++)
         {
-            for (var y = 0; y < game.Configuration.BoardHeight; y++)
+            for (var y = game.State.GridY; y < game.State.GridY + game.Configuration.GridHeight; y++)
             {
                 if (game.State.GameBoard[x][y] == EGamePiece.Empty) return (x, y);
             }
@@ -140,6 +146,9 @@ public static class GameBot
     private static (int oldX, int oldY, int newX, int newY) GetBotMarkerMove(Game game)
     {
         var markerToMove = FindMarkerToMove(game);
+        
+        if (markerToMove == (-1, -1)) return (-1, -1, -1, -1);
+        
         var winningMove = FindWinningMove(game);
         if (winningMove != (-1, -1))
         {
@@ -152,11 +161,12 @@ public static class GameBot
             return (markerToMove.x, markerToMove.y, blockingMove.x, blockingMove.y);
         }
 
-        for (var x = 0; x <= game.State.GameBoard.Length - 1; x++)
+        for (var x = game.State.GridX; x < game.State.GridX + game.Configuration.GridWidth; x++)
         {
-            for (var y = 0; y < game.State.GameBoard[0].Length - 1; y++)
+            for (var y = game.State.GridY; y < game.State.GridY + game.Configuration.GridHeight; y++)
             {
-                if (game.State.GameBoard[x][y] == EGamePiece.Empty) return (markerToMove.x, markerToMove.y, x, y);
+                if (game.State.GameBoard[x][y] == EGamePiece.Empty) 
+                    return (markerToMove.x, markerToMove.y, x, y);
             }
         }
 

@@ -32,8 +32,8 @@ public record GameConfiguration(
     [
         new (Name: "Classical", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player1,
             WinCondition: 3,
-            BoardWidth: 5, BoardHeight: 5, GridWidth: 3, GridHeight: 3, UnlockSpecialMovesAfterNMoves: 2,
-            NumberOfMarkers: 4, StartingGridXPosition: 1, StartingGridYPosition: 1),
+            BoardWidth: 5, BoardHeight: 5, GridWidth: 3, GridHeight: 3, UnlockSpecialMovesAfterNMoves: 3,
+            NumberOfMarkers: 6, StartingGridXPosition: 1, StartingGridYPosition: 1),
 
         new (Name: "BigBoard", Mode: EGameMode.LocalTwoPlayer, StartingPlayer: EGamePiece.Player2,
             WinCondition: 4,
