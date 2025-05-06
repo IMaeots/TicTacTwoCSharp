@@ -94,6 +94,11 @@ See individual README files in each project folder for specific setup instructio
 - **GameLogic**: Holds UI game models and encapsulates their respective game logic & manipulation.
 - **WebApp**: Contains all components necessary for the web application, including views & models.
 
+## Screenshots
+
+![Console game screenshot](images/screenshot-console.jpg)
+![Web game screenshot](images/screenshot-web.jpg)
+
 ## 📝 License
 
 All Rights Reserved
