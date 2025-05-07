@@ -93,18 +93,25 @@ public class GameController
             var key = Console.ReadKey(true);
             if (key.Key == ConsoleKey.L) return true;
 
-            var refreshedGame = _getRefreshedGame();
-            if (_game.State.NextMoveBy == refreshedGame.State.NextMoveBy)
+            try
             {
-                Console.WriteLine("They have not made a move. Try again.");
+                var refreshedGame = _getRefreshedGame();
+                if (_game.State.NextMoveBy == refreshedGame.State.NextMoveBy)
+                {
+                    Console.WriteLine("They have not made a move. Try again.");
+                }
+                else
+                {
+                    Console.WriteLine("Opponent has made a move! Updating game state...");
+                    _currentX = refreshedGame.State.GridX;
+                    _currentY = refreshedGame.State.GridY;
+                    _game = refreshedGame;
+                    break;
+                }
             }
-            else
+            catch
             {
-                Console.WriteLine("Opponent has made a move! Updating game state...");
-                _currentX = refreshedGame.State.GridX;
-                _currentY = refreshedGame.State.GridY;
-                _game = refreshedGame;
-                break;
+                return true;
             }
         }
 
@@ -403,7 +410,16 @@ public class GameController
         Console.WriteLine("Game over! Press any key to delete the game and return to the main menu.");
         Console.ReadKey();
         
-        _deleteGame(_game); 
+        try
+        {
+            _deleteGame(_game);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"\nError deleting game: {ex.Message}");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
     }
     
     private bool ConfirmExit(string confirmationMessage)

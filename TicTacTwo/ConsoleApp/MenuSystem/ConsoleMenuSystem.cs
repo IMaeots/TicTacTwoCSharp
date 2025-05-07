@@ -306,10 +306,14 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
                     prompt: "Enter a password for Player 1:",
                     validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
                 );
-                passwordP2 = GetValidatedString(
-                    prompt: "Enter a password for Player 2:",
-                    validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
-                );
+                while (string.IsNullOrEmpty(passwordP2) || passwordP1 == passwordP2)
+                {
+                    passwordP2 = GetValidatedString(
+                        prompt: "Enter a password for Player 2:",
+                        validationRule: GameConfigurationValidator.ValidateInputAsAlphanumeric
+                    );
+                    if (passwordP1 == passwordP2) Console.WriteLine("Passwords can not match.");
+                }
                 break;
         }
 

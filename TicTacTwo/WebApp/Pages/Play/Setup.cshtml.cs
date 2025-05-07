@@ -4,6 +4,7 @@ using GameLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Pages.Play
 {
@@ -40,20 +41,19 @@ namespace WebApp.Pages.Play
                 return Page();
             }
 
-            if (gameRepository.GetSavedGamesNamesAsync().Result.Contains(GameName))
-            {
-                ModelState.AddModelError(string.Empty, "Game with that name already exists");
-                return Page();
-            }
-
             GameConfiguration selectedConfiguration;
             try
             {
                 selectedConfiguration = await configRepository.GetConfigurationByNameAsync(ConfigurationName);
             }
-            catch
+            catch (KeyNotFoundException)
             {
-                ModelState.AddModelError(string.Empty, "Invalid game configuration.");
+                ModelState.AddModelError(string.Empty, "Selected game configuration no longer exists.");
+                return Page();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to load game configuration. Please try again.");
                 return Page();
             }
 
@@ -87,19 +87,44 @@ namespace WebApp.Pages.Play
                     ModelState.AddModelError(string.Empty, errorMessage);
                     return Page();
                 }
+
+                if (PasswordP1 == PasswordP2)
+                {
+                    ModelState.AddModelError(string.Empty, "Passwords can not match.");
+                    return Page();
+                }
             }
 
             var gameState = new GameState(selectedConfiguration);
-
             var newGame = new Game(GameName, selectedConfiguration, gameState, PasswordP1, PasswordP2);
-            await gameRepository.SaveNewGameAsync(newGame);
-
-            return RedirectToPage("/Play/Index", new { gameName = GameName });
+            try
+            {
+                await gameRepository.SaveNewGameAsync(newGame);
+                return RedirectToPage("/Play/Index", new { gameName = GameName });
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty, "Game with that name already exists");
+                return Page();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to create game. Please try again.");
+                return Page();
+            }
         }
 
         private async Task LoadConfigurationNamesAsync()
         {
-            ConfigurationNames = new SelectList(await configRepository.GetConfigurationNamesAsync());
+            try
+            {
+                var configNames = await configRepository.GetConfigurationNamesAsync();
+                ConfigurationNames = new SelectList(configNames);
+            }
+            catch (Exception)
+            {
+                ConfigurationNames = new SelectList(Array.Empty<string>());
+            }
         }
     }
 }

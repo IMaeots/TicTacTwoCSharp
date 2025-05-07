@@ -1,5 +1,4 @@
 using Data.Repositories;
-using GameLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -17,8 +16,16 @@ public class DeleteModel(IGameRepository gameRepository) : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var game = await gameRepository.GetSavedGameByNameAsync(GameName);
-        await gameRepository.DeleteGameAsync(game);
-        return RedirectToPage("./Index");
+        try
+        {
+            var game = await gameRepository.GetSavedGameByNameAsync(GameName);
+            await gameRepository.DeleteGameAsync(game);
+            return RedirectToPage("./Index");
+        }
+        catch (Exception)
+        {
+            await Console.Error.WriteLineAsync($"Game {GameName} missing. Unable to delete the game.");
+            return RedirectToPage("./Index");
+        }
     }
 }
