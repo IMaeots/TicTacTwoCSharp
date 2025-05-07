@@ -7,26 +7,27 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Directory.CreateDirectory(Constants.DatabaseDirectory);
-Directory.CreateDirectory(Constants.GamesPath);
-Directory.CreateDirectory(Constants.ConfigurationsPath);
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                       throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-connectionString = connectionString.Replace("<%location%>", Constants.DatabaseDirectory);
-
-builder.Services.AddDbContext<GameDbContext>(options => options.UseSqlite(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 
-var useDatabase = builder.Configuration.GetValue<bool>("UseDatabase", true);
+var useDatabase = builder.Configuration.GetValue("UseDatabase", true);
 if (useDatabase)
 {
+    Directory.CreateDirectory(Constants.DatabaseDirectory);
+    
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                           throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    connectionString = connectionString.Replace("<%location%>", Constants.DatabaseDirectory);
+
+    builder.Services.AddDbContext<GameDbContext>(options => options.UseSqlite(connectionString));
+    
     builder.Services.AddScoped<IGameRepository, GameRepositoryDb>();
     builder.Services.AddScoped<IConfigRepository, ConfigRepositoryDb>();
 }
 else
 {
+    Directory.CreateDirectory(Constants.GamesPath);
+    Directory.CreateDirectory(Constants.ConfigurationsPath);
+    
     builder.Services.AddScoped<IGameRepository, GameRepositoryJson>();
     builder.Services.AddScoped<IConfigRepository, ConfigRepositoryJson>();
 }
