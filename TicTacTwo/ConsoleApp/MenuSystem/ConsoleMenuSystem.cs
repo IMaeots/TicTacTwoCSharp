@@ -130,7 +130,7 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         var gameController = new GameController(
             newGame,
             playerType.Value,
-            () => gameRepository.GetSavedGameByNameAsync(newGame.Name).Result,
+            () => gameRepository.GetSavedGameByNameAsync(newGame.Name).GetAwaiter().GetResult(),
             game => gameRepository.SaveGameStateAsync(game).Wait(),
             game => gameRepository.DeleteGameAsync(game).Wait()
         );

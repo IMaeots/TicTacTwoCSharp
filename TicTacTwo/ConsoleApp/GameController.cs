@@ -4,21 +4,6 @@ using GameLogic;
 
 namespace ConsoleApp;
 
-public static class GameStateExtensions
-{
-    public static void CopyFrom(this Game targetGame, Game sourceGame)
-    {
-        targetGame.State.GameBoard = sourceGame.State.GameBoard;
-        targetGame.State.NextMoveBy = sourceGame.State.NextMoveBy;
-        targetGame.State.GameOutcome = sourceGame.State.GameOutcome;
-        targetGame.State.Player1MarkersPlaced = sourceGame.State.Player1MarkersPlaced;
-        targetGame.State.Player2MarkersPlaced = sourceGame.State.Player2MarkersPlaced;
-        targetGame.State.GridX = sourceGame.State.GridX;
-        targetGame.State.GridY = sourceGame.State.GridY;
-        targetGame.State.MoveCount = sourceGame.State.MoveCount;
-    }
-}
-
 public class GameController
 {
     private const string ConfirmExitText = "Are you sure you want to close the game? (Y/N)";
@@ -27,7 +12,7 @@ public class GameController
     private int _currentX;
     private int _currentY;
     private EGameAction _action;
-    private readonly Game _game;
+    private Game _game;
     private readonly EGamePiece _userPlayerType;
     private readonly Func<Game> _getRefreshedGame;
     private readonly Action<Game> _saveGameState;
@@ -69,6 +54,7 @@ public class GameController
             else
             {
                 if (HandleOpponentTurn()) return Constants.LeaveGameShortcut;
+                continue;
             }
 
             _game.UpdateGameOutcome();
@@ -97,15 +83,30 @@ public class GameController
         return !ExecuteUserAction();
     }
 
+    // Assumption: no more than 2 players trying to play together.
     private bool HandleOpponentTurn()
     {
-        Console.WriteLine("It is the oppositions turn. ");
+        Console.WriteLine("It is the opponents turn. ");
         Console.WriteLine("Press [L] to leave the game or any other key to refresh and see if the opponent has made a move.");
-        var key = Console.ReadKey();
-        if (key.Key == ConsoleKey.L) return true;
-        
-        var refreshedGame = _getRefreshedGame();
-        _game.CopyFrom(refreshedGame);
+        while (_game.State.NextMoveBy != _userPlayerType)
+        {
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.L) return true;
+
+            var refreshedGame = _getRefreshedGame();
+            if (_game.State.NextMoveBy == refreshedGame.State.NextMoveBy)
+            {
+                Console.WriteLine("They have not made a move. Try again.");
+            }
+            else
+            {
+                Console.WriteLine("Opponent has made a move! Updating game state...");
+                _currentX = refreshedGame.State.GridX;
+                _currentY = refreshedGame.State.GridY;
+                _game = refreshedGame;
+                break;
+            }
+        }
 
         return false;
     }

@@ -33,11 +33,19 @@ else
     
     <div class="text-center mb-4">
         <div class="d-flex justify-content-center gap-4 mb-2">
-            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player1 ? "border-primary bg-light" : "border-secondary")">
+            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player1 ? "border-primary border-3" : "border-secondary")">
                 <strong>Player X</strong>: @Model.Game.State.Player1MarkersPlaced/@Model.Game.Configuration.NumberOfMarkers
+                @if (Model.UserPlayerType == EGamePiece.Player1)
+                {
+                    <span class="badge bg-info ms-2">You</span>
+                }
             </div>
-            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player2 ? "border-primary bg-light" : "border-secondary")">
+            <div class="border px-3 py-2 rounded @(Model.Game.State.NextMoveBy == EGamePiece.Player2 ? "border-primary border-3" : "border-secondary")">
                 <strong>Player O</strong>: @Model.Game.State.Player2MarkersPlaced/@Model.Game.Configuration.NumberOfMarkers
+                @if (Model.UserPlayerType == EGamePiece.Player2)
+                {
+                    <span class="badge bg-info ms-2">You</span>
+                }
             </div>
         </div>
 
@@ -51,9 +59,16 @@ else
             }
             else if (Model.Game.Configuration.Mode == EGameMode.OnlineTwoPlayer && !Model.Game.IsUsersTurn(Model.UserPlayerType))
             {
-                <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh Game
-                </button>
+                <div class="alert alert-info d-inline-block">
+                    <i class="bi bi-info-circle"></i> Waiting for opponent's move...
+                    <form method="get" class="d-inline">
+                        <input type="hidden" asp-for="GameName" />
+                        <input type="hidden" asp-for="Password" />
+                        <button type="submit" class="btn btn-outline-primary btn-sm ms-2">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </form>
+                </div>
             }
         </div>
     </div>

@@ -27,6 +27,7 @@ public class GameRepositoryDb(GameDbContext dbContext) : IGameRepository
         try
         {
             var savedGame = await dbContext.SavedGames
+                                .AsNoTracking()
                                 .Include(saveGame => saveGame.Configuration)
                                 .FirstOrDefaultAsync(game => game.Name == gameName)
                             ?? throw new KeyNotFoundException($"Game {gameName} not found.");
