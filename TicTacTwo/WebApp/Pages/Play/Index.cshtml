@@ -123,14 +123,14 @@ else
             {
                 @for (var x = 0; x < Model.Game.Configuration.BoardWidth; x++)
                 {
-                    bool isInActiveGrid = x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth &&
+                    var isInActiveGrid = x >= Model.Game.State.GridX && x < Model.Game.State.GridX + Model.Game.Configuration.GridWidth &&
                                          y >= Model.Game.State.GridY && y < Model.Game.State.GridY + Model.Game.Configuration.GridHeight;
                     
-                    bool isSelectedMarker = !string.IsNullOrEmpty(Model.SelectedMarker) && 
+                    var isSelectedMarker = !string.IsNullOrEmpty(Model.SelectedMarker) && 
                                            x == Model.ParseMove(Model.SelectedMarker).x && 
                                            y == Model.ParseMove(Model.SelectedMarker).y;
                     
-                    string cellClass = isSelectedMarker 
+                    var cellClass = isSelectedMarker 
                         ? "border border-warning border-3 bg-warning bg-opacity-25" 
                         : (isInActiveGrid 
                             ? "border border-primary border-2 bg-light" 
@@ -143,7 +143,7 @@ else
                                 type="submit"
                                 name="move"
                                 value="@($"{x},{y}")"
-                                @if (!Model.Game.IsUsersTurn(Model.UserPlayerType) || (!isInActiveGrid && string.IsNullOrEmpty(Model.SelectedMarker)))
+                                @if (!Model.Game.IsUsersTurn(Model.UserPlayerType) || !isInActiveGrid)
                                 {
                                     <text>disabled</text>
                                 }>

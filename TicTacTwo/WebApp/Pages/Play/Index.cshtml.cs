@@ -72,6 +72,11 @@ namespace WebApp.Pages.Play
             switch (Action)
             {
                 case EGameAction.PlaceMarker:
+                    if (!Game.CanPlaceMarker())
+                    {
+                        ModelState.AddModelError(string.Empty, "You have placed all your markers.");
+                        return Page();
+                    }
                     if (!Game.PlaceMarker(x, y))
                     {
                         ModelState.AddModelError(string.Empty, "Invalid move. Cell is already occupied.");
