@@ -65,14 +65,14 @@ public static class GameExtension
 
     public static bool MoveGrid(this Game game, int newGridX, int newGridY)
     {
-        var isOneUnitAway = Math.Abs(newGridX - game.State.GridX) <= 1 && Math.Abs(newGridY - game.State.GridY) <= 1 &&
-                            !(newGridX == game.State.GridX && newGridY == game.State.GridY);
+        var dx = Math.Abs(newGridX - game.State.GridX);
+        var dy = Math.Abs(newGridY - game.State.GridY);
+        var isCardinalMove = (dx == 1 && dy == 0) || (dx == 0 && dy == 1);
 
-        if (!isOneUnitAway || newGridX < 0 || newGridX + game.Configuration.GridWidth > game.Configuration.BoardWidth
-            || newGridY < 0 || newGridY + game.Configuration.GridHeight > game.Configuration.BoardHeight)
-        {
-            return false;
-        }
+        var isWithinBounds = newGridX >= 0 && newGridX + game.Configuration.GridWidth <= game.Configuration.BoardWidth &&
+                             newGridY >= 0 && newGridY + game.Configuration.GridHeight <= game.Configuration.BoardHeight;
+
+        if (!isCardinalMove || !isWithinBounds) return false;
 
         game.State.GridX = newGridX;
         game.State.GridY = newGridY;

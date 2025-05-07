@@ -330,17 +330,15 @@ public class GameController
         var gridX = _game.State.GridX;
         var gridY = _game.State.GridY;
 
-        Console.WriteLine("Use arrow keys (↑↓←→) to move grid");
-        
-        var isDone = false;
-        
-        while (!isDone)
+        Console.WriteLine("Use arrow keys (↑↓←→) to move grid, or ESC to cancel");
+
+        while (true)
         {
             var key = Console.ReadKey(true).Key;
-            
+
             var prevX = gridX;
             var prevY = gridY;
-            
+
             switch (key)
             {
                 case ConsoleKey.UpArrow:
@@ -355,48 +353,30 @@ public class GameController
                 case ConsoleKey.RightArrow:
                     gridX = Math.Min(_game.Configuration.BoardWidth - _game.Configuration.GridWidth, gridX + 1);
                     break;
-                case ConsoleKey.Enter:
-                    if (gridX == _game.State.GridX && gridY == _game.State.GridY)
-                    {
-                        Console.WriteLine("Move grid first");
-                        Console.ReadKey();
-                    }
-                    else if (_game.MoveGrid(gridX, gridY))
-                    {
-                        isDone = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid grid move");
-                        Console.ReadKey();
-                    }
-                    break;
                 case ConsoleKey.Escape:
-                    isDone = true;
-                    break;
+                    Console.WriteLine("Grid move canceled.");
+                    return;
+                default:
+                    continue;
             }
             
-            if (gridX != prevX || gridY != prevY)
+            if (gridX != _game.State.GridX || gridY != _game.State.GridY)
             {
-                Console.Clear();
+                if (_game.MoveGrid(gridX, gridY))
+                {
+                    Console.Clear();
+                    DrawBoard();
+                    _currentX = _game.State.GridX;
+                    _currentY = _game.State.GridY;
+                    return;
+                }
                 
-                var actualGridX = _game.State.GridX;
-                var actualGridY = _game.State.GridY;
                 
-                _game.State.GridX = gridX;
-                _game.State.GridY = gridY;
-                
-                DrawBoard();
-                
-                _game.State.GridX = actualGridX;
-                _game.State.GridY = actualGridY;
-                
-                Console.WriteLine("Press Enter to confirm or ESC to cancel");
+                Console.WriteLine("Invalid grid move");
+                Console.ReadKey(true);
+                return;
             }
         }
-        
-        _currentX = _game.State.GridX;
-        _currentY = _game.State.GridY;
     }
 
     private void HandleGameEnd()
