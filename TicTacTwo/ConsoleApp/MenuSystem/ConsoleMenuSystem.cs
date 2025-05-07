@@ -68,7 +68,7 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
             new(
                 title: MenuConfigCreationTitle,
                 shortcut: MenuConfigCreationShortcut,
-                action: CreateNewConfigAndSaveIt
+                action: () => CreateNewConfigAndSaveIt().GetAwaiter().GetResult()
             )
         };
 
@@ -86,10 +86,10 @@ public class ConsoleMenuSystem(IConfigRepository configRepository, IGameReposito
         return CreateMenu(EMenuLevel.Secondary, MenuChooseConfigHeading, null, gameConfigurations);
     }
 
-    private string? CreateNewConfigAndSaveIt()
+    private async Task<string?> CreateNewConfigAndSaveIt()
     {
         var newConfig = CreateNewConfig();
-        configRepository.SaveConfigAsync(newConfig);
+        await configRepository.SaveConfigAsync(newConfig);
         return CreateNewGameMenu().Run();
     }
 

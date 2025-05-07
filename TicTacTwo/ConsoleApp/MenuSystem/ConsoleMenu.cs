@@ -69,9 +69,17 @@ public class ConsoleMenu
 
     private string ExecuteMenuAction(MenuItem menuItem)
     {
-        return menuItem.MenuItemAction != null 
-            ? menuItem.RunAction() ?? Constants.ReturnToMainShortcut 
-            : menuItem.Shortcut;
+        if (menuItem.MenuItemAction != null)
+        {
+            return menuItem.MenuItemAction() ?? Constants.ReturnToMainShortcut;
+        }
+        
+        if (menuItem.AsyncMenuItemAction != null)
+        {
+            return menuItem.AsyncMenuItemAction().GetAwaiter().GetResult() ?? Constants.ReturnToMainShortcut;
+        }
+        
+        return menuItem.Shortcut;
     }
 
     private MenuItem GetUserMenuSelection()
